@@ -1,0 +1,174 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #4a3c31;
+    height: 100%;
+    background: url('../images/bg3.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    min-height: 95vh;
+}
+
+header {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    z-index: 1000; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+header .logo {
+    font-size: 20px;
+    margin-left: 10px;
+    font-weight: 900;
+    color: #977644;
+    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+}
+
+header .nav-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+}
+
+header nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #000000;
+    font-weight: 800;
+    font-size: small;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+
+header nav a.current {
+    color: #E1BE42;
+    text-decoration: underline;
+    text-decoration-color: #D20202;
+    text-decoration-thickness: 2px;
+}
+
+header nav a:hover {
+    color: #E1BE42;
+    text-decoration: underline;
+    text-decoration-color: #D20202;
+    text-decoration-thickness: 2px;
+}
+
+header .account-info {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+header .account-info .user-name {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #4a3c31;
+    font-size: 17px;
+    text-align: right;
+}
+
+header .account-info img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin-top: 20px; 
+}
+
+.account-info {
+    position: relative;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown img {
+    cursor: pointer;
+}
+
+@media (min-width: 650px) {
+    header {
+        padding: 8px 20px;
+    }
+}
+
+@media (max-width: 649px) {
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 7px;
+    }
+
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+}

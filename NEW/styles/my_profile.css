@@ -1,0 +1,467 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #4a3c31;
+    height: 100%;
+    background: url('../images/bg3.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    min-height: 95vh;
+}
+
+body.modal-open, body.loading-open {
+    overflow: hidden;
+}
+
+
+header {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    pointer-events: auto;
+}
+
+header .logo {
+    font-size: 20px;
+    margin-left: 10px;
+    font-weight: 900;
+    color: #977644;
+    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+}
+
+header .nav-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+}
+
+header nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #000000;
+    font-weight: 800;
+    font-size: small;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+
+header nav a.current {
+    color: #E1BE42;
+    text-decoration: underline;
+    text-decoration-color: #D20202;
+    text-decoration-thickness: 2px;
+}
+
+header nav a:hover {
+    color: #E1BE42;
+    text-decoration: underline;
+    text-decoration-color: #D20202;
+    text-decoration-thickness: 2px;
+}
+
+header .account-info {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+header .account-info .user-name {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #4a3c31;
+    font-size: 17px;
+    text-align: right;
+}
+
+header .account-info img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.account-info {
+    position: relative;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    padding: 10px;
+    border-radius: 5px;
+    min-width: 150px;
+}
+
+.dropdown-content a {
+    color: #4a3c31;
+    padding: 10px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 20px 20px;
+}
+
+.profile-container {
+    max-width: 1100px;
+    width: 100%;
+    height: 85vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    box-sizing: border-box;
+    margin: 0 10px;
+    position: relative;
+}
+
+h1 {
+    margin-top: 10px;
+    font-size: 1.5em;
+    text-align: start;
+    margin-left: 30px;
+    text-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    margin-top: -5px;
+    margin-left: -10px;
+    font-size: 1.5em;
+}
+
+.divider {
+    height: 1px;
+    width: 93%;
+    background-color: #B5AEAE;
+    margin: 10px 30px;
+    text-align: center;
+}
+
+.divider1 {
+    width: 1px;
+    height: 460px; 
+    background-color: #B5AEAE; 
+    margin: 0 15px auto 50px;
+}
+
+.profile-details, .delivery-section {
+    /* flex: 1; */
+    margin: 10px;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px; 
+}
+
+.delivery-section {
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+}
+
+form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+.form-group-wrapper .form-group {
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 30px 12px 20px;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    box-sizing: border-box;
+}
+
+.non-editable {
+    background-color: #f0f0f0; 
+    color: #666; 
+    border: 1px solid #ccc; 
+    font-weight: bold; 
+}
+
+.button-container {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.save-button {
+    display: block;
+    width: 25%;
+    padding: 12px 10px;
+    background-color: #9E896A;
+    color: white;
+    border-radius: 25px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+    background-color: #6D5839;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #443225;
+    border-radius: 15px;
+    max-width: 250px;
+    min-width: 200px;
+    position: relative;
+    text-align: center;
+}
+  
+.close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    cursor: pointer;
+    color: red;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4a3c31;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #3a2e27;
+}
+
+.loading-screen {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.loading-screen .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+.loading-screen p {
+    margin-top: 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+@media (max-width: 500px) {
+    .success-content {
+        margin: 60% auto;
+        max-width: 260px;
+        padding: 15px;
+    }
+
+    .success-content p {
+        font-size: 14px;
+    }
+
+    .success-content button {
+        padding: 8px 20px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 649px) {
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 7px;
+    }
+    .contact-info {
+        flex-direction: column;
+        align-items: start;
+        margin-left: 50px;
+    }
+    footer {
+        margin: 20px auto;
+        padding: 15px 15px;
+        text-align: center;
+    }
+    .divider {
+        width: 280px;
+        height: 1px;
+        margin: 10px 0;
+    }
+        
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+    
+    .profile-container {
+        height: auto;
+        padding: 10px;
+    }
+    
+    h1 {
+        text-align: center;
+        margin: 20px 10px;
+    }
+
+    h2 {
+        margin-top: 10px;
+        font-size: large;
+        text-align: center;
+    }    
+
+    form {
+        flex-direction: column;
+        font-size: smaller;
+        margin-bottom: 65px;
+    }
+
+    .form-group-wrapper {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-group input {
+        padding: 10px;
+        font-size: smaller;
+    }
+    
+    .divider, .divider1 {
+        display: none;
+    }
+
+    .save-button {
+        width: 50%;
+    }
+
+    .delivery-section {
+        width: 85%;
+        margin-bottom: 20px;
+    }
+
+    .profile-section {
+        width: 85%;
+    }
+
+}
