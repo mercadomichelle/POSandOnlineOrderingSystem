@@ -37,17 +37,17 @@ $stmt->close();
 $mysqli->close();
 ?>
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website</title>
-    <link rel="stylesheet" href="../../styles/admin.css">
+    <link rel="stylesheet" href="../../styles/reports.css">
 </head>
-
 <body>
-    <header>
+<header>
         <div class="logo">RICE</div>
         <div class="account-info">
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
@@ -63,27 +63,26 @@ $mysqli->close();
     <div class="sidebar">
         <nav>
             <ul>
-                <li><a href="../admin/admin.php" class="current"><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
-                <li><a href="../admin/products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
-                <li><a href="../admin/stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
-                <li><a href="../admin/staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
+                <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
+                <li><a href="../products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
+                <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
+                <li><a href="../staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
             </ul>
         </nav>
         <ul class="reports">
-            <li><a href="../admin/reports/reports.php"><img src="../../images/reports-icon.png" alt="Reports">REPORTS</a></li>
+            <li><a href="../reports/reports.php" class="current"><img src="../../images/reports-icon.png" alt="Reports">REPORTS</a></li>
         </ul>
     </div>
 
-    <main>
-        <div class="dashboard">
-            <!-- Content for the dashboard will go here -->
-            <div class="card">
-                <h3>Welcome to the Admin Dashboard</h3>
-                <p>Select an option from the sidebar to get started.</p>
-            </div>
+<main>
+    <div class="dashboard">
+        <!-- Content for the dashboard will go here -->
+        <div class="card">
+            <h3>REPORTS</h3>
+            <p>Select an option from the sidebar to get started.</p>
         </div>
-    </main>
+    </div>
+</main>
 
 </body>
-
 </html>
