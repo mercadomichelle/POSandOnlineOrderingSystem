@@ -53,7 +53,6 @@ $stmt->close();
 $mysqli->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -79,17 +78,13 @@ $mysqli->close();
     <div class="sidebar">
         <nav>
             <ul>
-                <li><a href="../admin.php"><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
+                <li><a href="../staff.php" ><img src="../../images/create-icon.png" alt="Create">CREATE NEW ORDER</a></li>
                 <li><a class="current"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
-                <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
-                <li><a href="../staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
+                <li><a href="../stocks/staff_stocks.php" ><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
+                <li><a href="../online_orders/online_order.php"><img src="../../images/online-icon.png" alt="Online">ONLINE ORDER</a></li>
             </ul>
         </nav>
-            <ul class="reports">
-                <li><a href="../reports/reports.php"><img src="../../images/reports-icon.png" alt="Reports">REPORTS</a></li>
-            </ul>    
     </div>
-
 
     <main>
     <div class="products">
@@ -321,10 +316,9 @@ $mysqli->close();
             noProductFound.style.display = anyCardVisible ? 'none' : 'block';
         });
 
-        
         // Handle the wholesale button click
         document.getElementById('wholesaleBtn').onclick = function() {
-            window.location.href = 'products.php';
+            window.location.href = 'staff_products.php';
         };
     });
 </script>

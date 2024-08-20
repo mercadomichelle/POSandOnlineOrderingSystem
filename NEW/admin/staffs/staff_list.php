@@ -111,7 +111,7 @@ $mysqli->close();
                 <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
                 <li><a href="../products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
                 <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
-                <li><a href="../staffs/staff_list.php" class="current"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
+                <li><a class="current"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
             </ul>
         </nav>
         <ul class="reports">

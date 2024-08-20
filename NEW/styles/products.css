@@ -544,10 +544,15 @@ div#addNewProductBtn {
     max-width: 20%;
     height: 15%;
     position: relative;
+    flex-direction: column;
     text-align: center;
     justify-content: center;
     align-items: center;
     display: flex;
+}
+
+.message-modal-content p {
+    margin-top: -10px;
 }
 
 .message-close {
@@ -583,6 +588,10 @@ div#addNewProductBtn {
 
 .confirm-delete-btn {
     margin-right: 10px;
+}
+
+.alert-success {
+    margin-bottom: 10px;
 }
 
 .form-button-container {
@@ -712,29 +721,13 @@ label {
         max-width: 500px;
     }
 
-    footer {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        margin: -110px auto 20px;
-    }
-
-    .contact-info {
-        flex-direction: row;
-        justify-content: space-around;
-    }
-
-    .divider {
-        height: 85px;
-    }
 }
 
 @media (max-width: 649px) {
     main {
         margin: 65px 0 auto 100px;
         padding: 0 10px;
-        width: calc(100% - 20px); /* Ensure main element has padding on both sides */
+        width: calc(100% - 20px);
     }
 
     header .logo {
@@ -768,6 +761,7 @@ label {
         top: 75px;
         left: 10px;
         width: 100px;
+        height: 88%;
     }
 
     .sidebar nav ul li a {
@@ -796,19 +790,6 @@ label {
         margin-right: 2px;
     }
 
-    .card{
-        padding: 10px;
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto 20px auto;
-        box-sizing: border-box;
-    }
-
-    .product-controls {
-        margin-left: 0px;
-        margin-right: 10px;
-    }
-
     .filter-button-current {
         padding: 5px 25px;
         font-size: 12px;
@@ -821,7 +802,14 @@ label {
         width: 25%;
     }
 
+    .filter-button img, .filter-button-current img {
+        width: 25px;
+        height: 25px;
+        margin: -5px 5px;
+    }
+    
     .search-container {
+        display: flex;
         justify-content: flex-start;
     }
 
@@ -830,10 +818,233 @@ label {
         width: 21px;
         height: 21px;
     }
+
     #searchInput {
-        width: 145px;
+        width: 100px;
         padding: 7px 40px 7px 10px;
         font-size: 12px;
         margin-bottom: -2px;
     }
+    
+    .card {
+        padding: 10px;
+        width: 98%;
+        max-width: 98%;
+        height: 84vh;
+        max-height: 84vh;
+        margin: 0px auto auto 0px;
+        /* box-sizing: border-box; */
+    }
+
+    .product-controls {
+        margin-left: 0px;
+        margin-right: 10px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px;
+    }
+
+    .product-card, .product-card.add-new {
+        padding: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 345px;
+    }
+
+    .product-card img {
+        max-height: 150px; 
+    }
+
+    .product-actions {
+        flex-direction: row;
+        margin-bottom: 5px;
+    }
+
+    .product-card p {
+        margin: 10px;
+    }
+
+    .product-actions .edit-button, 
+    .product-actions .delete-button {
+        padding: 5px 10px; 
+        width: 100%; 
+        margin: 0px;
+    }
+
+    .add-new {
+        font-size: 18px; /* Reduce font size */
+        padding: 15px; /* Adjust padding */
+        height: 100px; /* Set a fixed height */
+        max-height: 150px; /* Limit the height */
+    }
+
+    .add-icon {
+        font-size: 55px; /* Adjust icon size */
+        margin-bottom: -5px;
+    }
+
 }
+
+@media (max-width: 375px) {
+    main {
+        margin: 65px 0 auto 100px;
+        padding: 0 10px;
+        width: calc(100% - 20px);
+    }
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 15px;
+    }
+
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info img {
+        margin-right: 10px;
+    }
+
+    header .account-info {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .sidebar {
+        top: 75px;
+        left: 10px;
+        width: 100px;
+        height: 88%;
+        max-height: 87%;
+    }
+
+    .sidebar nav ul li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar nav ul li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .sidebar ul.reports li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar ul.reports li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .filter-button-current {
+        padding: 5px 25px;
+        font-size: 10px;
+        width: 30%;
+    }
+
+    .filter-button {
+        padding: 5px 15px;
+        font-size: 10px;
+        width: 30%;
+    }
+
+    .filter-button img, .filter-button-current img {
+        display: none;
+    }
+    
+    .search-container {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .search-icon {
+        transform: translateY(-50%);
+        width: 21px;
+        height: 21px;
+    }
+
+    #searchInput {
+        width: 60px;
+        padding: 7px 40px 7px 10px;
+        font-size: 12px;
+        margin-bottom: -2px;
+    }
+    
+    .card {
+        padding: 10px;
+        width: 102%;
+        max-width: 102%;
+        height: 108.5vh;
+        max-height: 109vh;
+        margin: 0px auto auto 0px;
+        box-sizing: border-box;
+    }
+
+    .product-controls {
+        margin-left: 0px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 10px;
+    }
+
+    .product-card, .product-card.add-new {
+        padding: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 345px;
+    }
+
+    .product-card img {
+        max-height: 150px; 
+    }
+
+    .product-actions {
+        flex-direction: row;
+        margin-bottom: 5px;
+    }
+
+    .product-card h4 {
+        font-size: medium;
+    }
+
+    .product-card p {
+        margin: small;
+    }
+
+    .product-card h3 {
+        font-size: small;
+    }
+
+    .product-actions .edit-button, 
+    .product-actions .delete-button,
+    .add-stock-button {
+        padding: 5px 10px; 
+        width: 100%; 
+        margin: 0px;
+    }
+
+}
+

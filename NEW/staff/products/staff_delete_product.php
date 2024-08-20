@@ -56,16 +56,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Redirect based on the source page
     if ($source_page === 'retail') {
-        header("Location: products_retail.php");
+        header("Location: staff_retail.php");
     } elseif ($source_page === 'wholesale') {
-        header("Location: products.php");
+        header("Location: staff_products.php");
     } else {
-        header("Location: products.php");
+        header("Location: staff_products.php");
     }
     exit();
 } else {
     // Redirect if accessed without POST method
-    header("Location: products.php");
+    header("Location: staff_products.php");
     exit();
 }
 ?>

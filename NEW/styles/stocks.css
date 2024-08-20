@@ -622,23 +622,7 @@ input[type="number"] {
         right: auto;
         max-width: 500px;
     }
-
-    footer {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        margin: -110px auto 20px;
-    }
-
-    .contact-info {
-        flex-direction: row;
-        justify-content: space-around;
-    }
-
-    .divider {
-        height: 85px;
-    }
+    
 }
 
 @media (max-width: 649px) {
@@ -679,6 +663,8 @@ input[type="number"] {
         top: 75px;
         left: 10px;
         width: 100px;
+        height: 88%;
+        max-height: 87%;
     }
 
     .sidebar nav ul li a {
@@ -707,20 +693,26 @@ input[type="number"] {
         margin-right: 2px;
     }
 
-    .card{
-        padding: 10px;
-        width: 100%;
-        max-width: 100%;
-        margin: 0 auto 20px auto;
-        box-sizing: border-box;
+    .filter-button-current {
+        padding: 5px 25px;
+        font-size: 12px;
+        width: 25%;
     }
 
-    .stock-controls {
-        margin-left: 0px;
-        margin-right: 10px;
+    .filter-button {
+        padding: 5px 25px;
+        font-size: 12px;
+        width: 25%;
     }
 
+    .filter-button img, .filter-button-current img {
+        width: 25px;
+        height: 25px;
+        margin: -5px 5px;
+    }
+    
     .search-container {
+        display: flex;
         justify-content: flex-start;
     }
 
@@ -731,9 +723,221 @@ input[type="number"] {
     }
 
     #searchInput {
-        width: 145px;
+        width: 100px;
         padding: 7px 40px 7px 10px;
         font-size: 12px;
         margin-bottom: -2px;
     }
+    
+    .card {
+        padding: 10px;
+        width: 102%;
+        max-width: 102%;
+        height: 85.5vh;
+        max-height: 86vh;
+        margin: 0px auto auto 0px;
+        box-sizing: border-box;
+    }
+
+    .stock-controls {
+        margin-left: 0px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .stock-grid {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px;
+    }
+
+    .stock-card, .stock-card.add-new {
+        padding: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 345px;
+        font-size: x-small;
+    }
+
+    .stock-card img {
+        max-height: 150px; 
+    }
+
+    .stock-actions {
+        flex-direction: row;
+        margin-bottom: 5px;
+    }
+
+    .stock-actions .edit-button, 
+    .stock-actions .delete-button,
+    .add-stock-button {
+        padding: 5px 10px; 
+        width: 100%; 
+        margin: 0px;
+    }
+
 }
+
+
+@media (max-width: 375px) {
+    main {
+        margin: 65px 0 auto 100px;
+        padding: 0 10px;
+        width: calc(100% - 20px);
+    }
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 15px;
+    }
+
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info img {
+        margin-right: 10px;
+    }
+
+    header .account-info {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .sidebar {
+        top: 75px;
+        left: 10px;
+        width: 100px;
+        height: 88%;
+        max-height: 87%;
+    }
+
+    .sidebar nav ul li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar nav ul li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .sidebar ul.reports li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar ul.reports li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .filter-button-current {
+        padding: 5px 25px;
+        font-size: 12px;
+        width: 25%;
+    }
+
+    .filter-button {
+        padding: 5px 25px;
+        font-size: 12px;
+        width: 25%;
+    }
+
+    .filter-button img, .filter-button-current img {
+        width: 25px;
+        height: 25px;
+        margin: -5px 5px;
+    }
+    
+    .search-container {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .search-icon {
+        transform: translateY(-50%);
+        width: 21px;
+        height: 21px;
+    }
+
+    #searchInput {
+        width: 100px;
+        padding: 7px 40px 7px 10px;
+        font-size: 12px;
+        margin-bottom: -2px;
+    }
+    
+    .card {
+        padding: 10px;
+        width: 102%;
+        max-width: 102%;
+        height: 85.5vh;
+        max-height: 86vh;
+        margin: 0px auto auto 0px;
+        box-sizing: border-box;
+    }
+
+    .stock-controls {
+        margin-left: 0px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .stock-grid {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 10px;
+    }
+
+    .stock-card, .stock-card.add-new {
+        padding: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 345px;
+    }
+
+    .stock-card img {
+        max-height: 150px; 
+    }
+
+    .stock-actions {
+        flex-direction: row;
+        margin-bottom: 5px;
+    }
+
+    .stock-card h4 {
+        font-size: medium;
+    }
+
+    .stock-card p {
+        margin: small;
+    }
+
+    .stock-card h3 {
+        font-size: small;
+    }
+
+    .stock-actions .edit-button, 
+    .stock-actions .delete-button,
+    .add-stock-button {
+        padding: 5px 10px; 
+        width: 100%; 
+        margin: 0px;
+    }
+
+}
+

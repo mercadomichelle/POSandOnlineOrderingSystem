@@ -7,7 +7,7 @@ $db = "system_db";
 session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../../login.php");
+    header("Location: ../login.php");
     exit();
 }
 
@@ -37,14 +37,13 @@ $stmt->close();
 $mysqli->close();
 ?>
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website</title>
-    <link rel="stylesheet" href="../../styles/reports.css">
+    <link rel="stylesheet" href="../styles/staff.css">
 </head>
 <body>
 <header>
@@ -52,9 +51,9 @@ $mysqli->close();
         <div class="account-info">
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
             <div class="dropdown">
-                <img src="../../images/account-icon.png" alt="Account">
+                <img src="../images/account-icon.png" alt="Account">
                 <div class="dropdown-content">
-                    <a href="../../logout.php">Logout</a>
+                    <a href="../logout.php">Logout</a>
                 </div>
             </div>
         </div>
@@ -63,22 +62,19 @@ $mysqli->close();
     <div class="sidebar">
         <nav>
             <ul>
-                <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
-                <li><a href="../products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
-                <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
-                <li><a href="../staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
+                <li><a class="current"><img src="../images/create-icon.png" alt="Create">CREATE NEW ORDER</a></li>
+                <li><a href="products/staff_products.php"><img src="../images/products-icon.png" alt="Products">PRODUCTS</a></li>
+                <li><a href="stocks/staff_stocks.php"><img src="../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
+                <li><a href="online_orders/online_order.php"><img src="../images/online-icon.png" alt="Online">ONLINE ORDER</a></li>
             </ul>
         </nav>
-        <ul class="reports">
-            <li><a class="current"><img src="../../images/reports-icon.png" alt="Reports">REPORTS</a></li>
-        </ul>
     </div>
 
 <main>
-    <div class="dashboard">
+    <div class="body">
         <!-- Content for the dashboard will go here -->
         <div class="card">
-            <h3>REPORTS</h3>
+            <h3>Welcome to the Staff Account</h3>
             <p>Select an option from the sidebar to get started.</p>
         </div>
     </div>

@@ -1,3 +1,4 @@
+
 <?php
 $host = "localhost";
 $user = "root";
@@ -43,6 +44,12 @@ if ($result->num_rows > 0) {
     }
 }
 
+$successMessage = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : null;
+$errorMessage = isset($_SESSION['errorMessage']) ? $_SESSION['errorMessage'] : null;
+
+unset($_SESSION['successMessage']);
+unset($_SESSION['errorMessage']);
+
 $stmt->close();
 $mysqli->close();
 ?>
@@ -76,7 +83,7 @@ $mysqli->close();
         <nav>
             <ul>
                 <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
-                <li><a href="../products/products.php" class="current"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
+                <li><a class="current"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
                 <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
                 <li><a href="../staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
             </ul>
@@ -140,7 +147,7 @@ $mysqli->close();
                 <div class="modal-content">
                     <span class="close">&times;</span>
                     <h2>Add New Product</h2>
-                    <form id="addProductForm" method="post" action="add_products.php" enctype="multipart/form-data">
+                    <form id="addProductForm" method="post" action="add_product.php" enctype="multipart/form-data">
                         <label for="prod_brand">Product Brand:</label>
                         <input type="text" id="prod_brand" name="prod_brand" required><br><br>
                         <label for="prod_name">Product Name:</label>
@@ -162,7 +169,7 @@ $mysqli->close();
                 <div class="modal-content">
                     <span class="close" onclick="closeEditModal()">&times;</span>
                     <h2>Edit Product</h2>
-                    <form method="post" action="edit_products.php" enctype="multipart/form-data">
+                    <form method="post" action="edit_product.php" enctype="multipart/form-data">
                         <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
                         <input type="hidden" name="source_page" value="wholesale">
                         <label for="prod_brand">Product Brand:</label>
@@ -182,6 +189,25 @@ $mysqli->close();
                 </div>
             </div>
 
+            <!-- Message Modal -->
+            <?php if ($successMessage || $errorMessage): ?>
+                <div id="messageModal" class="message-modal" style="display: block;">
+                    <div class="message-modal-content">
+                        <span class="message-close">&times;</span>
+                        <div id="messageContent">
+                            <?php 
+                            if ($successMessage) {
+                                echo '<div class="alert-success">' . htmlspecialchars($successMessage) . '</div>';
+                            } elseif ($errorMessage) {
+                                echo '<div class="alert-error">' . htmlspecialchars($errorMessage) . '</div>';
+                            }
+                            ?>
+                        <button class="message-button" id="okButton">OK</button>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
             <div id="deleteModal" class="message-modal" style="display: none;">
                 <div class="message-modal-content">
                     <span class="message-close">&times;</span>
@@ -199,7 +225,6 @@ $mysqli->close();
                 </div>
             </div>
 
-          
             <div id="loadingScreen" class="loading-screen" style="display: none;">
                 <div class="spinner"></div>
                 <p>Loading...</p>
@@ -208,13 +233,18 @@ $mysqli->close();
         </div>
     </div>
     </main>
-    
+
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var addProductModal = document.getElementById("addProductModal");
         var editProductModal = document.getElementById("editProductModal");
         var deleteProductModal = document.getElementById("deleteModal");
-        
+        var messageModal = document.getElementById("messageModal");
+        var loadingScreen = document.getElementById("loadingScreen");
+        var closeButton = document.querySelector("#messageModal .message-close");
+        var okButton = document.getElementById('okButton');
+
         // Handle the Add New Product button click
         document.getElementById("addNewProductBtn").onclick = function() {
             addProductModal.style.display = "block";
@@ -225,16 +255,17 @@ $mysqli->close();
             addProductModal.style.display = "none";
         };
 
-        document.getElementById('addProductModal').onsubmit = function() {
-            document.getElementById('loadingScreen').style.display = 'flex';
+        // Handle form submissions
+        document.getElementById('addProductForm').onsubmit = function() {
+            loadingScreen.style.display = 'flex';
         };
 
         document.getElementById('editProductModal').onsubmit = function() {
-            document.getElementById('loadingScreen').style.display = 'flex';
+            loadingScreen.style.display = 'flex';
         };
 
         document.getElementById('deleteModal').onsubmit = function() {
-            document.getElementById('loadingScreen').style.display = 'flex';
+            loadingScreen.style.display = 'flex';
         };
 
         // Handle the Edit Product button clicks
@@ -253,13 +284,13 @@ $mysqli->close();
                 editProductModal.querySelector('input[name="prod_price_wholesale"]').value = prodPriceWholesale;
 
                 var imageLink = editProductModal.querySelector('#currentImageLink');
-                    if (prodImage) {
-                        imageLink.href = prodImage;
-                        imageLink.textContent = prodImage.split('/').pop(); // Extract filename
-                        imageLink.style.display = 'block';
-                    } else {
-                        imageLink.style.display = 'none';
-                    }
+                if (prodImage) {
+                    imageLink.href = prodImage;
+                    imageLink.textContent = prodImage.split('/').pop(); // Extract filename
+                    imageLink.style.display = 'block';
+                } else {
+                    imageLink.style.display = 'none';
+                }
 
                 // Show the edit modal
                 editProductModal.style.display = 'block';
@@ -289,16 +320,24 @@ $mysqli->close();
             deleteProductModal.style.display = 'none';
         };
 
-        // Handle the close button in the Delete Product modal
-        document.querySelector('.message-close').onclick = function() {
+        document.querySelector("#deleteModal .message-close").onclick = function() {
             deleteProductModal.style.display = 'none';
         };
 
-        // Handle the wholesale button click
-        document.getElementById('retailBtn').onclick = function() {
-            window.location.href = 'products_retail.php';
-        };
-        
+        // Handle message modal showing
+        if (messageModal) {
+            // Handle the OK button in the message modal
+            okButton.onclick = function() {
+                messageModal.style.display = 'none';
+            };
+
+            // Handle the close button in the message modal
+            closeButton.onclick = function() {
+                messageModal.style.display = 'none';
+            };
+        }
+
+        // Handle search input
         const searchInput = document.getElementById('searchInput');
         const productCards = document.querySelectorAll('.product-card');
         const noProductFound = document.getElementById('noProductFound');
@@ -326,7 +365,15 @@ $mysqli->close();
 
             noProductFound.style.display = anyCardVisible ? 'none' : 'block';
         });
+
+        
+        // Handle the wholesale button click
+        document.getElementById('retailBtn').onclick = function() {
+            window.location.href = 'products_retail.php';
+        };
     });
+
+
 </script>
 
 </body>
