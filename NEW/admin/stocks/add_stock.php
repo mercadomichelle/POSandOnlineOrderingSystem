@@ -45,4 +45,3 @@ $mysqli->close();
 
 header("Location: stocks.php");
 exit();
-?>

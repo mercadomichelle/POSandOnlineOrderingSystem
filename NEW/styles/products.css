@@ -319,7 +319,7 @@ main {
 #searchInput {
     width: 250px;
     padding: 10px 40px 10px 10px;  
-    border: 1px solid #000000;
+    border: 2px solid #000000;
     border-radius: 20px;
     font-size: 16px;
 }
@@ -392,13 +392,13 @@ main {
 
 div#addNewProductBtn {
     border-style: dashed;
-    border-width: 2px;
+    border-width: 3px;
     border-color: gray; 
 }
 
 .product-card, .product-card.add-new {
     background-color: #fff;
-    border: 1px solid black;
+    border: 2px solid black;
     border-radius: 15px;
     padding: 16px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);

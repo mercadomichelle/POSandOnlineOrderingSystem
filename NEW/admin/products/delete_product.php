@@ -46,7 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Close the connection
         $mysqli->close();
-        
     } catch (Exception $e) {
         // Rollback the transaction if something goes wrong
         $mysqli->rollback();
@@ -68,4 +67,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     header("Location: products.php");
     exit();
 }
-?>

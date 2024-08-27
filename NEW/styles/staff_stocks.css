@@ -10,11 +10,17 @@ html, body {
     flex-direction: column;
 }
 
+html, body, main, .product-grid {
+    height: 100%; /* Ensure all ancestors have height set */
+}
+
 body {
     display: flex;
-    flex-direction: column;
-    padding-top: 10px;
-    min-height: 95vh;
+    flex-direction: row; 
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden
 }
 
 header {
@@ -98,7 +104,7 @@ header .account-info img {
     top: 80px;
     left: 20px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: 86%;
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -107,6 +113,7 @@ header .account-info img {
     flex-direction: column;
     justify-content: space-between;
     transition: width 0.3s ease; 
+    flex-shrink: 0; 
 }
 
 .sidebar.current {
@@ -145,8 +152,7 @@ header .account-info img {
     align-items: center; 
     gap: 10px; 
     width: 100%; 
-    padding: 13px 15px; 
-    margin-bottom: -18px;
+    padding: 13px 20px; 
     box-sizing: border-box; 
     transition: color 0.3s ease, text-decoration-color 0.3s ease, background-color 0.3s ease;
 }
@@ -158,11 +164,65 @@ header .account-info img {
     -webkit-text-stroke: 1px #000;
 }
 
+.sidebar ul.reports {
+    margin-top: auto;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    justify-content: flex-start; 
+}
+
+.sidebar ul.reports {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    justify-content: flex-start; 
+} 
+
+.sidebar ul.reports li {
+    margin: 25px 0;
+    width: 100%; 
+}
+
+.sidebar ul.reports li img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    align-items: start;
+}
+
+.sidebar ul.reports li a {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 800;
+    font-size: medium;
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+    width: 100%; 
+    padding: 13px 20px; 
+    box-sizing: border-box; 
+    transition: color 0.3s ease, text-decoration-color 0.3s ease, background-color 0.3s ease;
+}
+
+.sidebar ul.reports li a.current,
+.sidebar ul.reports li a:hover {
+    color: #E1BE42;
+    background-color: #FDE9A2; 
+    -webkit-text-stroke: 1px #000;
+}
+
 main {
     flex: 1;
-    margin: 50px 0 auto 220px;
-    padding: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 70px 10px auto 230px;
 }
+
 
 .dropdown {
     position: relative;
@@ -200,17 +260,29 @@ main {
 
 .card {
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
+    border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    margin: 20px;
+    margin: 0;
     text-align: left;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    width: 97%;
+    height: 102.5%;
+    max-height: calc(90vh - 107px);
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; 
 }
 
 .card h3 {
     margin-top: 0;
-    color: #22bd9b;
+    margin-bottom: 10px;
+    color: #D20202;
+    font-weight: 100;
 }
+
 
 @media (min-width: 650px) {
     header {

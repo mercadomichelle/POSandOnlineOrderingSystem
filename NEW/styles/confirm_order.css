@@ -138,7 +138,6 @@ header .account-info img {
     cursor: pointer;
 }
 
-
 main {
     flex: 1;
     /* display: flex;
@@ -149,6 +148,67 @@ main {
     display: flex;
 }
 
+
+img.cart-icon {
+    text-align: start;
+    margin-right: 5px;
+    margin-top: -5px;
+    height: 40px;
+    width: 40px;
+}
+
+.message {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th,
+table td {
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    padding: 12px 15px;
+    font-weight: bold;
+}
+
+table td {
+    padding: 30px 15px;
+}
+
+.cancel-btn {
+    display: flex;
+    align-items: center; 
+    background-color: #FFFAE8;
+    padding: 5px 0;
+    border: none;
+    cursor: pointer;
+    gap: 10px;
+    margin-bottom: 10px;
+    width: 100px;
+}
+
+.cancel-btn img.back-icon {
+    height: 30px;
+    width: 30px;
+}
+
+
 h4 {
     display: flex;
     text-align: start;
@@ -157,14 +217,6 @@ h4 {
     align-items: center;
     font-size: 18px;
     margin: 5px 0;
-    gap: 5px;
-}
-
-img.order-icon {
-    text-align: start;
-    margin-top: -5px;
-    height: 40px;
-    width: 40px;
 }
 
 .cart-summary {
@@ -175,7 +227,7 @@ img.order-icon {
     /* display: flex;
     flex-direction: column;
     justify-content: center; */
-    max-height: 80%;
+    max-height: 83%;
     width:100%;
     overflow-y: auto; 
     scrollbar-width: thin;
@@ -194,43 +246,110 @@ img.order-icon {
     flex: 3;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
+.summary p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0;
 }
 
-table th, table td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+.summary-item, .delivery-fee {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 16px;
 }
 
-table th {
-    background-color: #f4f4f4;
+.delivery-fee {
+    border-bottom: 1px dashed #B5AEAE;
+    padding-bottom: 30px;
 }
 
-@media (max-width: 649px) {
+.total {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
 
-    header .logo {
-        font-size: 18px;
-        margin-left: 0;
-        margin-right: 7px;
-    }
 
-    header nav a {
-        margin: 0 5px;
-        font-size: xx-small;
-        text-align: center;
-    }
+.divider {
+    width: 1px;
+    align-self: stretch;
+    background-color: #B5AEAE; 
+    margin: 0 5px 25px 45px;
+}
 
-    header .account-info .user-name {
-        font-size: 12px;
-        margin-right: 5px;
-    }
+.delivery-details {
+    width: 48%;
+    flex: 2;
+    background-color: #fff8e1;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
-    header .account-info {
-        display: flex;
-        align-items: center;
-        margin-right: 15px;
-    }
+.delivery-details h5 {
+    margin: 0;
+    font-size: 20px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+img.delivery-icon { 
+    margin-right: 10px;
+    margin-top: -15px;
+    height: 40px;
+    width: 40px;
+}
+
+.delivery-address {
+    background-color: #fde9a282;
+    box-shadow: 3px 0 10px 0 rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* max-height: 85%; */
+    /* width:100%; */
+}
+
+.delivery-address h6 {
+    margin: 0;
+    font-size: medium;
+}
+.delivery-details select,
+.delivery-details input {
+    /* width: 100%; */
+    background-color: #fff9e3;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.confirm-btn {
+    background-color: #FDE9A2;
+    padding: 15px 130px;
+    color: #000000;
+    border: 1px solid #000000;
+    font-size: medium;
+}
+
+
+.confirm-btn,
+.cancel-btn {
+    border-radius: 30px;
+    cursor: pointer;
+}
+
+.button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

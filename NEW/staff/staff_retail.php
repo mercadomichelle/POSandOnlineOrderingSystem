@@ -37,7 +37,7 @@ if ($result->num_rows === 1) {
 }
 
 // Fetch products
-$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale AS prod_price, 
+$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_retail AS prod_price, 
         products.prod_image_path, stocks.stock_quantity 
         FROM products 
         JOIN stocks ON products.prod_id = stocks.prod_id";
@@ -182,9 +182,9 @@ $mysqli->close();
 
     <main>
         <div class="products">
-            <div class="product-controls">
-                <button class="filter-button-current" id="wholesaleBtn"><img src="../../images/wholesale-icon.png" alt="Wholesale">WHOLESALE</button>
-                <button class="filter-button" id="retailBtn"><img src="../../images/retail-icon.png" alt="Retail">RETAIL</button>
+        <div class="product-controls">
+                <button class="filter-button" id="wholesaleBtn"><img src="../../images/wholesale-icon.png" alt="Wholesale">WHOLESALE</button>
+                <button class="filter-button-current" id="retailBtn"><img src="../../images/retail-icon.png" alt="Retail">RETAIL</button>
                 <div class="search-container">
                     <div class="search-wrapper">
                         <input type="text" placeholder="Search..." id="searchInput">
@@ -487,8 +487,8 @@ $mysqli->close();
             });
             
             // Handle the wholesale button click
-            document.getElementById('retailBtn').onclick = function() {
-                window.location.href = 'staff_retail.php';
+            document.getElementById('wholesaleBtn').onclick = function() {
+                window.location.href = 'staff.php';
             };
         </script>
 </body>

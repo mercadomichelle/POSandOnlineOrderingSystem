@@ -133,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mysqli->close();
 
     if ($source_page === 'retail') {
-        header("Location: retail.php");
+        header("Location: products_retail.php");
     } elseif ($source_page === 'wholesale') {
         header("Location: products.php");
     } else {
@@ -141,4 +141,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     exit();
 }
-?>

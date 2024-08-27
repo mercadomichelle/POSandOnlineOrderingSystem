@@ -34,7 +34,7 @@ if (isset($_SESSION["username"])) {
 }
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$page = max(1, $page); 
+$page = max(1, $page);
 
 $limit = 10;
 $offset = ($page - 1) * $limit;
@@ -46,7 +46,7 @@ $sql = "SELECT login.id, login.first_name, login.last_name, login.username, staf
         JOIN staff 
         ON login.id = staff.login_id 
         LIMIT $offset, $limit";
-        
+
 $result = $mysqli->query($sql);
 
 if (!$result) {
@@ -83,6 +83,7 @@ $mysqli->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -108,7 +109,7 @@ $mysqli->close();
     <div class="sidebar">
         <nav>
             <ul>
-                <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
+                <li><a href="../admin.php"><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
                 <li><a href="../products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
                 <li><a href="../stocks/stocks.php"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
                 <li><a class="current"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
@@ -155,9 +156,9 @@ $mysqli->close();
                 <div class="pagination-prev">
                     <?php if ($page > 1): ?>
                         <a href="staff_list.php?page=<?php echo $page - 1; ?>">Previous</a>
-                        <?php else: ?>
-                            <span class="disabled">Previous</span>
-                        <?php endif; ?>
+                    <?php else: ?>
+                        <span class="disabled">Previous</span>
+                    <?php endif; ?>
                 </div>
 
                 <div class="pagination">
@@ -186,9 +187,9 @@ $mysqli->close();
                 <div class="pagination-next">
                     <?php if ($page < $totalPages): ?>
                         <a href="staff_list.php?page=<?php echo $page + 1; ?>">Next</a>
-                        <?php else: ?>
-                            <span class="disabled">Next</span>
-                        <?php endif; ?>
+                    <?php else: ?>
+                        <span class="disabled">Next</span>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -244,49 +245,49 @@ $mysqli->close();
             </div>
         </div>
 
-            <div id="loadingScreen" class="loading-screen" style="display: none;">
-                <div class="spinner"></div>
-                <p>Loading...</p>
-            </div>
-        
-            <!-- Message Modal -->
-            <?php if ($successMessage || $errorMessage): ?>
-                <div id="messageModal" class="message-modal" style="display: block;">
-                    <div class="message-modal-content">
-                        <span class="message-close">&times;</span>
-                        <div id="messageContent">
-                            <?php 
-                            if ($successMessage) {
-                                echo '<div class="alert-success">' . htmlspecialchars($successMessage) . '</div>';
-                            } elseif ($errorMessage) {
-                                echo '<div class="alert-error">' . htmlspecialchars($errorMessage) . '</div>';
-                            }
-                            ?>
-                        <button class="message-button" id="okButton">OK</button>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
-            <!-- Delete Confirmation Modal -->
-            <div id="deleteModal" class="message-modal" style="display: none;">
+        <div id="loadingScreen" class="loading-screen" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Message Modal -->
+        <?php if ($successMessage || $errorMessage): ?>
+            <div id="messageModal" class="message-modal" style="display: block;">
                 <div class="message-modal-content">
                     <span class="message-close">&times;</span>
                     <div id="messageContent">
-                        <div class="alert error">
-                            <p>Are you sure you want to delete this staff?</p>
-                            <form id="deleteStaffForm" method="post" action="delete_staff.php">
-                                <input type="hidden" name="staff_id" id="delete_staff_id">
-                                <input type="hidden" name="page" id="delete_page">
-                                <button type="submit" class="confirm-delete-btn">Yes, Delete</button>
-                                <button type="button" class="cancel-delete-btn">Cancel</button>
-                            </form>
-                        </div>
+                        <?php
+                        if ($successMessage) {
+                            echo '<div class="alert-success">' . htmlspecialchars($successMessage) . '</div>';
+                        } elseif ($errorMessage) {
+                            echo '<div class="alert-error">' . htmlspecialchars($errorMessage) . '</div>';
+                        }
+                        ?>
+                        <button class="message-button" id="okButton">OK</button>
                     </div>
                 </div>
             </div>
+        <?php endif; ?>
 
-    
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="message-modal" style="display: none;">
+            <div class="message-modal-content">
+                <span class="message-close">&times;</span>
+                <div id="messageContent">
+                    <div class="alert error">
+                        <p>Are you sure you want to delete this staff?</p>
+                        <form id="deleteStaffForm" method="post" action="delete_staff.php">
+                            <input type="hidden" name="staff_id" id="delete_staff_id">
+                            <input type="hidden" name="page" id="delete_page">
+                            <button type="submit" class="confirm-delete-btn">Yes, Delete</button>
+                            <button type="button" class="cancel-delete-btn">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </main>
 
     <?php
@@ -323,7 +324,7 @@ $mysqli->close();
                 closeButton.closest('.modal').style.display = 'none';
             };
         });
-        
+
         document.addEventListener("DOMContentLoaded", function() {
             const editModal = document.getElementById('editModal');
             if (editModal && editModal.style.display === 'block') {
@@ -357,13 +358,13 @@ $mysqli->close();
         });
 
         document.querySelectorAll('.delete-btn').forEach(function(deleteButton) {
-        deleteButton.onclick = function() {
-            const staffId = deleteButton.getAttribute('data-id');
-            const currentPage = <?php echo $page; ?>; 
+            deleteButton.onclick = function() {
+                const staffId = deleteButton.getAttribute('data-id');
+                const currentPage = <?php echo $page; ?>;
 
-            document.getElementById('delete_staff_id').value = staffId;
-            document.getElementById('delete_page').value = currentPage; 
-            document.getElementById('deleteModal').style.display = 'block';
+                document.getElementById('delete_staff_id').value = staffId;
+                document.getElementById('delete_page').value = currentPage;
+                document.getElementById('deleteModal').style.display = 'block';
             };
         });
 
@@ -374,8 +375,8 @@ $mysqli->close();
         document.getElementById('okButton').onclick = function() {
             document.getElementById('messageModal').style.display = 'none';
         };
-
     </script>
 
 </body>
+
 </html>

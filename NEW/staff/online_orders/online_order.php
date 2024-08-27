@@ -39,14 +39,16 @@ $mysqli->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website</title>
     <link rel="stylesheet" href="../../styles/online_order.css">
 </head>
+
 <body>
-<header>
+    <header>
         <div class="logo">RICE</div>
         <div class="account-info">
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
@@ -70,15 +72,16 @@ $mysqli->close();
         </nav>
     </div>
 
-<main>
-    <div class="body">
-        <!-- Content for the dashboard will go here -->
-        <div class="card">
-            <h3>ONLINE ORDER</h3>
-            <p>Select an option from the sidebar to get started.</p>
+    <main>
+        <div class="body">
+            <!-- Content for the dashboard will go here -->
+            <div class="card">
+                <h3>ONLINE ORDER</h3>
+                <p>Select an option from the sidebar to get started.</p>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
 
 </body>
+
 </html>

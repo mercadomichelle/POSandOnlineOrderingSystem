@@ -26,7 +26,7 @@ $result = $mysqli->query($sql);
 
 $stocks = [];
 if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
+    while ($row = $result->fetch_assoc()) {
         $stocks[] = $row;
     }
 } else {
@@ -63,14 +63,16 @@ $mysqli->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website</title>
     <link rel="stylesheet" href="../../styles/stocks.css">
 </head>
+
 <body>
-<header>
+    <header>
         <div class="logo">RICE</div>
         <div class="account-info">
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
@@ -86,7 +88,7 @@ $mysqli->close();
     <div class="sidebar">
         <nav>
             <ul>
-                <li><a href="../admin.php" ><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
+                <li><a href="../admin.php"><img src="../../images/dashboard-icon.png" alt="Dashboard">DASHBOARD</a></li>
                 <li><a href="../products/products.php"><img src="../../images/products-icon.png" alt="Products">PRODUCTS</a></li>
                 <li><a class="current"><img src="../../images/stocks-icon.png" alt="Stocks">STOCKS</a></li>
                 <li><a href="../staffs/staff_list.php"><img src="../../images/staffs-icon.png" alt="Staffs">STAFFS</a></li>
@@ -109,24 +111,24 @@ $mysqli->close();
             </div>
 
             <div class="card">
-            <div class="stock-grid">
-                <?php foreach ($stocks as $stock): ?>
-                    <div class="stock-card" data-stock="<?php echo htmlspecialchars($stock['stock_quantity']); ?>">
-                        <img src="<?php echo $stock['prod_image_path']; ?>" alt="<?php echo htmlspecialchars($stock['prod_name']); ?>">
-                        <h4><?php echo htmlspecialchars($stock['prod_brand']); ?></h4>
-                        <p><?php echo htmlspecialchars($stock['prod_name']); ?></p>
-                        <h3>Stock: <?php echo htmlspecialchars($stock['stock_quantity']); ?></h3>
+                <div class="stock-grid">
+                    <?php foreach ($stocks as $stock): ?>
+                        <div class="stock-card" data-stock="<?php echo htmlspecialchars($stock['stock_quantity']); ?>">
+                            <img src="<?php echo $stock['prod_image_path']; ?>" alt="<?php echo htmlspecialchars($stock['prod_name']); ?>">
+                            <h4><?php echo htmlspecialchars($stock['prod_brand']); ?></h4>
+                            <p><?php echo htmlspecialchars($stock['prod_name']); ?></p>
+                            <h3>Stock: <?php echo htmlspecialchars($stock['stock_quantity']); ?></h3>
 
-                        <div class="stock-actions">
-                            <button class="add-stock-button" 
-                                data-id="<?php echo htmlspecialchars($stock['prod_id']); ?>">
-                                Add Stock
-                            </button>
+                            <div class="stock-actions">
+                                <button class="add-stock-button"
+                                    data-id="<?php echo htmlspecialchars($stock['prod_id']); ?>">
+                                    Add Stock
+                                </button>
+                            </div>
+
                         </div>
-
-                    </div>
-                <?php endforeach; ?>
-            </div>
+                    <?php endforeach; ?>
+                </div>
 
                 <div id="noStockFound" class="no-stock-found" style="display: none;">
                     <p>No stock found</p>
@@ -139,32 +141,32 @@ $mysqli->close();
                         <form method="post" action="add_stock.php" id="addStockForm">
                             <input type="hidden" name="prod_id" id="add_stock_prod_id">
                             <label for="stock_quantity">Stock Quantity:</label>
-                            <input type="number" id="stock_quantity" name="stock_quantity" required><br><br>
+                            <input type="number" id="stock_quantity" name="stock_quantity" min="1" required><br><br>
                             <div class="form-group">
                                 <button type="submit" class="add-btn">Add Stock</button>
                             </div>
                         </form>
                     </div>
                 </div>
-            
-            <!-- Message Modal -->
-            <?php if ($successMessage || $errorMessage): ?>
-                <div id="messageModal" class="message-modal" style="display: block;">
-                    <div class="message-modal-content">
-                        <span class="message-close">&times;</span>
-                        <div id="messageContent">
-                            <?php 
-                            if ($successMessage) {
-                                echo '<div class="alert-success">' . htmlspecialchars($successMessage) . '</div><br>';
-                            } elseif ($errorMessage) {
-                                echo '<div class="alert-error">' . htmlspecialchars($errorMessage) . '</div><br>';
-                            }
-                            ?>
-                        <button class="message-button" id="okButton">OK</button>
+
+                <!-- Message Modal -->
+                <?php if ($successMessage || $errorMessage): ?>
+                    <div id="messageModal" class="message-modal" style="display: block;">
+                        <div class="message-modal-content">
+                            <span class="message-close">&times;</span>
+                            <div id="messageContent">
+                                <?php
+                                if ($successMessage) {
+                                    echo '<div class="alert-success">' . htmlspecialchars($successMessage) . '</div><br>';
+                                } elseif ($errorMessage) {
+                                    echo '<div class="alert-error">' . htmlspecialchars($errorMessage) . '</div><br>';
+                                }
+                                ?>
+                                <button class="message-button" id="okButton">OK</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
             </div>
 
             <div id="loadingScreen" class="loading-screen" style="display: none;">
@@ -176,51 +178,51 @@ $mysqli->close();
 
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Search Functionality
-        const searchStockInput = document.getElementById('searchInput');
-        const stockCards = document.querySelectorAll('.stock-card');
-        const noStockFound = document.getElementById('noStockFound');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search Functionality
+            const searchStockInput = document.getElementById('searchInput');
+            const stockCards = document.querySelectorAll('.stock-card');
+            const noStockFound = document.getElementById('noStockFound');
 
-        searchStockInput.addEventListener('input', function() {
-            const searchValue = searchStockInput.value.toLowerCase();
-            let anyCardVisible = false;
+            searchStockInput.addEventListener('input', function() {
+                const searchValue = searchStockInput.value.toLowerCase();
+                let anyCardVisible = false;
 
-            stockCards.forEach(card => {
-                const brandElement = card.querySelector('h4');
-                const nameElement = card.querySelector('p');
-                const stockQuantity = card.getAttribute('data-stock');
+                stockCards.forEach(card => {
+                    const brandElement = card.querySelector('h4');
+                    const nameElement = card.querySelector('p');
+                    const stockQuantity = card.getAttribute('data-stock');
 
-                const brand = brandElement ? brandElement.textContent.toLowerCase() : '';
-                const name = nameElement ? nameElement.textContent.toLowerCase() : '';
-                const stockText = stockQuantity ? stockQuantity.toLowerCase() : '';
+                    const brand = brandElement ? brandElement.textContent.toLowerCase() : '';
+                    const name = nameElement ? nameElement.textContent.toLowerCase() : '';
+                    const stockText = stockQuantity ? stockQuantity.toLowerCase() : '';
 
-                if (brand.includes(searchValue) || name.includes(searchValue) || stockText.includes(searchValue)) {
-                    card.style.display = '';    
-                    anyCardVisible = true;
-                } else {
-                    card.style.display = 'none'; 
-                }
+                    if (brand.includes(searchValue) || name.includes(searchValue) || stockText.includes(searchValue)) {
+                        card.style.display = '';
+                        anyCardVisible = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                noStockFound.style.display = anyCardVisible ? 'none' : 'block';
             });
 
-            noStockFound.style.display = anyCardVisible ? 'none' : 'block';
-        });
-
-        // Add Stock Button Click Handler
-        document.querySelectorAll('.add-stock-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const productId = this.getAttribute('data-id');
-                openAddStockModal(productId);
+            // Add Stock Button Click Handler
+            document.querySelectorAll('.add-stock-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = this.getAttribute('data-id');
+                    openAddStockModal(productId);
+                });
             });
+
+            document.getElementById('addStockForm').onsubmit = function() {
+                document.getElementById('loadingScreen').style.display = 'flex';
+            };
+
         });
-        
-        document.getElementById('addStockForm').onsubmit = function() {
-            document.getElementById('loadingScreen').style.display = 'flex';
-    };
 
-    });
 
-        
 
         // Close Modal on "X" Click
         document.querySelector('.message-close').addEventListener('click', function() {
@@ -248,14 +250,15 @@ $mysqli->close();
             document.getElementById('messageModal').style.display = 'none';
         }
 
-            // document.getElementById('lowStockBtn').onclick = function() {
-                // Filter to show only low stock items
-            // };
-            
-            // Handle the all stocks button click
-            // document.getElementById('allStocksBtn').onclick = function() {
-                // Show all stocks
-            // };
+        // document.getElementById('lowStockBtn').onclick = function() {
+        // Filter to show only low stock items
+        // };
+
+        // Handle the all stocks button click
+        // document.getElementById('allStocksBtn').onclick = function() {
+        // Show all stocks
+        // };
     </script>
 </body>
+
 </html>

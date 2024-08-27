@@ -97,4 +97,3 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     header("Location: staff_list.php?page=" . $current_page);
     exit();
 }
-?>
