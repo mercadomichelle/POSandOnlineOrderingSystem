@@ -197,7 +197,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     <div class="cal-pad">
 
                         <div class="total-line">
-                            <span>TOTAL:</span>
+                            <span>Total Amount:</span>
                             <span>₱<?php echo number_format($total, 2); ?></span>
                         </div>
 
