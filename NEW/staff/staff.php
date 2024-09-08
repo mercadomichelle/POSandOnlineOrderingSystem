@@ -353,7 +353,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         <span class="total-label">TOTAL:</span>
                         <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
                     </div>
-                    <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
+                    <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to payment</button>
                 <?php endif; ?>
             </div>
 

@@ -146,7 +146,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
             <h4>
-                <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon">CHECKOUT ORDER
+                <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon"> 
             </h4>
 
             <?php if ($errorMessage): ?>
