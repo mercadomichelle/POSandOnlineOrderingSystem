@@ -160,8 +160,6 @@ foreach ($stocks as $stock) {
 $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
 
 
-
-
 // Fetch cart items
 $login_id = $_SESSION['login_id'];
 $price_type = 'retail'; // Default to 'retail'
@@ -192,11 +190,8 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-$total = $subTotal + 150; // Fixed delivery fee
+$total = $subTotal;
 $cartIsEmpty = empty($cart);
-
-
-
 
 
 $stmt->close();
@@ -436,7 +431,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             const cartItemsContainer = document.getElementById('cart-items');
             const subtotalElement = document.querySelector('.subtotal-amount');
             const totalElement = document.querySelector('.total-amount');
-            const deliveryFee = 150.00;
 
             let subtotal = 0;
             cartItemsContainer.querySelectorAll('.cart-item').forEach(cartItem => {
@@ -446,7 +440,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             });
 
             subtotalElement.textContent = `₱${subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-            totalElement.textContent = `₱${(subtotal + deliveryFee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+            totalElement.textContent = `₱${(subtotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
         }
 
 

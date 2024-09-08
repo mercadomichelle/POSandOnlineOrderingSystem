@@ -185,7 +185,7 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-$total = $subTotal + 150; // Fixed delivery fee
+$total = $subTotal;
 $cartIsEmpty = empty($cart);
 
 
@@ -428,8 +428,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 function recalculateTotal() {
                     const cartItemsContainer = document.getElementById('cart-items');
                     const subtotalElement = document.querySelector('.subtotal-amount');
-                    const totalElement = document.querySelector('.total-amount');
-                    const deliveryFee = 150.00;
+                    const totalElement = document.querySelector('.subtotal-amount');
 
                     let subtotal = 0;
                     cartItemsContainer.querySelectorAll('.cart-item').forEach(cartItem => {
@@ -439,7 +438,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     });
 
                     subtotalElement.textContent = `₱${subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-                    totalElement.textContent = `₱${(subtotal + deliveryFee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+                    totalElement.textContent = `₱${(subtotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
                 }
 
 
