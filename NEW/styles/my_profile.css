@@ -66,17 +66,12 @@ header nav a {
 
 header nav a.current {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header nav a:hover {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
+
 
 header .account-info {
     display: flex;

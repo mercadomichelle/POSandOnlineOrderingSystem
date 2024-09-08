@@ -66,17 +66,12 @@ header nav a {
 
 header nav a.current {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header nav a:hover {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
+
 
 header .account-info {
     display: flex;
@@ -115,7 +110,7 @@ main {
     display: none;
     position: absolute;
     right: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -275,6 +270,7 @@ main {
     max-height: 300px;
     margin-top: -5px;
     margin-bottom: 8px;
+    border: 1px solid black;
 }
 
 .product-card h4 {
@@ -364,6 +360,15 @@ main {
     font-size: 15px;
     color: #E53935;
 }
+
+
+.no-items-message {
+    font-size: 1.2em;
+    color: #999;
+    text-align: center;
+    margin: 20px 0;
+}
+
 
 .cart-summary {
     position: fixed;
@@ -481,8 +486,7 @@ div#cart-items {
 }
 
 .item-quantity {
-    font-size: 18px;
-    margin: 0 10px;
+    margin-right: 20px;
 }
 
 .item-total-price {
@@ -507,7 +511,7 @@ div#cart-items {
     justify-content: center;
     cursor: pointer;
     padding: 0;
-    margin: 10px;
+    margin: 10px 10px 10px 20px;
     text-align: center;
     line-height: 0; 
 }
@@ -639,6 +643,46 @@ div#cart-items {
 }
 
 
+.loading-screen {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.loading-screen .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 10px;
+}
+
+.loading-screen p {
+    margin-top: 10px;
+    font-size: 18px;
+    text-align: center;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 @media (max-width: 649px) {
 

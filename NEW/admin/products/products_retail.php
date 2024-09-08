@@ -43,6 +43,40 @@ if ($result->num_rows > 0) {
     }
 }
 
+// STOCKS NOTIFICATIONS
+$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
+        FROM products p 
+        LEFT JOIN stocks s ON p.prod_id = s.prod_id
+        ORDER BY s.stock_quantity ASC";
+
+$result = $mysqli->query($sql);
+
+$stocks = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
+        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
+        $stocks[] = $row;
+    }
+} else {
+    echo "No stocks found.";
+}
+
+$lowStockNotifications = [];
+$outOfStockNotifications = [];
+
+foreach ($stocks as $stock) {
+    if ($stock['is_low_stock']) {
+        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
+    } elseif ($stock['is_out_of_stock']) {
+        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
+    }
+}
+
+$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
+
+
+
 $successMessage = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : null;
 $errorMessage = isset($_SESSION['errorMessage']) ? $_SESSION['errorMessage'] : null;
 
@@ -60,7 +94,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website</title>
+    <title>Rice Website | Retail Products</title>
     <link rel="stylesheet" href="../../styles/products.css">
 </head>
 
@@ -68,6 +102,22 @@ $mysqli->close();
     <header>
         <div class="logo">RICE</div>
         <div class="account-info">
+
+
+        <div class="dropdown notifications-dropdown">
+                <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
+                <div class="dropdown-content" id="notificationDropdown">
+                    <?php if (empty($notifications)): ?>
+                        <a href="#">No new notifications</a>
+                    <?php else: ?>
+                        <?php foreach ($notifications as $notification): ?>
+                            <a href="../stocks/stocks.php"><?php echo $notification; ?></a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
             <div class="dropdown">
                 <img src="../../images/account-icon.png" alt="Account">
@@ -322,6 +372,27 @@ $mysqli->close();
 
                 noProductFound.style.display = anyCardVisible ? 'none' : 'block';
             });
+
+
+
+            // NOTIFICATIONS
+            document.addEventListener('DOMContentLoaded', function() {
+                const notifIcon = document.querySelector('.notification-icon');
+                const notifDropdown = document.getElementById('notificationDropdown');
+
+                notifIcon.addEventListener('click', function(event) {
+                    event.stopPropagation(); // Prevent the click event from bubbling up
+                    notifDropdown.classList.toggle('show');
+                });
+
+                // Close the dropdown if the user clicks outside of it
+                window.addEventListener('click', function(event) {
+                    if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
+                        notifDropdown.classList.remove('show');
+                    }
+                });
+            });
+
 
 
             // Handle the wholesale button click

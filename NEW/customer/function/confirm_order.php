@@ -75,7 +75,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website</title>
+    <title>Rice Website | Checkout Order</title>
     <link rel="stylesheet" href="../../styles/confirm_order.css">
 </head>
 
@@ -103,10 +103,9 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </header>
 
     <main>
-
         <div class="cart-summary">
-        <button type="button" class="cancel-btn" onclick="window.location.href='../cust_products.php';">
-        <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
+            <button type="button" class="cancel-btn" onclick="window.location.href='../cust_products.php';">
+                <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
             <h4>
                 <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon">CHECKOUT ORDER
@@ -134,24 +133,27 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                 <tr>
                                     <td><?php echo htmlspecialchars($item['quantity']); ?> x</td>
                                     <td><?php echo htmlspecialchars($item['name']); ?></td>
-                                    <td>₱<?php echo number_format($item['price'], 2); ?></td>
-                                    <td>₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></td>
+                                    <td>₱ <?php echo number_format($item['price'], 2); ?></td>
+                                    <td>₱ <?php echo number_format($item['quantity'] * $item['price'], 2); ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
 
+
                     <div class="summary-item">
-                        <span>Sub Total (<?php echo count($cart); ?> Items)</span>
-                        <span>₱<?php echo number_format($subTotal, 2); ?></span>
-                    </div>
-                    <div class="delivery-fee">
-                        <span>Delivery Fee</span>
-                        <span>₱150.00</span>
+                        <div class="sub-total">
+                            <span>Sub Total (<?php echo count($cart); ?> Item/s)</span>
+                            <span>₱ <?php echo number_format($subTotal, 2); ?></span>
+                        </div>
+                        <div class="delivery-fee">
+                            <span>Delivery Fee</span>
+                            <span>₱ 150.00</span>
+                        </div>
                     </div>
                     <div class="total">
                         <span>TOTAL</span>
-                        <span>₱<?php echo number_format($total, 2); ?></span>
+                        <span>₱ <?php echo number_format($total, 2); ?></span>
                     </div>
                 </div>
 
@@ -160,7 +162,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <div class="delivery-details">
                     <h5><img src="../../images/delivery-icon.png" alt="Delivery" class="delivery-icon">DELIVERY DETAILS</h5>
                     <div class="delivery-address">
-                    <h6>Select Delivery Details:</h6>
+                        <h6>Select Delivery Details:</h6>
                         <select name="delivery_address">
                             <option value="1234 Street, Batangas City">1234 Street, Batangas City</option>
                         </select>
@@ -175,6 +177,13 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <form action="place_order.php" method="post" class="button">
                 <button type="submit" class="confirm-btn">Place an Order</button>
             </form>
+
+
+            <div id="loadingScreen" class="loading-screen" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
     </main>
 </body>
 
@@ -195,6 +204,10 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
     window.addEventListener('resize', updateNavLinks);
     window.addEventListener('DOMContentLoaded', updateNavLinks);
+
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('loadingScreen').style.display = 'flex';
+    });
 </script>
 </body>
 

@@ -13,9 +13,11 @@ if (!isset($_SESSION["username"])) {
 
 $mysqli = new mysqli($host, $user, $password, $db);
 
+// Check for connection errors
 if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+    die("Connection failed: " . $mysqli->connect_error . " - Error Number: " . $mysqli->connect_errno);
 }
+
 
 $username = $_SESSION["username"];
 
@@ -51,17 +53,22 @@ if ($result->num_rows > 0) {
 }
 
 usort($products, function ($a, $b) {
-    if ($a['stock_quantity'] == 0 && $b['stock_quantity'] == 0) {
+    $aStock = $a['stock_quantity'];
+    $bStock = $b['stock_quantity'];
+
+    // Treat any non-positive stock quantity the same
+    if ($aStock <= 0 && $bStock <= 0) {
         return 0; // Both are out of stock, keep original order
     }
-    if ($a['stock_quantity'] == 0) {
+    if ($aStock <= 0) {
         return 1; // Out-of-stock items go to the end
     }
-    if ($b['stock_quantity'] == 0) {
+    if ($bStock <= 0) {
         return -1; // Out-of-stock items go to the end
     }
-    return 0; // Items with stock will be ordered as is
+    return 0; // Both are in stock, keep original order
 });
+
 
 
 // Handle quantity update
@@ -150,6 +157,7 @@ while ($row = $result->fetch_assoc()) {
 
 $total = $subTotal + 150; // Fixed delivery fee
 
+$cartIsEmpty = empty($cart);
 
 
 
@@ -168,7 +176,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website</title>
+    <title>Rice Website | Products</title>
     <link rel="stylesheet" href="../styles/cust_products.css">
 </head>
 
@@ -245,96 +253,131 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 </div>
             </div>
 
+
             <!-- Orders summary section -->
             <div class="cart-summary">
                 <h4>
                     <img src="../../images/cart-icon.png" alt="Cart" class="cart-icon">MY CART
                 </h4>
-                <div id="cart-items">
-                    <?php foreach ($cart as $item): ?>
-                        <div class="cart-item">
-                            <span class="item-quantity">
+
+                <?php if ($cartIsEmpty): ?>
+                    <p class="no-items-message">No items in the cart</p>
+                <?php else: ?>
+                    <div id="cart-items">
+                        <?php foreach ($cart as $item): ?>
+                            <div class="cart-item">
+                                <span class="item-quantity">
                                     <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
                                 </span>
                                 <div class="cart-item-info">
-                                
-                                <span class="item-name">
-                                    <?php echo htmlspecialchars($item['name']); ?>
-                                </span>
-                                <span class="item-price-per-unit">
-                                    ₱<?php echo number_format($item['price'], 2); ?> / sack
-                                </span>
+                                    <span class="item-name">
+                                        <?php echo htmlspecialchars($item['name']); ?>
+                                    </span>
+                                    <span class="item-price-per-unit">
+                                        ₱<?php echo number_format($item['price'], 2); ?> / sack
+                                    </span>
+                                </div>
+                                <div class="cart-item-controls">
+                                    <form method="POST" action="cust_products.php" class="qty-form">
+                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                        <input type="hidden" name="update_cart" value="1">
+                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
+                                        <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
+                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
+                                        <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
+                                    </form>
+                                    <form method="POST" action="cust_products.php" class="remove-form">
+                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                        <input type="hidden" name="remove_item" value="1">
+                                        <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="cart-item-controls">
-                                <form method="POST" action="cust_products.php" class="qty-form">
-                                    <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                    <input type="hidden" name="update_cart" value="1">
-                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
-                                    <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
-                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
-                                <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
-                                </form>
-                                <form method="POST" action="cust_products.php" class="remove-form">
-                                    <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                    <input type="hidden" name="remove_item" value="1">
-                                    <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
-                                </form>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+                        <?php endforeach; ?>
+                    </div>
 
-
-                <div class="total-row fee">
-                    <span class="subtotal-label">Sub Total:</span>
-                    <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
-                </div>
-                <div class="total-row total">
-                    <span class="total-label">TOTAL:</span>
-                    <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
-                </div>
-                <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
+                    <!-- Orders summary section -->
+                    <div class="total-row fee">
+                        <span class="subtotal-label">Sub Total:</span>
+                        <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
+                    </div>
+                    <div class="total-row total">
+                        <span class="total-label">TOTAL:</span>
+                        <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
+                    </div>
+                    <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
+                <?php endif; ?>
             </div>
-        </div>
 
-        <form id="checkoutForm" method="POST" action="checkout.php">
-            <?php foreach ($cart as $item): ?>
-                <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
-            <?php endforeach; ?>
-        </form>
+            <form id="checkoutForm" method="POST" action="checkout.php">
+                <?php foreach ($cart as $item): ?>
+                    <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                    <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
+                <?php endforeach; ?>
+            </form>
 
-        <!-- Delete Confirmation Modal -->
-        <div id="deleteModal" class="message-modal" style="display: none;">
-            <div class="message-modal-content">
-                <span class="message-close">&times;</span>
-                <div id="messageContent">
-                    <div class="alert error">
-                        <p>Are you sure you want to remove this item from your cart?</p>
-                        <form id="deleteItemForm" method="POST" action="cust_products.php">
-                            <input type="hidden" name="prod_id" id="delete_prod_id">
-                            <input type="hidden" name="remove_item" value="1">
-                            <button type="submit" class="confirm-delete-btn">Yes, Remove</button>
-                            <button type="button" class="cancel-delete-btn">Cancel</button>
-                        </form>
+
+            <div id="loadingScreen" class="loading-screen" style="display: none;">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
+
+
+            <!-- Delete Confirmation Modal -->
+            <div id="deleteModal" class="message-modal" style="display: none;">
+                <div class="message-modal-content">
+                    <span class="message-close">&times;</span>
+                    <div id="messageContent">
+                        <div class="alert error">
+                            <p>Are you sure you want to remove this item from your cart?</p>
+                            <form id="deleteItemForm" method="POST" action="cust_products.php">
+                                <input type="hidden" name="prod_id" id="delete_prod_id">
+                                <input type="hidden" name="remove_item" value="1">
+                                <button type="submit" class="confirm-delete-btn">Yes, Remove</button>
+                                <button type="button" class="cancel-delete-btn">Cancel</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
 
-        <!-- Message Modal -->
-        <div class="message-modal" id="checkoutAlertModal" style="display: <?php echo $successMessage || $errorMessage ? 'flex' : 'none'; ?>;">
-            <div class="message-modal-content">
-                <span class="checkout-close" id="closeModal">&times;</span>
-                <p id="checkoutAlertMessage"><?php echo htmlspecialchars($successMessage . $errorMessage); ?></p>
-                <button class="close-modal-btn" onclick="closeCheckoutAlertModal()">OK</button>
+            <!-- Message Modal -->
+            <div class="message-modal" id="checkoutAlertModal" style="display: <?php echo $successMessage || $errorMessage ? 'flex' : 'none'; ?>;">
+                <div class="message-modal-content">
+                    <span class="checkout-close" id="closeModal">&times;</span>
+                    <p id="checkoutAlertMessage"><?php echo htmlspecialchars($successMessage . $errorMessage); ?></p>
+                    <button class="close-modal-btn" onclick="closeCheckoutAlertModal()">OK</button>
+                </div>
             </div>
-        </div>
 
     </main>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var loadingScreen = document.getElementById("loadingScreen");
+
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function() {
+                    loadingScreen.style.display = 'flex';
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkoutButton = document.querySelector('.checkout-btn');
+            const loadingScreen = document.getElementById('loadingScreen');
+
+            if (checkoutButton) {
+                checkoutButton.addEventListener('click', function(event) {
+                    loadingScreen.style.display = 'flex';
+
+                    document.getElementById('checkoutForm').submit();
+                });
+            }
+        });
+
         function recalculateTotal() {
             const cartItemsContainer = document.getElementById('cart-items');
             const subtotalElement = document.querySelector('.subtotal-amount');
@@ -352,14 +395,20 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             totalElement.textContent = `₱${(subtotal + deliveryFee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
         }
 
+
+
         function updateQuantity(button, change) {
             const input = button.parentNode.querySelector('.qty-input');
+            if (!input) {
+                console.error('Input element not found');
+                return;
+            }
+
             let currentQuantity = parseInt(input.value);
             const maxQuantity = parseInt(input.getAttribute('data-max'));
 
             currentQuantity += change;
 
-            // Ensure the quantity is not less than 1 and not more than the available stock
             if (currentQuantity < 1) {
                 currentQuantity = 1;
             } else if (currentQuantity > maxQuantity) {
@@ -368,27 +417,46 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             input.value = currentQuantity;
 
-            // Update the total price displayed for the item
             const cartItem = button.closest('.cart-item');
-            const pricePerUnit = parseFloat(cartItem.querySelector('.item-price-per-unit').textContent.replace('₱', '').replace(/,/g, ''));
+            if (!cartItem) {
+                console.error('Cart item element not found');
+                return;
+            }
+
+            const pricePerUnitElement = cartItem.querySelector('.item-price-per-unit');
+            if (!pricePerUnitElement) {
+                console.error('Price per unit element not found');
+                return;
+            }
+
+            const pricePerUnit = parseFloat(pricePerUnitElement.textContent.replace('₱', '').replace(/,/g, ''));
             const totalPriceElement = cartItem.querySelector('.item-total-price');
+            if (!totalPriceElement) {
+                console.error('Total price element not found');
+                return;
+            }
+
             const totalPrice = currentQuantity * pricePerUnit;
             totalPriceElement.textContent = `₱${totalPrice.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
 
-            // Update the quantity next to the product name in the cart summary
-            const quantityNameElement = cartItem.querySelector('.item-quantity-name');
-            const productName = quantityNameElement.textContent.split(' x ')[1]; // Get the product name
-            quantityNameElement.textContent = `${currentQuantity} x ${productName}`; // Update the text with the new quantity
+            const quantityElement = cartItem.querySelector('.item-quantity');
+            const productNameElement = cartItem.querySelector('.item-name');
 
-            // Recalculate the subtotal and total
+            if (!quantityElement || !productNameElement) {
+                console.error('Quantity or product name element not found');
+                return;
+            }
+
+            quantityElement.textContent = `${currentQuantity}x`;
+
             recalculateTotal();
 
-            // Send AJAX request to update the quantity in the database
             const xhr = new XMLHttpRequest();
             xhr.open("POST", "function/update_cart_quantity.php", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send(`prod_id=${cartItem.querySelector('input[name="prod_id"]').value}&quantity=${currentQuantity}`);
         }
+
 
 
         function checkout() {
@@ -408,7 +476,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             }
 
             // Redirect to the checkout page
-            window.location.href = "checkout.php";
+            window.location.href = "staff_checkout.php";
         }
 
 

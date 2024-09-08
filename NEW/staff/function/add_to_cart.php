@@ -13,15 +13,14 @@ if (!isset($_SESSION["username"])) {
 
 $mysqli = new mysqli($host, $user, $password, $db);
 
-// Check for connection errors
 if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error . " - Error Number: " . $mysqli->connect_errno);
+    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $username = $_SESSION["username"];
 $prod_id = $_POST['prod_id'];
 $quantity = $_POST['quantity'];
-$user_type = 'customer';
+$user_type = 'staff';
 
 $sql = "SELECT id FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
@@ -51,7 +50,7 @@ if ($result->num_rows === 1) {
     $stmt->execute();
 
     // Redirect back to products page
-    header("Location: ../cust_products.php");
+    header("Location: ../staff.php");
 } else {
     // Handle user not found
     header("Location: ../../login.php");

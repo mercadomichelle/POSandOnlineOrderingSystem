@@ -37,22 +37,12 @@ if ($result->num_rows === 1) {
     $_SESSION["last_name"] = "";
     $login_id = 0; // Set default or handle accordingly if login_id not found
 }
-
-// Fetch user orders with product details
-$sql = "
-    SELECT 
-        orders.order_id, 
-        order_items.prod_id, 
-        order_items.quantity, 
-        orders.order_date, 
-        orders.total_amount
-    FROM 
-        orders
-    INNER JOIN 
-        order_items ON orders.order_id = order_items.order_id
-    WHERE 
-        orders.login_id = ?
-";
+// Fetch user orders with aggregated product details
+$sql = "SELECT orders.order_id, orders.order_date, SUM(order_items.quantity) as total_quantity, orders.total_amount
+        FROM orders
+        INNER JOIN order_items ON orders.order_id = order_items.order_id
+        WHERE orders.login_id = ? AND orders.order_status != 'Cancelled'
+        GROUP BY orders.order_id";
 
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $login_id);  // Bind $login_id as an integer
@@ -65,6 +55,10 @@ if ($result) {
     $orders = [];  // Initialize as an empty array if no orders found or error
 }
 
+$successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
+$errorMessage = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
+unset($_SESSION['success_message'], $_SESSION['error_message']);
+
 $stmt->close();
 $mysqli->close();
 ?>
@@ -75,7 +69,7 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website</title>
+    <title>Rice Website | My Order</title>
     <link rel="stylesheet" href="../styles/my_orders.css">
 </head>
 
@@ -104,40 +98,45 @@ $mysqli->close();
     <main>
         <div class="cart-summary">
             <h4>
-                <img src="../../images/order-details-icon.png" alt="Order" class="order-icon">ORDER DETAILS
+                <img src="../../images/order-details-icon.png" alt="Order" class="order-icon">MY ORDERS
             </h4>
 
-            <!-- <?php if ($errorMessage): ?>
-                <div class="message error">
-                    <p><?php echo $errorMessage; ?></p>
+            <div class="modal" id="messageModal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" id="closeModal">&times;</span>
+                    <p id="modalMessage"><?php echo htmlspecialchars($successMessage . $errorMessage); ?></p>
+                    <button id="okButton">OK</button>
                 </div>
-            <?php endif; ?> -->
+            </div>
 
             <div class="cart">
                 <div class="summary">
                     <?php if (count($orders) > 0): ?>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Product ID</th>
-                                    <th>Quantity</th>
-                                    <th>Order Date</th>
-                                    <th>Total Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($orders as $order): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($order['order_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($order['prod_id']); ?></td>
-                                        <td><?php echo htmlspecialchars($order['quantity']); ?></td>
-                                        <td><?php echo htmlspecialchars(date('F j, Y, g:i a', strtotime($order['order_date']))); ?></td>
-                                        <td><?php echo htmlspecialchars('₱' . number_format($order['total_amount'], 2)); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                        <div class="orders-list">
+                            <?php foreach ($orders as $order): ?>
+                                <a href="function/order_details.php?order_id=<?php echo htmlspecialchars($order['order_id']); ?>" class="order-card-link">
+                                    <div class="order-card">
+                                        <div class="order-header">
+                                            <div class="order-id">
+                                                <img src="../images/order-icon.png" alt="Order ID" class="icon">
+                                                <span><?php echo htmlspecialchars($order['order_id']); ?></span>
+                                            </div>
+                                            <div class="order-date">
+                                                <?php echo htmlspecialchars(date('F j, Y', strtotime($order['order_date']))); ?>
+                                            </div>
+                                        </div>
+                                        <div class="order-body">
+                                            <div class="order-detail">
+                                                <span><strong>Quantity:</strong> <?php echo htmlspecialchars($order['total_quantity']); ?></span>
+                                            </div>
+                                            <div class="order-detail">
+                                                <span><strong>Total Amount:</strong> <?php echo htmlspecialchars('₱' . number_format($order['total_amount'], 2)); ?></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
                     <?php else: ?>
                         <p>No orders found.</p>
                     <?php endif; ?>
@@ -161,8 +160,33 @@ $mysqli->close();
         }
     }
 
+    function showModal(message) {
+        const modal = document.getElementById('messageModal');
+        const modalMessage = document.getElementById('modalMessage');
+        modalMessage.textContent = message;
+        modal.style.display = 'flex'; 
+    }
+
+    function hideModal() {
+        const modal = document.getElementById('messageModal');
+        modal.style.display = 'none';
+    }
+
     window.addEventListener('resize', updateNavLinks);
     window.addEventListener('DOMContentLoaded', updateNavLinks);
+
+    document.getElementById('closeModal').addEventListener('click', hideModal);
+    document.getElementById('okButton').addEventListener('click', hideModal);
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            hideModal();
+        }
+    });
+
+    <?php if (!empty($successMessage) || !empty($errorMessage)): ?>
+        showModal("<?php echo htmlspecialchars($successMessage . $errorMessage); ?>");
+    <?php endif; ?>
+
 </script>
 
 </html>

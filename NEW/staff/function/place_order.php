@@ -51,12 +51,12 @@ try {
     $deliveryFee = 150;
     $totalAmount += $deliveryFee;
 
-    $order_source = 'online';
+    // Set order source to 'in-store'
+    $order_source = 'in-store';
 
-    // Insert the order into the orders table
+    // Insert the order into the orders table with order_source
     $sql = "INSERT INTO orders (login_id, order_date, total_amount, order_source) VALUES (?, NOW(), ?, ?)";
     $stmt = $mysqli->prepare($sql);
-    $order_source = 'online';
     $stmt->bind_param("ids", $login_id, $totalAmount, $order_source);
     $stmt->execute();
     
@@ -95,13 +95,14 @@ try {
 
     // Redirect to a success page with a message
     $_SESSION['success_message'] = "Your order has been placed successfully!";
-    header("Location: ../cust_products.php");
+    header("Location: ../staff.php");
     exit();
 } catch (Exception $e) {
     // Rollback transaction on error
     $mysqli->rollback();
     $_SESSION['error_message'] = "Failed to place the order: " . $e->getMessage();
-    header("Location: ../cust_products.php");
+    header("Location: ../staff.php");
     exit();
 }
+
 ?>

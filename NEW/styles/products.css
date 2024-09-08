@@ -66,17 +66,12 @@ header nav a {
 
 header nav a.current {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header nav a:hover {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
+
 
 header .account-info {
     display: flex;
@@ -223,6 +218,10 @@ main {
     margin: 70px 10px auto 230px;
 }
 
+img.notification-icon {
+    margin-right: 10px;
+}
+
 
 .dropdown {
     position: relative;
@@ -233,7 +232,7 @@ main {
     display: none;
     position: absolute;
     right: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -414,6 +413,7 @@ div#addNewProductBtn {
     max-height: 300px;
     margin-top: -5px;
     margin-bottom: 8px;
+    border: 1px solid black;
 }
 
 .product-card h4 {
@@ -449,6 +449,7 @@ div#addNewProductBtn {
     width: 25px;
     height: 25px;
     margin: auto 10px;
+    border: none;
 }
 
 .product-actions button:hover {
@@ -482,7 +483,7 @@ div#addNewProductBtn {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1001;
+    z-index: 1002;
     left: 0;
     top: 0;
     width: 100%;
@@ -520,6 +521,7 @@ div#addNewProductBtn {
 .message-modal {
     display: none;
     position: fixed;
+    z-index: 1002;
     top: 0;
     left: 0;
     width: 100%;

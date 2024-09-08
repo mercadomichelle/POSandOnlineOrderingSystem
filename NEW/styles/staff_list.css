@@ -10,18 +10,24 @@ html, body {
     flex-direction: column;
 }
 
+html, body, main, .product-grid {
+    height: 100%; /* Ensure all ancestors have height set */
+}
+
 body {
     display: flex;
-    flex-direction: column;
-    padding-top: 10px;
-    min-height: 95vh;
+    flex-direction: row; 
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden
 }
 
 header {
     position: fixed;
     left: 0;
     width: 100%;
-    /* z-index: 1; */
+    z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -60,16 +66,10 @@ header nav a {
 
 header nav a.current {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header nav a:hover {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header .account-info {
@@ -93,22 +93,12 @@ header .account-info img {
     cursor: pointer;
 }
 
-main {
-    flex: 1;
-    margin: 50px 0 auto 220px;
-    padding: 0;
-    display: flex;
-    flex-direction: row;
-    height: calc(100% - 76px);
-    overflow: hidden; 
-}
-
 .sidebar {
     position: fixed;
     top: 80px;
     left: 20px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: 86%;
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -117,6 +107,7 @@ main {
     flex-direction: column;
     justify-content: space-between;
     transition: width 0.3s ease; 
+    flex-shrink: 0; 
 }
 
 .sidebar.current {
@@ -219,20 +210,31 @@ main {
     -webkit-text-stroke: 1px #000;
 }
 
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 70px 10px auto 230px;
+}
+
+img.notification-icon {
+    margin-right: 10px;
+}
+
 
 .dropdown {
     position: relative;
     display: inline-block;
-    z-index: 1001; 
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
     right: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
 .dropdown-content a {
@@ -255,20 +257,20 @@ main {
 }
 
 .card {
-    position: fixed;
-    top: 80px;
-    left: calc(20px + 200px + 20px); 
-    width: calc(100% - (60px + 200px + 35px));
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    height: calc(100% - 135px);
+    margin: 0;
     text-align: left;
-    flex: 1; 
-    overflow: hidden;
-    z-index: 10; 
+    flex-grow: 1;
+    width: 97%;
+    max-height: calc(90vh - 52px);
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; 
 }
+
 
 .card h3 {
     margin-top: -5px;
@@ -356,7 +358,6 @@ main {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
     left: 0;
     top: 0;
     width: 100%;
@@ -365,6 +366,7 @@ main {
     background-color: rgba(0,0,0,0.4);
     font-size: smaller;
     align-content: center;
+    z-index: 1003;
 }
 
 .modal-content {

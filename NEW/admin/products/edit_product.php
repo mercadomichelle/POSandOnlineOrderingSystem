@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     $target_dir = "../../images/sacks/";
     $uploadOk = 1;
-    $prod_image_path = null;
+    $prod_image_path = $product['prod_image_path']; // Default to existing image path
 
     if (isset($_FILES['prod_image']) && $_FILES['prod_image']['error'] == 0) {
         $target_file = $target_dir . basename($_FILES["prod_image"]["name"]);
@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         if (!in_array($imageFileType, ["jpg", "jpeg", "png"])) {
-            $_SESSION['errorMessage'] = "Sorry, only JPG, JPEG, PNGfiles are allowed.";
+            $_SESSION['errorMessage'] = "Sorry, only JPG, JPEG, PNG files are allowed.";
             $uploadOk = 0;
         }
 
@@ -83,13 +83,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $noChanges = (
         $prod_brand == $product['prod_brand'] &&
         $prod_name == $product['prod_name'] &&
-        $prod_price_wholesale == $product['prod_price_wholesale'] &&
-        $prod_price_retail == $product['prod_price_retail'] &&
+        (($prod_price_wholesale === null && $product['prod_price_wholesale'] === null) || $prod_price_wholesale == $product['prod_price_wholesale']) &&
+        (($prod_price_retail === null && $product['prod_price_retail'] === null) || $prod_price_retail == $product['prod_price_retail']) &&
         $prod_image_path == $product['prod_image_path']
     );
 
     if ($noChanges) {
-        $_SESSION["errorMessage"] = "No changes made.";
+        $_SESSION["successMessage"] = "No changes made.";
+        $mysqli->close();
+        if ($source_page === 'retail') {
+            header("Location: products_retail.php");
+        } elseif ($source_page === 'wholesale') {
+            header("Location: products.php");
+        } else {
+            header("Location: products.php");
+        }
+        exit();
     } else {
         // Prepare the SQL query
         $sql = "UPDATE products SET prod_brand = ?, prod_name = ?";
@@ -102,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $types .= "d";
         }
 
-        if ($prod_image_path !== null) {
+        if ($prod_image_path !== $product['prod_image_path']) {
             $sql .= ", prod_image_path = ?";
             $params[] = $prod_image_path;
             $types .= "s";
@@ -122,7 +131,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param($types, ...$params);
 
         if ($stmt->execute()) {
-            $_SESSION["successMessage"] = "Product have been updated successfully.";
+            $_SESSION["successMessage"] = "Product has been updated successfully.";
         } else {
             $_SESSION["errorMessage"] = "Error updating product: " . $stmt->error;
         }

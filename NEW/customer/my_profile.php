@@ -68,7 +68,7 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website - My Profile</title>
+    <title>Rice Website | My Profile</title>
     <link rel="stylesheet" href="../styles/my_profile.css">
 </head>
 

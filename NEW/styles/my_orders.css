@@ -70,17 +70,12 @@ header nav a {
 
 header nav a.current {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
 
 header nav a:hover {
     color: #E1BE42;
-    text-decoration: underline;
-    text-decoration-color: #D20202;
-    text-decoration-thickness: 2px;
 }
+
 
 header .account-info {
     display: flex;
@@ -103,6 +98,9 @@ header .account-info img {
     cursor: pointer;
 }
 
+img.notification-icon {
+    margin-right: 10px;
+}
 
 .dropdown {
     position: relative;
@@ -113,7 +111,7 @@ header .account-info img {
     display: none;
     position: absolute;
     right: 0;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -141,9 +139,7 @@ header .account-info img {
 
 main {
     flex: 1;
-    /* display: flex;
-    flex-direction: column; */
-    max-width: 900px;
+    max-width: 75%;
     margin: 75px auto;
     width: 100%;
     display: flex;
@@ -170,7 +166,7 @@ img.order-icon {
 .cart-summary {
     background-color: #FFFAE8;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    padding: 30px;
     border-radius: 15px;
     /* display: flex;
     flex-direction: column;
@@ -194,20 +190,144 @@ img.order-icon {
     flex: 3;
 }
 
-table {
+.orders-list {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
+}
+
+.order-card {
+    background: linear-gradient(135deg, #f9f9f9, #f1f1f1);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.order-card:hover {
+    transform: scale(1.02);
+}
+
+.order-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.order-header {
+    background: #4a3c31;
+    color: #fff;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.order-header .order-id {
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.order-header .order-date {
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Order card body */
+.order-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.order-detail {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.order-detail img.icon {
+    width: 24px;
+    height: 24px;
+}
+
+.order-detail strong {
+    color: #4a3c31;
+}
+
+
+.modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    border-collapse: collapse;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Semi-transparent background */
+    z-index: 1000; /* Make sure it's on top of other elements */
+    display: flex; /* Use Flexbox */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+  
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #443225;
+    border-radius: 15px;
+    max-width: 250px;
+    min-width: 200px;
+    position: relative;
+    text-align: center;
+}
+  
+button {
+    padding: 10px 20px;
+    background-color: #4a3c31;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
 }
 
-table th, table td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+button:hover {
+    background-color: #3a2e27;
 }
 
-table th {
-    background-color: #f4f4f4;
+.close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    cursor: pointer;
+    color: red;
 }
+
+/* Responsive adjustments */
+@media (max-width: 649px) {
+    .order-card {
+        padding: 10px;
+    }
+
+    .order-header .order-id {
+        font-size: 16px;
+    }
+
+    .order-header .order-date {
+        font-size: 12px;
+    }
+
+    .order-detail {
+        font-size: 14px;
+    }
+}
+
+
 
 @media (max-width: 649px) {
 
