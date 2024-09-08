@@ -233,7 +233,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         </form>
 
                         <div class="receipt">
-                            <input type="checkbox" name="request_receipt" id="request_receipt">
+                            <input type="checkbox" name="request_receipt" id="request_receipt" checked>
                             <label for="request_receipt">Receipt</label>
                         </div>
                     </div>
