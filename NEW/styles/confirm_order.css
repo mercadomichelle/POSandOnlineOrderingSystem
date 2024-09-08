@@ -450,6 +450,8 @@ img.delivery-icon {
     display: flex;
     justify-content: end;
     align-items: end;
+    margin-top: 8px;
+    margin-bottom: -5px;
 }
 
 .pay-btn {
