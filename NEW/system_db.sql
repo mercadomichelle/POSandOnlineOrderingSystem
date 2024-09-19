@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 08, 2024 at 03:21 PM
+-- Generation Time: Sep 19, 2024 at 02:02 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -34,16 +34,20 @@ CREATE TABLE `cart` (
   `quantity` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `user_type` enum('customer','staff') DEFAULT 'customer',
-  `price_type` enum('wholesale','retail') NOT NULL DEFAULT 'retail'
+  `price_type` enum('wholesale','retail') NOT NULL DEFAULT 'retail',
+  `product_type` varchar(50) NOT NULL,
+  `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `cart`
 --
 
-INSERT INTO `cart` (`cart_id`, `login_id`, `prod_id`, `quantity`, `created_at`, `user_type`, `price_type`) VALUES
-(65, 3, 2, 10, '2024-08-29 15:08:41', 'customer', 'retail'),
-(67, 2, 1, 9, '2024-08-30 06:58:09', 'staff', 'retail');
+INSERT INTO `cart` (`cart_id`, `login_id`, `prod_id`, `quantity`, `created_at`, `user_type`, `price_type`, `product_type`, `price`) VALUES
+(67, 2, 1, 12, '2024-08-30 06:58:09', 'staff', 'retail', '', '0.00'),
+(70, 2, 3, 1, '2024-09-13 02:45:36', 'staff', 'retail', '', '0.00'),
+(71, 2, 2, 5, '2024-09-14 15:04:24', 'staff', 'retail', '', '0.00'),
+(72, 3, 2, 10, '2024-09-19 11:55:13', 'customer', 'retail', '', '0.00');
 
 -- --------------------------------------------------------
 
@@ -68,7 +72,8 @@ INSERT INTO `login` (`id`, `username`, `password`, `usertype`, `first_name`, `la
 (1, 'admin', '1234', 'admin', 'Admin', 'Account'),
 (2, 'staff', '1234', 'staff', 'Staff', 'Acc'),
 (3, 'custo', '1234', 'customer', 'cus', 'acc'),
-(4, 'asdasd', '235asd', 'staff', 'sfaf', 'asdasd');
+(4, 'asdasd', '235asd', 'staff', 'sfaf', 'asdasd'),
+(7, 'asd2134', '123', 'customer', 'asdad', 'asd');
 
 -- --------------------------------------------------------
 
@@ -94,7 +99,7 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `order_source`, `order_status`, `status_processed_at`, `status_packed_at`, `status_shipped_at`, `status_delivered_at`) VALUES
-(1, 3, '2024-08-26 15:33:46', '10.00', 'online', 'Delivery Complete', NULL, '2024-09-07 06:17:36', '2024-09-07 06:35:47', '2024-09-07 11:27:19'),
+(1, 3, '2024-08-26 15:33:46', '11230.00', 'online', 'Delivery Complete', NULL, '2024-09-07 06:17:36', '2024-09-07 06:35:47', '2024-09-07 11:27:19'),
 (2, 3, '2024-08-26 15:54:14', '10.00', 'online', 'Delivery Complete', NULL, '2024-09-07 06:17:36', '2024-09-07 06:35:28', '2024-09-07 17:17:16'),
 (3, 3, '2024-08-26 16:37:31', '10.00', 'online', 'Pending', NULL, '2024-09-07 06:17:36', NULL, NULL),
 (4, 3, '2024-08-26 16:38:53', '0.00', 'online', 'For Delivery', NULL, '2024-09-07 06:17:36', NULL, NULL),
@@ -114,7 +119,8 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (18, 3, '2024-08-29 21:50:30', '13172.00', 'online', 'For Delivery', NULL, '2024-09-07 06:17:06', '2024-09-07 11:49:30', NULL),
 (19, 3, '2024-08-29 22:05:39', '10650.00', 'online', 'Cancelled', NULL, NULL, NULL, NULL),
 (20, 3, '2024-08-29 22:06:51', '10650.00', 'online', 'Cancelled', NULL, NULL, NULL, NULL),
-(21, 2, '2024-08-29 22:13:35', '13260.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL);
+(21, 2, '2024-08-29 22:13:35', '13260.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL),
+(22, 3, '2024-09-13 10:43:31', '11450.00', 'online', 'Being Packed', NULL, '2024-09-13 04:48:11', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -167,7 +173,8 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `prod_id`, `quantity`) V
 (31, 19, 5, 10),
 (32, 20, 5, 10),
 (33, 21, 1, 5),
-(34, 21, 3, 6);
+(34, 21, 3, 6),
+(35, 22, 2, 10);
 
 -- --------------------------------------------------------
 
@@ -190,14 +197,13 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`prod_id`, `prod_brand`, `prod_name`, `prod_price_wholesale`, `prod_price_retail`, `prod_image_path`, `prod_created_at`) VALUES
-(1, 'A. M. Delen', 'Malagkit Mindoro', '1242.00', '34.00', '../../images/sacks/a_m_malagkit.png', '2024-08-15 10:32:17'),
+(1, 'A. M. Delen', 'Malagkit Mindoro', '1240.00', '34.00', '../../images/sacks/f_b_jasmine.png', '2024-08-15 10:32:17'),
 (2, 'Farmers Best', 'C-4 Dinorado', '1130.00', '56.00', '../../images/sacks/f_b_c4_dinorado.png', '2024-08-15 10:32:17'),
 (3, 'Farmers Best', 'Dinorado', '1150.00', '40.00', '../../images/sacks/f_b_dinorado.png', '2024-08-15 10:32:17'),
 (4, 'Farmers Best', 'Jasmine', '1200.00', '65.00', '../../images/sacks/f_b_jasmine.png', '2024-08-15 10:32:17'),
 (5, 'N. H. Escalona', 'Malagkit Mindoro', '1050.00', '60.00', '../../images/sacks/n_h_malagkit.png', '2024-08-15 10:32:19'),
 (6, 'Farmers Best', 'Maharlika', '1110.00', '55.00', '../../images/sacks/f_b_maharlika.png', '2024-08-16 09:02:48'),
-(17, 'Farmers Best', 'Sinandomeng', '1200.00', '45.00', '../../images/sacks/f_b_sinandomeng.png', '2024-08-20 09:31:14'),
-(23, 'Farmers Best', 'Milagrosa', '1050.00', '51.00', '../../images/sacks/f_b_milagrosa.png', '2024-08-30 08:53:47');
+(17, 'Farmers Best', 'Sinandomeng', '1200.00', '45.00', '../../images/sacks/f_b_sinandomeng.png', '2024-08-20 09:31:14');
 
 -- --------------------------------------------------------
 
@@ -221,7 +227,7 @@ CREATE TABLE `profile` (
 --
 
 INSERT INTO `profile` (`username`, `email`, `phone`, `address`, `barangay`, `city`, `province`, `zip_code`) VALUES
-('custo', 'asdsad@gmail.com', '42143424363', 'Banay-Banay 1st, San Jose, Batangas', 'Banay-banay 1st', 'San Jose', 'Batangas', '4224');
+('custo', 'asdsad@gmail.com', '42143424363', 'Banay-Banay 1st, San Jose, Batangas', 'Banay-banay 1st', 'San Josee', 'Batangas', '4224');
 
 -- --------------------------------------------------------
 
@@ -264,13 +270,12 @@ CREATE TABLE `stocks` (
 
 INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`) VALUES
 (1, 1, 40, '2024-08-30 13:29:13'),
-(2, 2, 1, '2024-09-04 09:28:11'),
-(6, 3, 43, '2024-08-31 09:27:21'),
-(10, 5, 35, '2024-08-29 14:06:51'),
-(12, 4, 4, '2024-08-31 09:59:04'),
+(2, 2, 21, '2024-09-14 11:08:08'),
+(6, 3, 9, '2024-09-14 11:07:42'),
+(10, 5, 40, '2024-09-14 11:05:45'),
+(12, 4, 4, '2024-09-14 11:07:54'),
 (13, 6, 38, '2024-08-29 13:50:30'),
-(45, 17, 39, '2024-09-05 08:43:28'),
-(51, 23, 40, '2024-08-30 08:54:04');
+(45, 17, 39, '2024-09-05 08:43:28');
 
 --
 -- Indexes for dumped tables
@@ -340,25 +345,25 @@ ALTER TABLE `stocks`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
 
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -376,7 +381,7 @@ ALTER TABLE `staff`
 -- AUTO_INCREMENT for table `stocks`
 --
 ALTER TABLE `stocks`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- Constraints for dumped tables
