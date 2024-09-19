@@ -6,11 +6,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['prod_id']) && isset($_POST['quantity'])) {
         $prod_ids = $_POST['prod_id'];
         $quantities = $_POST['quantity'];
+        $source = isset($_POST['source']) ? $_POST['source'] : '';  
 
-        // Check if the count of product IDs matches the count of quantities
         if (count($prod_ids) !== count($quantities)) {
             $_SESSION['error_message'] = "Mismatch between product IDs and quantities.";
-            header("Location: staff.php");
+            // Redirect back based on source
+            if ($source === 'wholesale') {
+                header("Location: staff.php");
+            } else {
+                header("Location: staff_retail.php");
+            }
             exit();
         }
 
@@ -29,7 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Handle the case where the POST data is missing
         $_SESSION['error_message'] = "Product IDs and quantities are required.";
-        header("Location: staff.php");
+        // Redirect back based on source
+        if (isset($_POST['source']) && $_POST['source'] === 'wholesale') {
+            header("Location: staff.php");
+        } else {
+            header("Location: staff_retail.php");
+        }
         exit();
     }
 }

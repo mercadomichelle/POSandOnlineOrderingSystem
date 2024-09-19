@@ -74,6 +74,7 @@ $result = $mysqli->query($sql);
 $stocks = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
@@ -142,7 +143,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     <main>
 
         <div class="cart-summary">
-            <button type="button" class="cancel-btn" onclick="window.location.href='../staff.php';">
+            <button type="button" class="cancel-btn" onclick="redirectBasedOnSource();">
                 <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
             <h4>
@@ -178,12 +179,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         </tbody>
                     </table>
 
-                    <div class="summary-item">
-                        <div class="delivery-fee">
-                            <span>Sub Total (<?php echo count($cart); ?> Item/s)</span>
-                            <span>₱<?php echo number_format($subTotal, 2); ?></span>
-                        </div>
-                    </div>
                     <div class="total">
                         <span>TOTAL</span>
                         <span>₱<?php echo number_format($total, 2); ?></span>
@@ -225,7 +220,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <div class="row">
                                 <button class="key" onclick="enterNumber('.')">.</button>
                                 <button class="key" onclick="enterNumber('0')">0</button>
-                                <button class="key" onclick="enterNumber('00')">00</button>
+                                <button class="key" onclick="enterNumber('.00')">.00</button>
                             </div>
                         </div>
                         <form action="payment.php" method="post" class="button">
@@ -251,18 +246,20 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 </html>
 <script>
-    function updateNavLinks() {
-        const ordersLink = document.getElementById('orders-link');
-        const aboutLink = document.getElementById('about-link');
-
-        if (window.innerWidth <= 649) {
-            ordersLink.textContent = 'ORDERS';
-            aboutLink.textContent = 'ABOUT';
+    function redirectBasedOnSource() {
+        const sourceElement = document.getElementById('source');
+    if (sourceElement) {
+        const source = sourceElement.value;
+        if (source === 'wholesale') {
+            window.location.href = '../staff.php';
         } else {
-            ordersLink.textContent = 'MY ORDERS';
-            aboutLink.textContent = 'ABOUT US';
+            window.location.href = '../staff_retail.php';
         }
+    } else {
+        // Default redirection if the source element is missing
+        window.location.href = '../staff.php';
     }
+}
 
     function validateNumberInput(input) {
         input.value = input.value.replace(/[^0-9.]/g, '');
@@ -285,9 +282,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             alert('Please enter an amount.');
         }
     }
-
-    window.addEventListener('resize', updateNavLinks);
-    window.addEventListener('DOMContentLoaded', updateNavLinks);
 
     document.querySelector('form').addEventListener('submit', function() {
         document.getElementById('loadingScreen').style.display = 'flex';

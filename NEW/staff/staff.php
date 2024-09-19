@@ -138,6 +138,7 @@ $result = $mysqli->query($sql);
 $stocks = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
@@ -344,11 +345,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- Orders summary section -->
-                    <div class="total-row fee">
-                        <span class="subtotal-label">Sub Total:</span>
-                        <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
-                    </div>
                     <div class="total-row total">
                         <span class="total-label">TOTAL:</span>
                         <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
@@ -366,6 +362,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             <form id="checkoutForm" method="POST" action="staff_checkout.php">
                 <?php foreach ($cart as $item): ?>
+                    <input type="hidden" id="source" value="<?php echo isset($_SESSION['source']) && $_SESSION['source'] === 'retail' ? 'retail' : 'wholesale'; ?>">
                     <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
                     <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
                 <?php endforeach; ?>

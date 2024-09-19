@@ -37,10 +37,11 @@ if ($result->num_rows === 1) {
 }
 
 // Fetch products
-$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_retail     AS prod_price, 
-        products.prod_image_path, stocks.stock_quantity 
+$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_retail AS prod_price, 
+        products.prod_image_path, stocks.stock_quantity, 'retail' AS price_type 
         FROM products 
         JOIN stocks ON products.prod_id = stocks.prod_id";
+
 $result = $mysqli->query($sql);
 
 $products = [];
@@ -137,6 +138,7 @@ $result = $mysqli->query($sql);
 $stocks = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
@@ -162,7 +164,7 @@ $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
 // Fetch cart items
 $login_id = $_SESSION['login_id'];
 
-$sql = "SELECT products.prod_id, products.prod_name, cart.quantity, products.prod_price_wholesale AS prod_price 
+$sql = "SELECT products.prod_id, products.prod_name, cart.quantity, products.prod_price_retail AS prod_price 
         FROM cart 
         JOIN products ON cart.prod_id = products.prod_id 
         WHERE cart.login_id = ?";
@@ -285,12 +287,16 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <!-- <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div> -->
 
                             <form class="product-actions" method="POST" action="function/add_to_cart.php">
+                                <input type="hidden" name="source" value="retail">
                                 <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
+                                <input type="hidden" name="product_type" value="<?php echo htmlspecialchars($product['price_type']); ?>"> <!-- Ensure this value matches the price type -->
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
                                 <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
                                 <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
                             </form>
+
+
 
                         </div>
                     <?php endforeach; ?>
@@ -344,11 +350,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         <?php endforeach; ?>
                     </div>
 
-                    <!-- Orders summary section -->
-                    <div class="total-row fee">
-                        <span class="subtotal-label">Sub Total:</span>
-                        <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
-                    </div>
                     <div class="total-row total">
                         <span class="total-label">TOTAL:</span>
                         <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
@@ -366,6 +367,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             <form id="checkoutForm" method="POST" action="staff_checkout.php">
                 <?php foreach ($cart as $item): ?>
+                    <input type="hidden" id="source" value="<?php echo isset($_SESSION['source']) && $_SESSION['source'] === 'wholesale' ? 'wholesale' : 'retail'; ?>">
                     <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
                     <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
                 <?php endforeach; ?>

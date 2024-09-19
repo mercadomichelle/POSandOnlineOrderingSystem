@@ -51,10 +51,16 @@ $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+$orderSubTotal = 0; 
 if ($result->num_rows > 0) {
     $orderDetails = $result->fetch_all(MYSQLI_ASSOC);
+    
+    foreach ($orderDetails as $item) {
+        $orderSubTotal += $item['prod_price_wholesale'] * $item['quantity']; // Calculate order subtotal
+    }
 } else {
     $orderDetails = [];
+    $orderSubTotal = 0; // Default subtotal if no items found
 }
 
 // Fetch the status timestamps
@@ -76,12 +82,11 @@ $stmt->bind_param("i", $login_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
+$cartSubTotal = 0;
 $cart = [];
-$subTotal = 0;
-
 while ($row = $result->fetch_assoc()) {
     $totalPrice = $row['prod_price'] * $row['quantity'];
-    $subTotal += $totalPrice;
+    $cartSubTotal += $totalPrice;
     $cart[] = [
         'prod_id' => $row['prod_id'],
         'name' => $row['prod_name'],
@@ -91,7 +96,9 @@ while ($row = $result->fetch_assoc()) {
 }
 
 $deliveryFee = 150.00; // Set your delivery fee here
-$total = $subTotal + $deliveryFee; // Calculate total before echoing it
+
+// Calculate total using both subtotals
+$total = $orderSubTotal + $cartSubTotal + $deliveryFee;
 
 
 $successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';

@@ -59,7 +59,7 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-$total = $subTotal + 150; // Fixed delivery fee
+$total = $subTotal + 150; 
 
 $stmt->close();
 $mysqli->close();

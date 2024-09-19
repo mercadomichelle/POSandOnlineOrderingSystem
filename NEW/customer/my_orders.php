@@ -37,12 +37,17 @@ if ($result->num_rows === 1) {
     $_SESSION["last_name"] = "";
     $login_id = 0; // Set default or handle accordingly if login_id not found
 }
-// Fetch user orders with aggregated product details
-$sql = "SELECT orders.order_id, orders.order_date, SUM(order_items.quantity) as total_quantity, orders.total_amount
+
+// Fetch user orders with aggregated product details and order status
+$sql = "SELECT orders.order_id, orders.order_date, 
+               SUM(order_items.quantity) AS total_quantity, 
+               orders.total_amount, orders.order_status,
+               GROUP_CONCAT(products.prod_name SEPARATOR ', ') AS product_names
         FROM orders
         INNER JOIN order_items ON orders.order_id = order_items.order_id
+        INNER JOIN products ON order_items.prod_id = products.prod_id
         WHERE orders.login_id = ? AND orders.order_status != 'Cancelled'
-        GROUP BY orders.order_id";
+        GROUP BY orders.order_id, orders.order_date, orders.total_amount, orders.order_status";
 
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $login_id);  // Bind $login_id as an integer
@@ -51,8 +56,28 @@ $result = $stmt->get_result();
 
 if ($result) {
     $orders = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Loop through each order to fetch order details (order items)
+    foreach ($orders as &$order) {
+        $sqlOrderDetails = "SELECT order_items.quantity, products.prod_name, products.prod_image_path, products.prod_brand, products.prod_price_wholesale 
+                            FROM order_items 
+                            INNER JOIN products ON order_items.prod_id = products.prod_id 
+                            WHERE order_items.order_id = ?";
+        $stmtOrderDetails = $mysqli->prepare($sqlOrderDetails);
+        $stmtOrderDetails->bind_param("i", $order['order_id']);
+        $stmtOrderDetails->execute();
+        $resultOrderDetails = $stmtOrderDetails->get_result();
+
+        // Fetch the order items and assign them to $orderDetails
+        $orderDetails = $resultOrderDetails->fetch_all(MYSQLI_ASSOC);
+
+        // Attach the order details to the current order in the orders array
+        $order['details'] = $orderDetails;
+
+        $stmtOrderDetails->close();
+    }
 } else {
-    $orders = [];  // Initialize as an empty array if no orders found or error
+    $orders = [];
 }
 
 $successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
@@ -119,19 +144,71 @@ $mysqli->close();
                                         <div class="order-header">
                                             <div class="order-id">
                                                 <img src="../images/order-icon.png" alt="Order ID" class="icon">
-                                                <span><?php echo htmlspecialchars($order['order_id']); ?></span>
+                                                <span>Order ID: <?php echo htmlspecialchars($order['order_id']); ?></span>
                                             </div>
                                             <div class="order-date">
-                                                <?php echo htmlspecialchars(date('F j, Y', strtotime($order['order_date']))); ?>
+                                                <span><strong>Placed on: </strong><?php echo htmlspecialchars(date('F j, Y', strtotime($order['order_date']))); ?></span>
                                             </div>
                                         </div>
                                         <div class="order-body">
+                                            <table>
+                                                <tbody>
+                                                    <?php if (!empty($order['details'])): ?>
+                                                        <?php $firstItem = $order['details'][0]; ?>
+                                                        <tr class="order-item">
+                                                            <td class="product-image">
+                                                                <?php if (!empty($firstItem['prod_image_path'])): ?>
+                                                                    <img src="<?php echo htmlspecialchars($firstItem['prod_image_path']); ?>" alt="<?php echo htmlspecialchars($firstItem['prod_name']); ?>">
+                                                                <?php else: ?>
+                                                                    <img src="../../images/default-image.png" alt="Default Image">
+                                                                <?php endif; ?>
+                                                            </td>
+
+                                                            <td class="product-details">
+                                                                <div class="prod-name"><?php echo htmlspecialchars($firstItem['prod_name']); ?></div>
+                                                                <div class="prod-brand"><?php echo htmlspecialchars($firstItem['prod_brand']); ?></div>
+                                                            </td>
+
+
+                                                            <td class="product-price">
+                                                                <div class="total-price">₱ <?php echo number_format($firstItem['quantity'] * $firstItem['prod_price_wholesale'], 2); ?></div>
+                                                                <div class="prod-quantity">Qty: <?php echo htmlspecialchars($firstItem['quantity']); ?></div>
+                                                            </td>
+                                                        </tr>
+
+
+                <?php 
+                $remainingItems = count($order['details']) - 1;
+                if ($remainingItems > 0): ?>
+                    <tr>
+    <td colspan="3">
+        <div class="more-items">+ <?php echo $remainingItems; ?> more item<?php echo ($remainingItems > 1) ? 's' : ''; ?></div>
+    </td>
+</tr>
+
+                    <?php endif; ?>
+
+                                                    <?php endif; ?>
+                                                </tbody>
+
+
+                                            </table>
+
                                             <div class="order-detail">
-                                                <span><strong>Quantity:</strong> <?php echo htmlspecialchars($order['total_quantity']); ?></span>
+                                                <div class="total">
+                                                    <span><strong>Total Amount:</strong> ₱<?php echo htmlspecialchars(number_format($order['total_amount'], 2)); ?></span>
+                                                </div>
                                             </div>
-                                            <div class="order-detail">
-                                                <span><strong>Total Amount:</strong> <?php echo htmlspecialchars('₱' . number_format($order['total_amount'], 2)); ?></span>
+                                            <div class="order-status-wrapper">
+                                                <div class="order-status">
+                                                    <span><strong>Order Status: </strong><?php echo htmlspecialchars($order['order_status']); ?></span>
+                                                </div>
+                                                <a href="function/order_details.php?order_id=<?php echo htmlspecialchars($order['order_id']); ?>" class="details-link">
+                                                    <span>Order Details</span>
+                                                    <span class="arrow">&#x2192;</span>
+                                                </a>
                                             </div>
+
                                         </div>
                                     </div>
                                 </a>
@@ -142,6 +219,10 @@ $mysqli->close();
                     <?php endif; ?>
                 </div>
             </div>
+
+        </div>
+
+        </div>
     </main>
 
 </body>
@@ -164,7 +245,7 @@ $mysqli->close();
         const modal = document.getElementById('messageModal');
         const modalMessage = document.getElementById('modalMessage');
         modalMessage.textContent = message;
-        modal.style.display = 'flex'; 
+        modal.style.display = 'flex';
     }
 
     function hideModal() {
@@ -186,7 +267,6 @@ $mysqli->close();
     <?php if (!empty($successMessage) || !empty($errorMessage)): ?>
         showModal("<?php echo htmlspecialchars($successMessage . $errorMessage); ?>");
     <?php endif; ?>
-
 </script>
 
 </html>

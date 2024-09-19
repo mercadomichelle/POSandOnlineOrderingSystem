@@ -44,6 +44,7 @@ $result = $mysqli->query($sql);
 $stocks = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
@@ -91,15 +92,15 @@ $mysqli->close();
         <div class="account-info">
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
-                    <div class="dropdown-content" id="notificationDropdown">
-                        <?php if (empty($notifications)): ?>
-                            <a href="#">No new notifications</a>
-                        <?php else: ?>
-                            <?php foreach ($notifications as $notification): ?>
-                                <a href="../stocks/staff_stocks.php"><?php echo $notification; ?></a>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
+                <div class="dropdown-content" id="notificationDropdown">
+                    <?php if (empty($notifications)): ?>
+                        <a href="#">No new notifications</a>
+                    <?php else: ?>
+                        <?php foreach ($notifications as $notification): ?>
+                            <a href="../stocks/staff_stocks.php"><?php echo $notification; ?></a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
             </div>
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
             <div class="dropdown">
@@ -253,6 +254,19 @@ $mysqli->close();
                 document.getElementById('loadingScreen').style.display = 'flex';
             };
 
+            const okButton = document.getElementById('okButton');
+            if (okButton) {
+                okButton.addEventListener('click', function() {
+                    document.getElementById('messageModal').style.display = 'none';
+                });
+            }
+
+            const closeButton = document.querySelector('.message-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    document.getElementById('messageModal').style.display = 'none';
+                });
+            }
         });
 
         // Function to open Add Stock Modal

@@ -21,6 +21,7 @@ $username = $_SESSION["username"];
 $prod_id = $_POST['prod_id'];
 $quantity = $_POST['quantity'];
 $user_type = 'staff';
+$source = $_POST['source'];  // Get source page
 
 $sql = "SELECT id FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
@@ -43,14 +44,36 @@ if ($result->num_rows === 1) {
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("iii", $quantity, $login_id, $prod_id);
     } else {
-        $sql = "INSERT INTO cart (login_id, prod_id, quantity, user_type) VALUES (?, ?, ?, ?)";
+        if ($source === 'wholesale') {
+            $sql = "SELECT prod_price_wholesale FROM products WHERE prod_id = ?";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("i", $prod_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $prod = $result->fetch_assoc();
+            $price = $prod['prod_price_wholesale'];
+        } else {
+            $sql = "SELECT prod_price_retail FROM products WHERE prod_id = ?";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("i", $prod_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $prod = $result->fetch_assoc();
+            $price = $prod['prod_price_retail'];
+        }
+        $stmt->close();
+
+        $sql = "INSERT INTO cart (login_id, prod_id, quantity, price, user_type) VALUES (?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param("iiis", $login_id, $prod_id, $quantity, $user_type);
+        $stmt->bind_param("iiids", $login_id, $prod_id, $quantity, $price, $user_type);
     }
     $stmt->execute();
 
-    // Redirect back to products page
-    header("Location: ../staff.php");
+    if ($source === 'wholesale') {
+        header("Location: ../staff.php");
+    } else {
+        header("Location: ../staff_retail.php");
+    }
 } else {
     // Handle user not found
     header("Location: ../../login.php");
@@ -58,3 +81,4 @@ if ($result->num_rows === 1) {
 
 $stmt->close();
 $mysqli->close();
+?>

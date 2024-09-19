@@ -300,6 +300,32 @@ img.notification-icon {
     background: #f6d97f;
 }
 
+.sort-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-bottom: 20px;
+}
+
+.sort-container h3 {
+    margin: 0;
+}
+
+.sort {
+    display: flex;
+    align-items: center;
+}
+
+.sort label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.sort select {
+    padding: 5px;
+    font-size: 16px;
+}
+
 .order-item {
     justify-content: space-between;
     align-items: center;

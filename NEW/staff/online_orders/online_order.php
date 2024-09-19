@@ -64,6 +64,7 @@ $stocksResult = $mysqli->query($sql);
 $stocks = [];
 if ($stocksResult->num_rows > 0) {
     while ($row = $stocksResult->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
@@ -182,7 +183,20 @@ $mysqli->close();
     <main>
         <div class="body">
             <div class="card">
+                <div class="sort-container">
                 <h3>Online Order Status</h3>
+                    <div class="sort">
+                    <label for="sortOrderStatus">Sort by Status:</label>
+                    <select id="sortOrderStatus">
+                        <option value="all">All</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Being Packed">Being Packed</option>
+                        <option value="For Delivery">For Delivery</option>
+                        <option value="Delivery Complete">Delivery Complete</option>
+                    </select>
+                </div>
+                </div>
+
                 <div id="orderList">
                     <?php if ($ordersResult->num_rows > 0): ?>
                         <div class="order-header">
@@ -273,6 +287,21 @@ $mysqli->close();
                 } else {
                     detailsContainer.slideToggle();
                 }
+            });
+
+            $('#sortOrderStatus').on('change', function() {
+                const selectedStatus = $(this).val();
+
+                // Loop through all order items and hide or show based on the selected status
+                $('.order-item-container').each(function() {
+                    const orderStatus = $(this).find('select[name="order_status"]').val();
+
+                    if (selectedStatus === 'all' || orderStatus === selectedStatus) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
             });
         });
 
