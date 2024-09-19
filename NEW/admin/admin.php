@@ -45,6 +45,7 @@ $result = $mysqli->query($sql);
 $stocks = [];
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
+        $row['stock_quantity'] = max(0, $row['stock_quantity']);
         $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
         $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
         $stocks[] = $row;
