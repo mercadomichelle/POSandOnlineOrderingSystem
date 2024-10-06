@@ -33,10 +33,14 @@ if (!$stmt) {
 }
 $stmt->bind_param("iii", $quantity, $prod_id, $login_id);
 $stmt->execute();
+
+// Check if any rows were affected
+if ($stmt->affected_rows > 0) {
+    echo json_encode(['success' => 'Cart quantity updated']);
+} else {
+    echo json_encode(['error' => 'No changes made to the cart']);
+}
+
 $stmt->close();
-
-echo json_encode(['success' => 'Cart quantity updated']);
-
-// Close the connection
 $mysqli->close();
 ?>

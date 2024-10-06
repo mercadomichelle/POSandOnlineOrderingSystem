@@ -110,7 +110,7 @@ main {
     display: none;
     position: absolute;
     right: 0;
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -133,6 +133,16 @@ main {
 
 .dropdown img {
     cursor: pointer;
+}
+
+
+div#notificationDropdown {
+    width: 250px;
+}
+
+p {
+    padding: 0 15px 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 .product-controls {
@@ -202,7 +212,7 @@ main {
     position: absolute;
     right: 12px;
     top: 50%;
-    transform: translateY(-65%);
+    transform: translateY(-60%);
     width: 25px;
     height: 25px;
     pointer-events: none;
@@ -356,7 +366,10 @@ main {
 }
 
 .minimum-order {
-    margin-top: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
     font-size: 15px;
     color: #E53935;
 }
@@ -562,7 +575,6 @@ div#cart-items {
     border-radius: 25px;
     font-size: 16px;
     cursor: pointer;
-    margin-top: 30px;
 }
 
 .checkout-btn:hover {

@@ -38,7 +38,10 @@ if ($result->num_rows === 1) {
     $login_id = 0; // Set default or handle accordingly if login_id not found
 }
 
-// Fetch user orders with aggregated product details and order status
+// Fetch the selected order status from the dropdown (GET request)
+$order_status = isset($_GET['order_status']) ? $_GET['order_status'] : 'all';
+
+// Modify the SQL query to filter by status if a specific status is selected
 $sql = "SELECT orders.order_id, orders.order_date, 
                SUM(order_items.quantity) AS total_quantity, 
                orders.total_amount, orders.order_status,
@@ -46,18 +49,40 @@ $sql = "SELECT orders.order_id, orders.order_date,
         FROM orders
         INNER JOIN order_items ON orders.order_id = order_items.order_id
         INNER JOIN products ON order_items.prod_id = products.prod_id
-        WHERE orders.login_id = ? AND orders.order_status != 'Cancelled'
-        GROUP BY orders.order_id, orders.order_date, orders.total_amount, orders.order_status";
+        WHERE orders.login_id = ?";
 
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("i", $login_id);  // Bind $login_id as an integer
+if ($order_status !== 'all') {
+    $sql .= " AND orders.order_status = ?";
+}
+
+$sql .= " AND orders.order_status != 'Cancelled'
+          GROUP BY orders.order_id, orders.order_date, orders.total_amount, orders.order_status
+          ORDER BY 
+            CASE 
+                WHEN orders.order_status = 'Pending' THEN 1
+                WHEN orders.order_status = 'Being Packed' THEN 2
+                WHEN orders.order_status = 'For Delivery' THEN 3
+                WHEN orders.order_status = 'Delivery Complete' THEN 4
+                ELSE 5
+            END ASC";
+
+// Prepare the statement and bind parameters
+if ($order_status !== 'all') {
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("is", $login_id, $order_status); // "i" for login_id, "s" for status
+} else {
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $login_id); // Only bind the login_id if status is "all"
+}
+
 $stmt->execute();
 $result = $stmt->get_result();
+
 
 if ($result) {
     $orders = $result->fetch_all(MYSQLI_ASSOC);
 
-    // Loop through each order to fetch order details (order items)
+    // Fetch details for each order as you already did
     foreach ($orders as &$order) {
         $sqlOrderDetails = "SELECT order_items.quantity, products.prod_name, products.prod_image_path, products.prod_brand, products.prod_price_wholesale 
                             FROM order_items 
@@ -67,18 +92,14 @@ if ($result) {
         $stmtOrderDetails->bind_param("i", $order['order_id']);
         $stmtOrderDetails->execute();
         $resultOrderDetails = $stmtOrderDetails->get_result();
-
-        // Fetch the order items and assign them to $orderDetails
         $orderDetails = $resultOrderDetails->fetch_all(MYSQLI_ASSOC);
-
-        // Attach the order details to the current order in the orders array
         $order['details'] = $orderDetails;
-
         $stmtOrderDetails->close();
     }
 } else {
     $orders = [];
 }
+
 
 $successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
 $errorMessage = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
@@ -122,10 +143,22 @@ $mysqli->close();
 
     <main>
         <div class="cart-summary">
-            <h4>
-                <img src="../../images/order-details-icon.png" alt="Order" class="order-icon">MY ORDERS
-            </h4>
+            <div class="container">
+                <h4>
+                    <img src="../../images/order-details-icon.png" alt="Order" class="order-icon">MY ORDERS
+                </h4>
+                <form class="sorting-options" method="GET" action="my_orders.php" id="filterForm">
+                    <label for="orderStatus">Filter by Status:</label>
+                    <select name="order_status" id="orderStatus" onchange="document.getElementById('filterForm').submit();">
+                        <option value="all" <?php if (isset($_GET['order_status']) && $_GET['order_status'] == 'all') echo 'selected'; ?>>All</option>
+                        <option value="Pending" <?php if (isset($_GET['order_status']) && $_GET['order_status'] == 'Pending') echo 'selected'; ?>>Pending</option>
+                        <option value="Being Packed" <?php if (isset($_GET['order_status']) && $_GET['order_status'] == 'Being Packed') echo 'selected'; ?>>Being Packed</option>
+                        <option value="For Delivery" <?php if (isset($_GET['order_status']) && $_GET['order_status'] == 'For Delivery') echo 'selected'; ?>>For Delivery</option>
+                        <option value="Delivery Complete" <?php if (isset($_GET['order_status']) && $_GET['order_status'] == 'Delivery Complete') echo 'selected'; ?>>Delivery Complete</option>
+                    </select>
+                </form>
 
+            </div>
             <div class="modal" id="messageModal" style="display:none;">
                 <div class="modal-content">
                     <span class="close" id="closeModal">&times;</span>
@@ -136,6 +169,9 @@ $mysqli->close();
 
             <div class="cart">
                 <div class="summary">
+
+
+
                     <?php if (count($orders) > 0): ?>
                         <div class="orders-list">
                             <?php foreach ($orders as $order): ?>
@@ -177,16 +213,16 @@ $mysqli->close();
                                                         </tr>
 
 
-                <?php 
-                $remainingItems = count($order['details']) - 1;
-                if ($remainingItems > 0): ?>
-                    <tr>
-    <td colspan="3">
-        <div class="more-items">+ <?php echo $remainingItems; ?> more item<?php echo ($remainingItems > 1) ? 's' : ''; ?></div>
-    </td>
-</tr>
+                                                        <?php
+                                                        $remainingItems = count($order['details']) - 1;
+                                                        if ($remainingItems > 0): ?>
+                                                            <tr>
+                                                                <td colspan="3">
+                                                                    <div class="more-items">+ <?php echo $remainingItems; ?> more item<?php echo ($remainingItems > 1) ? 's' : ''; ?></div>
+                                                                </td>
+                                                            </tr>
 
-                    <?php endif; ?>
+                                                        <?php endif; ?>
 
                                                     <?php endif; ?>
                                                 </tbody>
@@ -267,6 +303,11 @@ $mysqli->close();
     <?php if (!empty($successMessage) || !empty($errorMessage)): ?>
         showModal("<?php echo htmlspecialchars($successMessage . $errorMessage); ?>");
     <?php endif; ?>
+
+    function sortOrders() {
+        const sortValue = document.getElementById('sortOrders').value;
+        window.location.href = 'my_orders.php?sort_by=' + sortValue;
+    }
 </script>
 
 </html>

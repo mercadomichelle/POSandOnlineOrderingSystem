@@ -107,7 +107,7 @@ header .account-info img {
     display: none;
     position: absolute;
     right: 0;
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -131,6 +131,8 @@ header .account-info img {
 .dropdown img {
     cursor: pointer;
 }
+
+
 
 main {
     flex: 1;

@@ -43,17 +43,24 @@ $profileResult = $stmt->get_result();
 
 if ($profileResult->num_rows === 1) {
     $profileData = $profileResult->fetch_assoc();
+    $latitude = $profileData['latitude'];
+    $longitude = $profileData['longitude'];
 } else {
     $profileData = [
         'email' => '',
         'phone' => '',
         'address' => '',
-        'barangay' => '',
-        'city' => '',
-        'province' => '',
-        'zip_code' => ''
+        'zip_code' => '',
+        'latitude' => '',
+        'longitude' => ''
     ];
+    $latitude = null;
+    $longitude = null;
 }
+
+$city = $_SESSION['city'] ?? 'City not available'; // Get city from session with default
+
+
 $stmt->close();
 $mysqli->close();
 
@@ -70,6 +77,9 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | My Profile</title>
     <link rel="stylesheet" href="../styles/my_profile.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
@@ -106,7 +116,7 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
             <div class="divider"></div>
 
             <form id="profileForm" action="function/update_profile.php" method="POST">
-                
+
                 <div class="profile-section">
                     <div class="form-group-wrapper">
                         <div class="form-group">
@@ -128,40 +138,38 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
+                        <!-- <p>City: <?php echo htmlspecialchars($city); ?></p> -->
                         <input type="text" id="phone" name="phone" maxlength="11" value="<?php echo htmlspecialchars($profileData['phone']); ?>" required>
                     </div>
                 </div>
 
                 <div class="divider1"></div>
 
+
                 <div class="delivery-section">
                     <h2>Delivery Address</h2>
                     <div class="form-group">
-                        <label for="address">Address</label>
-                        <input type="text" id="address" name="address" value="<?php echo htmlspecialchars($profileData['address']); ?>" required>
+
+                        <label for="location">Address</label>
+                        <input type="text" id="location" name="address" placeholder="Type your address" value="<?php echo htmlspecialchars($profileData['address']); ?>" required>
+                        <input type="hidden" id="city" name="city" value="">
+                        <input type="hidden" id="latitude" name="latitude" value="<?php echo htmlspecialchars($profileData['latitude']); ?>">
+                        <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($profileData['longitude']); ?>">
+                        <div id="suggestions" class="suggestions-container"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="barangay">Barangay</label>
-                        <input type="text" id="barangay" name="barangay" value="<?php echo htmlspecialchars($profileData['barangay']); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" value="<?php echo htmlspecialchars($profileData['city']); ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="province">Province</label>
-                        <input type="text" id="province" name="province" value="<?php echo htmlspecialchars($profileData['province']); ?>" required>
-                    </div>
+                    <div id="map" style="height: 230px; width: 100%; z-index:auto;"></div>
                     <div class="form-group">
                         <label for="zip_code">Zip Code</label>
-                        <input type="text" id="zip_code" name="zip_code" maxlength="4" value="<?php echo htmlspecialchars($profileData['zip_code']); ?>" required>
+                        <input type="text" id="zip_code" name="zip_code" value="<?php echo htmlspecialchars($profileData['zip_code']); ?>" required>
                     </div>
                 </div>
 
                 <div class="button-container">
                     <button type="submit" class="save-button">SAVE</button>
+                    <!-- <input type="submit" value="Save Changes" class="submit-button"> -->
                 </div>
             </form>
+
 
             <div class="modal" id="messageModal" style="display:none;">
                 <div class="modal-content">
@@ -225,19 +233,13 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
                 email: "<?php echo htmlspecialchars($profileData['email']); ?>",
                 phone: "<?php echo htmlspecialchars($profileData['phone']); ?>",
                 address: "<?php echo htmlspecialchars($profileData['address']); ?>",
-                barangay: "<?php echo htmlspecialchars($profileData['barangay']); ?>",
-                city: "<?php echo htmlspecialchars($profileData['city']); ?>",
-                province: "<?php echo htmlspecialchars($profileData['province']); ?>",
                 zip_code: "<?php echo htmlspecialchars($profileData['zip_code']); ?>"
             };
 
             const formData = {
                 email: document.getElementById('email').value,
                 phone: document.getElementById('phone').value,
-                address: document.getElementById('address').value,
-                barangay: document.getElementById('barangay').value,
-                city: document.getElementById('city').value,
-                province: document.getElementById('province').value,
+                address: document.getElementById('location').value,
                 zip_code: document.getElementById('zip_code').value
             };
 
@@ -276,6 +278,130 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
             document.body.classList.add('loading-open');
 
             this.submit();
+        });
+
+        $(document).ready(function() {
+            const locationIqApiKey = 'pk.874b7e8302271991d4120988fae87225';
+            const latitude = "<?php echo $latitude ? $latitude : '13.41'; ?>"; // Default latitude
+            const longitude = "<?php echo $longitude ? $longitude : '122.56'; ?>"; // Default longitude
+
+            // Initialize the map
+            const map = L.map('map').setView([latitude, longitude], 13);
+
+            // Add OpenStreetMap tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Marker for selected location
+            let marker;
+
+            // If latitude and longitude are available, add a marker
+            if (latitude && longitude) {
+                marker = L.marker([latitude, longitude]).addTo(map);
+            }
+
+            // Add click event to the map
+            map.on('click', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+
+                // Remove the existing marker if there is one
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+
+                // Add a new marker
+                marker = L.marker([lat, lng]).addTo(map);
+
+                // Use LocationIQ API to get address from coordinates
+                fetch(`https://us1.locationiq.com/v1/reverse.php?key=${locationIqApiKey}&lat=${lat}&lon=${lng}&format=json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const address = data.display_name;
+                        const city = data.address.city || data.address.town || data.address.village; // Try to extract the city
+
+                        $('#location').val(address); // Fill the input with the full address
+                        $('#latitude').val(lat); // Update the latitude field
+                        $('#longitude').val(lng); // Update the longitude field
+
+                        // Set the city for delivery fee lookup
+                        $('#city').val(city); // Assuming you have a hidden input field for the city
+                    })
+                    .catch(error => console.error('Error fetching address:', error));
+
+            });
+
+            // Debounce function to limit API requests
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+
+            // Location input autocomplete
+            $('#location').on('input', debounce(function() {
+                const query = $(this).val();
+                if (query.length > 2) { // Fetch suggestions if input is longer than 2 characters
+                    fetch(`https://us1.locationiq.com/v1/autocomplete.php?key=${locationIqApiKey}&q=${encodeURIComponent(query + ' Philippines')}&limit=10`)
+                        .then(response => response.json())
+                        .then(data => {
+                            $('#suggestions').empty().show();
+                            data.forEach(item => {
+                                $('#suggestions').append(`<div class="suggestion-item">${item.display_name}</div>`);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Error fetching suggestions:', error);
+                        });
+                } else {
+                    $('#suggestions').empty().hide(); // Hide suggestions if input is too short
+                }
+            }, 300)); // Debounce time set to 300ms
+
+            // Handle click on suggestion
+            $('#suggestions').on('click', '.suggestion-item', function() {
+                const selectedAddress = $(this).text();
+                $('#location').val(selectedAddress); // Set the input value to the clicked suggestion
+
+                // Geocode the selected address to get latitude and longitude
+                fetch(`https://us1.locationiq.com/v1/search.php?key=${locationIqApiKey}&q=${encodeURIComponent(selectedAddress)}&format=json`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const lat = data[0].lat;
+                            const lon = data[0].lon;
+
+                            // Remove the existing marker if there is one
+                            if (marker) {
+                                map.removeLayer(marker);
+                            }
+
+                            // Add a new marker
+                            marker = L.marker([lat, lon]).addTo(map);
+                            map.setView([lat, lon], 13); // Zoom to the marker
+
+                            // Update the latitude and longitude in hidden fields
+                            $('#latitude').val(lat);
+                            $('#longitude').val(lon);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching address:', error);
+                    });
+
+                $('#suggestions').empty().hide(); // Hide suggestions after selection
+            });
+
+            // Hide suggestions when clicking outside
+            $(document).click(function(event) {
+                if (!$(event.target).closest('#location').length) {
+                    $('#suggestions').empty().hide();
+                }
+            });
         });
     </script>
 

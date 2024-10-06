@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $_POST['password'];
     $phone = $_POST['phone'];
     $email = $_POST['email'];
-    $usertype = 'staff';
+    $usertype = $_POST['usertype'];
 
     $_SESSION['formData'] = [
         'first_name' => $first_name,
@@ -29,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         'username' => $username,
         'phone' => $phone,
         'email' => $email,
+        'usertype' => $usertype,
     ];
 
     if (strlen($phone) !== 11 || !is_numeric($phone)) {
@@ -64,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $login_id = $stmt->insert_id;
             $full_name = $first_name . ' ' . $last_name;
 
-            $stmt2 = $mysqli->prepare("INSERT INTO staff (login_id, name, phone_number, email_address) VALUES (?, ?, ?, ?)");
-            $stmt2->bind_param("isss", $login_id, $full_name, $phone, $email);
+            $stmt2 = $mysqli->prepare("INSERT INTO staff (login_id, name, phone_number, email_address, usertype) VALUES (?, ?, ?, ?, ?)");
+            $stmt2->bind_param("issss", $login_id, $full_name, $phone, $email, $usertype);
 
             if ($stmt2->execute()) {
                 $limit = 10;

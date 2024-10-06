@@ -241,8 +241,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
                                 <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
                             </form>
-
-                            <div class="minimum-order">Minimum order quantity: 10 sacks</div>
                         </div>
                     <?php endforeach; ?>
 
@@ -265,7 +263,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <?php else: ?>
                     <div id="cart-items">
                         <?php foreach ($cart as $item): ?>
-                            <div class="cart-item">
+                            <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>">
                                 <span class="item-quantity">
                                     <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
                                 </span>
@@ -305,6 +303,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         <span class="total-label">TOTAL:</span>
                         <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
                     </div>
+                    <div class="minimum-order">Minimum order quantity to checkout: 10 sacks</div>
                     <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
                 <?php endif; ?>
             </div>
@@ -395,8 +394,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             totalElement.textContent = `₱${(subtotal + deliveryFee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
         }
 
-
-
         function updateQuantity(button, change) {
             const input = button.parentNode.querySelector('.qty-input');
             if (!input) {
@@ -407,6 +404,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             let currentQuantity = parseInt(input.value);
             const maxQuantity = parseInt(input.getAttribute('data-max'));
 
+            // Calculate new quantity
             currentQuantity += change;
 
             if (currentQuantity < 1) {
@@ -418,45 +416,44 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             input.value = currentQuantity;
 
             const cartItem = button.closest('.cart-item');
-            if (!cartItem) {
-                console.error('Cart item element not found');
+            const prodId = cartItem.getAttribute('data-prod-id');
+            const priceType = cartItem.getAttribute('data-price-type'); // If price_type is needed
+
+            if (!prodId || isNaN(currentQuantity)) {
+                console.error('Invalid product ID or quantity');
                 return;
             }
-
-            const pricePerUnitElement = cartItem.querySelector('.item-price-per-unit');
-            if (!pricePerUnitElement) {
-                console.error('Price per unit element not found');
-                return;
-            }
-
-            const pricePerUnit = parseFloat(pricePerUnitElement.textContent.replace('₱', '').replace(/,/g, ''));
-            const totalPriceElement = cartItem.querySelector('.item-total-price');
-            if (!totalPriceElement) {
-                console.error('Total price element not found');
-                return;
-            }
-
-            const totalPrice = currentQuantity * pricePerUnit;
-            totalPriceElement.textContent = `₱${totalPrice.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-
-            const quantityElement = cartItem.querySelector('.item-quantity');
-            const productNameElement = cartItem.querySelector('.item-name');
-
-            if (!quantityElement || !productNameElement) {
-                console.error('Quantity or product name element not found');
-                return;
-            }
-
-            quantityElement.textContent = `${currentQuantity}x`;
-
-            recalculateTotal();
 
             const xhr = new XMLHttpRequest();
             xhr.open("POST", "function/update_cart_quantity.php", true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send(`prod_id=${cartItem.querySelector('input[name="prod_id"]').value}&quantity=${currentQuantity}`);
-        }
 
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            console.log('Quantity updated successfully');
+                        } else {
+                            console.error(response.error || 'Unknown error occurred');
+                        }
+                    } catch (e) {
+                        console.error('Error parsing server response', xhr.responseText);
+                    }
+                } else {
+                    console.error('Request failed. Status:', xhr.status);
+                }
+            };
+
+
+            xhr.onerror = function() {
+                console.error('Request failed');
+            };
+
+            // Send the data to the server
+            const postData = `prod_id=${encodeURIComponent(prodId)}&quantity=${encodeURIComponent(currentQuantity)}`;
+            xhr.send(postData);
+        }
 
 
         function checkout() {

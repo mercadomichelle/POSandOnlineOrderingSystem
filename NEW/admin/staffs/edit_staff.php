@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
     $phone = $_POST['phone'];
     $email = $_POST['email'];
+    $usertype = $_POST['usertype'];
     $page = $_POST['page'];
 
     if (!is_numeric($phone)) {
@@ -46,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
     
-    $current_sql = "SELECT login.first_name, login.last_name, login.username, staff.phone_number, staff.email_address 
+    $current_sql = "SELECT login.first_name, login.last_name, login.username, staff.phone_number, staff.email_address, staff.usertype
                     FROM login 
                     JOIN staff ON login.id = staff.login_id 
                     WHERE staff.staff_id = ?";
@@ -60,7 +61,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $current_data['last_name'] == $last_name &&
         $current_data['username'] == $username &&
         $current_data['phone_number'] == $phone &&
-        $current_data['email_address'] == $email) {
+        $current_data['email_address'] == $email &&
+        $current_data['usertype'] == $usertype) {
         $_SESSION["errorMessage"] = "No changes have been made.";
         $_SESSION['formData'] = $_POST;
         header("Location: staff_list.php?page=$page&edit_id=$staff_id");
@@ -80,15 +82,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     } else {
         $update_sql = "UPDATE login 
-                        JOIN staff ON login.id = staff.login_id 
-                        SET login.first_name = ?, login.last_name = ?, login.username = ?, 
-                            staff.name = CONCAT(?, ' ', ?), staff.phone_number = ?, staff.email_address = ?
-                        WHERE staff.staff_id = ?";
+                JOIN staff ON login.id = staff.login_id 
+                SET login.first_name = ?, 
+                    login.last_name = ?, 
+                    login.username = ?, 
+                    staff.name = CONCAT(?, ' '), 
+                    staff.phone_number = ?, 
+                    staff.email_address = ?, 
+                    login.usertype = ?,
+                    staff.usertype = ?  
+                WHERE staff.staff_id = ?";
+
         $update_stmt = $mysqli->prepare($update_sql);
 
         if ($update_stmt) {
-            $update_stmt->bind_param("sssssssi", $first_name, $last_name, $username, $first_name, $last_name, $phone, $email, $staff_id);
-
+            $update_stmt->bind_param("ssssssssi", 
+            $first_name, 
+            $last_name, 
+            $username, 
+            $first_name, 
+            $phone, 
+            $email, 
+            $usertype, 
+            $usertype, 
+            $staff_id
+        );
+        
             if ($update_stmt->execute()) {
                 $_SESSION["successMessage"] = "Staff information updated successfully.";
             } else {

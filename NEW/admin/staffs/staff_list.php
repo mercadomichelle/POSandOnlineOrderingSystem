@@ -41,11 +41,12 @@ $offset = ($page - 1) * $limit;
 
 $offset = max(0, $offset);
 
-$sql = "SELECT login.id, login.first_name, login.last_name, login.username, staff.staff_id, staff.phone_number, staff.email_address 
+$sql = "SELECT login.id, login.first_name, login.last_name, login.username, staff.staff_id, staff.phone_number, staff.email_address, staff.usertype 
         FROM login 
         JOIN staff 
         ON login.id = staff.login_id 
         LIMIT $offset, $limit";
+
 
 $result = $mysqli->query($sql);
 
@@ -135,6 +136,7 @@ $mysqli->close();
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p>Notifications</p>
                     <?php if (empty($notifications)): ?>
                         <a href="#">No new notifications</a>
                     <?php else: ?>
@@ -180,6 +182,7 @@ $mysqli->close();
                     <div>USERNAME</div>
                     <div>PHONE NUMBER</div>
                     <div>EMAIL ADDRESS</div>
+                    <div>USER TYPE</div>
                     <div class="edit">EDIT</div>
                     <div class="delete">DELETE</div>
                 </div>
@@ -192,6 +195,7 @@ $mysqli->close();
                             <div><?php echo htmlspecialchars($row['username']); ?></div>
                             <div><?php echo htmlspecialchars($row['phone_number']); ?></div>
                             <div><?php echo htmlspecialchars($row['email_address']); ?></div>
+                            <div><?php echo htmlspecialchars($row['usertype']); ?></div>
                             <div class='edit'><img class='edit-btn' data-id='<?php echo htmlspecialchars($row['staff_id']); ?>' src='../../images/edit-icon.png' alt='Edit'></div>
                             <div class='delete'><img class='delete-btn' data-id='<?php echo htmlspecialchars($row['staff_id']); ?>' src='../../images/delete-icon.png' alt='Delete'></div>
                         </div>
@@ -261,6 +265,11 @@ $mysqli->close();
                         <input type="text" id="phone" maxlength="11" name="phone" required value="<?php echo isset($_SESSION['formData']['phone']) ? htmlspecialchars($_SESSION['formData']['phone']) : ''; ?>"><br><br>
                         <label for="email">Email address:</label>
                         <input type="email" id="email" name="email" required value="<?php echo isset($_SESSION['formData']['email']) ? htmlspecialchars($_SESSION['formData']['email']) : ''; ?>"><br><br>
+                        <label for="usertype">User Type:</label>
+                        <select id="usertype" name="usertype" required>
+                            <option value="staff">Staff</option>
+                            <option value="delivery">Delivery</option>
+                        </select>
                         <div class="form-button-container">
                             <button type="submit" class="save-btn">Submit</button>
                         </div>
@@ -287,6 +296,11 @@ $mysqli->close();
                         <input type="text" name="phone" id="edit_phone" maxlength="11" class="edit" required value="<?php echo isset($formData['phone']) ? htmlspecialchars($formData['phone']) : ''; ?>">
                         <label for="edit_email">Email Address:</label>
                         <input type="email" name="email" id="edit_email" class="edit" required value="<?php echo isset($formData['email']) ? htmlspecialchars($formData['email']) : ''; ?>">
+                        <label for="edit_usertype">User Type:</label>
+                        <select id="edit_usertype" name="usertype" required>
+                            <option value="staff" <?php echo (isset($formData['usertype']) && $formData['usertype'] == 'staff') ? 'selected' : ''; ?>>Staff</option>
+                            <option value="delivery" <?php echo (isset($formData['usertype']) && $formData['usertype'] == 'delivery') ? 'selected' : ''; ?>>Delivery</option>
+                        </select>
                         <div class="form-button-container">
                             <button type="submit" class="save-btn">Save changes</button>
                     </form>
@@ -390,6 +404,7 @@ $mysqli->close();
                 const username = staffItem.children[2].textContent.trim();
                 const phoneNumber = staffItem.children[3].textContent.trim();
                 const emailAddress = staffItem.children[4].textContent.trim();
+                const userType = staffItem.children[5].textContent.trim();
 
                 const currentPage = <?php echo $page; ?>;
 
@@ -399,6 +414,7 @@ $mysqli->close();
                 document.getElementById('edit_username').value = username;
                 document.getElementById('edit_phone').value = phoneNumber;
                 document.getElementById('edit_email').value = emailAddress;
+                document.getElementById('edit_usertype').value = userType;
 
                 document.getElementById('edit_page').value = currentPage;
 

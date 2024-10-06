@@ -103,11 +103,10 @@ $mysqli->close();
     <header>
         <div class="logo">RICE</div>
         <div class="account-info">
-
-
-        <div class="dropdown notifications-dropdown">
+            <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p>Notifications</p>
                     <?php if (empty($notifications)): ?>
                         <a href="#">No new notifications</a>
                     <?php else: ?>

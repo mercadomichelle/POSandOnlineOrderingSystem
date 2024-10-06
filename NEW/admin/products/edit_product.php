@@ -34,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $prod_id = intval($_POST['prod_id']);
     $prod_brand = $_POST['prod_brand'];
     $prod_name = $_POST['prod_name'];
-    $prod_price_wholesale = isset($_POST['prod_price_wholesale']) ? $_POST['prod_price_wholesale'] : null;
-    $prod_price_retail = isset($_POST['prod_price_retail']) ? $_POST['prod_price_retail'] : null;
+    $prod_price_wholesale = isset($_POST['prod_price_wholesale']) ? (float) $_POST['prod_price_wholesale'] : null;
+    $prod_price_retail = isset($_POST['prod_price_retail']) ? (float) $_POST['prod_price_retail'] : null;
     $source_page = $_POST['source_page'];
 
     $target_dir = "../../images/sacks/";
@@ -81,11 +81,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check for changes
     $noChanges = (
-        $prod_brand == $product['prod_brand'] &&
-        $prod_name == $product['prod_name'] &&
-        (($prod_price_wholesale === null && $product['prod_price_wholesale'] === null) || $prod_price_wholesale == $product['prod_price_wholesale']) &&
-        (($prod_price_retail === null && $product['prod_price_retail'] === null) || $prod_price_retail == $product['prod_price_retail']) &&
-        $prod_image_path == $product['prod_image_path']
+        $prod_brand === $product['prod_brand'] &&
+        $prod_name === $product['prod_name'] &&
+        (is_null($prod_price_wholesale) || $prod_price_wholesale == (float)$product['prod_price_wholesale']) &&
+        (is_null($prod_price_retail) || $prod_price_retail == (float)$product['prod_price_retail']) &&
+        $prod_image_path === $product['prod_image_path']
     );
 
     if ($noChanges) {

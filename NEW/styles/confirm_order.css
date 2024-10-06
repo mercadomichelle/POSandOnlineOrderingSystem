@@ -108,7 +108,7 @@ img.notification-icon {
     display: none;
     position: absolute;
     right: 0;
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -131,6 +131,15 @@ img.notification-icon {
 
 .dropdown img {
     cursor: pointer;
+}
+
+div#notificationDropdown {
+    width: 250px;
+}
+
+p {
+    padding: 0 15px 10px;
+    border-bottom: 1px solid #ddd;
 }
 
 main {
@@ -162,6 +171,94 @@ img.cart-icon {
     color: #721c24;
 }
 
+.message-modal{
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+}
+
+.message-modal-content{
+    background-color: white;
+    /* margin-top: auto; */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 20px;
+    border: 1px solid #443225;
+    border-radius: 15px;
+    max-width: 20%;
+    height: 15%;
+    position: relative;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.message-close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+    color: red;
+}
+
+.message-close:hover,
+.message-close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.cancel-btn {
+    display: flex;
+    align-items: center; 
+    background-color: #FFFAE8;
+    padding: 5px 0;
+    border: none;
+    gap: 10px;
+    margin-bottom: 5px;
+    margin-top: -10px;
+    width: 100px;
+}
+
+.cancel-btn img.back-icon {
+    height: 30px;
+    width: 30px;
+}
+
+form#paymentForm {
+    display: flex;
+    justify-content: center;
+    
+}
+
+button.message-cancel-btn,
+button.message-confirm-btn,
+button.close-modal-btn {
+padding: 10px 20px;
+background-color: #4a3c31;
+color: #fff;
+border: none;
+border-radius: 30px;
+cursor: pointer;
+margin: -5px 5px 5px 5px;
+}
 
 table {
     width: 100%;
@@ -184,22 +281,6 @@ table td {
     padding: 30px 15px;
 }
 
-.cancel-btn {
-    display: flex;
-    align-items: center; 
-    background-color: #FFFAE8;
-    padding: 5px 0;
-    border: none;
-    gap: 10px;
-    margin-bottom: 5px;
-    margin-top: -10px;
-    width: 100px;
-}
-
-.cancel-btn img.back-icon {
-    height: 30px;
-    width: 30px;
-}
 
 
 h4 {
@@ -317,19 +398,67 @@ img.delivery-icon {
 }
 
 .delivery-address h6 {
-    margin: 0;
+    margin: 0 0 10px 0;
     font-size: medium;
 }
 
 .delivery-details select,
 .delivery-details input {
-    /* width: 100%; */
+    max-width: 350px;
     background-color: #fff9e3;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 16px;
     margin-top: 15px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+}
+
+.delivery-details {
+    max-width: 380px;
+}
+
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.dropdown-selected {
+    background-color: #fff9e3; 
+    padding: 10px;     
+    font-size: 14px;
+    border: 1px solid #ccc; 
+    border-radius: 4px; 
+    cursor: pointer;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dropdown-options {
+    display: none; 
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: 12px;
+    right: 0; 
+    background-color: #fff9e3; 
+    border: 1px solid #ccc; 
+    z-index: 10;
+    max-height: 200px; 
+    overflow-y: auto; 
+}
+
+.dropdown-option {
+    padding: 10px; 
+    cursor: pointer; 
+    white-space: normal; 
+}
+
+.dropdown-option:hover {
+    background-color: #e0e0e0; 
 }
 
 .confirm-btn, .pay-btn{
@@ -466,6 +595,43 @@ img.delivery-icon {
 .pay-btn:hover {
     background-color: #fcc371;
 }
+
+
+.confirm-btn, .cancel-btn {
+    /* padding: 10px 20px;
+    margin: 10px; */
+    font-size: 16px;
+}
+
+
+.no-address-message {
+    margin-top: 10px;
+    color: red; /* Or any color that fits your design */
+}
+
+.update-profile-btn {
+    background-color: #FDE9A2;
+    padding: 15px;
+    color: #000000;
+    border: 1px solid #000000;
+    font-size: medium;
+    width: 100%;
+    max-width: 200px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.no-address-warning {
+    display: flex;
+    justify-content: flex-end;
+    margin: -25px 0px;
+}
+
+.confirm-btn:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
 
 .loading-screen {
     display: none; 

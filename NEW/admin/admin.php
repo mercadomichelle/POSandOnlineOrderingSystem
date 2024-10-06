@@ -88,9 +88,11 @@ $mysqli->close();
         <div class="logo">RICE</div>
         <div class="account-info">
 
-        <div class="dropdown notifications-dropdown">
+            <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p>Notifications</p>
+
                     <?php if (empty($notifications)): ?>
                         <a href="#">No new notifications</a>
                     <?php else: ?>
@@ -136,27 +138,23 @@ $mysqli->close();
 
 
     <script>
+        // NOTIFICATIONS
+        document.addEventListener('DOMContentLoaded', function() {
+            const notifIcon = document.querySelector('.notification-icon');
+            const notifDropdown = document.getElementById('notificationDropdown');
 
-            // NOTIFICATIONS
-            document.addEventListener('DOMContentLoaded', function() {
-                const notifIcon = document.querySelector('.notification-icon');
-                const notifDropdown = document.getElementById('notificationDropdown');
-
-                notifIcon.addEventListener('click', function(event) {
-                    event.stopPropagation(); // Prevent the click event from bubbling up
-                    notifDropdown.classList.toggle('show');
-                });
-
-                // Close the dropdown if the user clicks outside of it
-                window.addEventListener('click', function(event) {
-                    if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
-                        notifDropdown.classList.remove('show');
-                    }
-                });
+            notifIcon.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent the click event from bubbling up
+                notifDropdown.classList.toggle('show');
             });
 
-
-
+            // Close the dropdown if the user clicks outside of it
+            window.addEventListener('click', function(event) {
+                if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
+                    notifDropdown.classList.remove('show');
+                }
+            });
+        });
     </script>
 </body>
 

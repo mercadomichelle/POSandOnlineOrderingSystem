@@ -111,7 +111,7 @@ img.notification-icon {
     display: none;
     position: absolute;
     right: 0;
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     z-index: 1;
@@ -182,7 +182,7 @@ img.order-icon {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 25px;
+    /* padding: 25px; */
 }
 
 .summary {
@@ -196,11 +196,30 @@ img.order-icon {
     border-collapse: collapse; 
 }
 
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -10px;
+}
+
+.sorting-options {
+    margin-bottom: 20px;
+}
+
+.sorting-options label {
+    margin-right: 10px;
+}
+
+.sorting-options select {
+    padding: 5px;
+    font-size: 16px;
+}
 
 .orders-list {
     display: grid;
     gap: 20px;
-    padding: 20px;
+    padding: 10px 5px;
 }
 
 .order-card {

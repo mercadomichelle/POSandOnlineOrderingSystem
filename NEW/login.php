@@ -21,8 +21,8 @@ $formSubmitted = false;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $formSubmitted = true;
-    $username = trim($_POST["username"]); 
-    $password = trim($_POST["password"]); 
+    $username = trim($_POST["username"]);
+    $password = trim($_POST["password"]);
 
     $sql = "SELECT * FROM login WHERE username=?";
     $stmt = $data->prepare($sql);
@@ -33,7 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($result->num_rows === 1) {
             $row = $result->fetch_assoc();
-            
+
             if ($password === $row['password']) {
                 $_SESSION["username"] = $username;
                 error_log("Password verified, user type: " . $row["usertype"]);
@@ -45,6 +45,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     exit();
                 } elseif ($row["usertype"] == "customer") {
                     header("Location: customer/customer.php");
+                    exit();
+                } elseif ($row["usertype"] == "delivery") {
+                    header("Location: delivery/delivery.php");
                     exit();
                 }
             } else {
@@ -67,6 +70,7 @@ $data->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,7 +110,7 @@ $data->close();
                 </div>
                 <div class="form-submit">
                     <button type="submit" class="submit-button">Login</button>
-                </div>            
+                </div>
             </form>
         </div>
 
@@ -163,7 +167,7 @@ $data->close();
                 </div>
                 <div class="form-submit">
                     <button type="submit" class="submit-button">Register</button>
-                </div>            
+                </div>
             </form>
         </div>
     </div>
@@ -190,107 +194,107 @@ $data->close();
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const passwordToggles = document.querySelectorAll('.password-toggle');
-        
-        passwordToggles.forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                const passwordField = toggle.previousElementSibling;
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    toggle.innerHTML = '<i class="fa fa-eye-slash"></i>'; 
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordToggles = document.querySelectorAll('.password-toggle');
+
+            passwordToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const passwordField = toggle.previousElementSibling;
+                    if (passwordField.type === 'password') {
+                        passwordField.type = 'text';
+                        toggle.innerHTML = '<i class="fa fa-eye-slash"></i>';
+                    } else {
+                        passwordField.type = 'password';
+                        toggle.innerHTML = '<i class="fa fa-eye"></i>';
+                    }
+                });
+            });
+
+            const loadingScreen = document.getElementById('loadingScreen');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const loginBtn2 = document.getElementById('loginBtn2');
+            const registerBtn2 = document.getElementById('registerBtn2');
+            const errorModal = document.getElementById('errorModal');
+            const closeErrorModal = document.getElementById('closeErrorModal');
+            const okButton = document.getElementById('okButton');
+            const successModal = document.getElementById('successModal');
+            const closeSuccessModal = document.getElementById('closeSuccessModal');
+            const okSuccessButton = document.getElementById('okSuccessButton');
+
+            function toggleForms(showLogin) {
+                if (showLogin) {
+                    loginBtn.classList.add('active');
+                    registerBtn.classList.remove('active');
+                    loginForm.style.display = 'block';
+                    registerForm.style.display = 'none';
                 } else {
-                    passwordField.type = 'password';
-                    toggle.innerHTML = '<i class="fa fa-eye"></i>';
+                    registerBtn.classList.add('active');
+                    loginBtn.classList.remove('active');
+                    registerForm.style.display = 'block';
+                    loginForm.style.display = 'none';
+                }
+            }
+
+            loginBtn.addEventListener('click', () => toggleForms(true));
+            registerBtn.addEventListener('click', () => toggleForms(false));
+            loginBtn2.addEventListener('click', () => toggleForms(true));
+            registerBtn2.addEventListener('click', () => toggleForms(false));
+
+            function showLoadingScreen() {
+                loadingScreen.style.display = 'flex';
+                document.body.classList.add('loading-open');
+            }
+
+            function hideLoadingScreen() {
+                loadingScreen.style.display = 'none';
+                document.body.classList.remove('loading-open');
+            }
+
+            <?php if ($formSubmitted && !empty($errorMessage)): ?>
+                errorModal.style.display = 'block';
+            <?php endif; ?>
+
+            closeErrorModal.addEventListener('click', () => {
+                errorModal.style.display = 'none';
+            });
+
+            okButton.addEventListener('click', () => {
+                errorModal.style.display = 'none';
+            });
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    errorModal.style.display = 'none';
                 }
             });
-        });
 
-        const loadingScreen = document.getElementById('loadingScreen');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const loginBtn2 = document.getElementById('loginBtn2');
-        const registerBtn2 = document.getElementById('registerBtn2');
-        const errorModal = document.getElementById('errorModal');
-        const closeErrorModal = document.getElementById('closeErrorModal');
-        const okButton = document.getElementById('okButton');
-        const successModal = document.getElementById('successModal');
-        const closeSuccessModal = document.getElementById('closeSuccessModal');
-        const okSuccessButton = document.getElementById('okSuccessButton');
-
-        function toggleForms(showLogin) {
-            if (showLogin) {
-                loginBtn.classList.add('active');
-                registerBtn.classList.remove('active');
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-            } else {
-                registerBtn.classList.add('active');
-                loginBtn.classList.remove('active');
-                registerForm.style.display = 'block';
-                loginForm.style.display = 'none';
+            function showSuccessModal() {
+                successModal.style.display = 'flex';
             }
-        }
 
-        loginBtn.addEventListener('click', () => toggleForms(true));
-        registerBtn.addEventListener('click', () => toggleForms(false));
-        loginBtn2.addEventListener('click', () => toggleForms(true));
-        registerBtn2.addEventListener('click', () => toggleForms(false));
-
-        function showLoadingScreen() {
-            loadingScreen.style.display = 'flex';
-            document.body.classList.add('loading-open');
-        }
-
-        function hideLoadingScreen() {
-            loadingScreen.style.display = 'none';
-            document.body.classList.remove('loading-open');
-        }
-        
-        <?php if ($formSubmitted && !empty($errorMessage)): ?>
-            errorModal.style.display = 'block';
-        <?php endif; ?>
-
-        closeErrorModal.addEventListener('click', () => {
-            errorModal.style.display = 'none';
-        });
-
-        okButton.addEventListener('click', () => {
-            errorModal.style.display = 'none';
-        });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                errorModal.style.display = 'none';
+            function hideSuccessModal() {
+                successModal.style.display = 'none';
             }
+
+            closeSuccessModal.addEventListener('click', hideSuccessModal);
+            okSuccessButton.addEventListener('click', hideSuccessModal);
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    hideSuccessModal();
+                }
+            });
+
+            <?php if (!empty($_SESSION["message"])): ?>
+                showSuccessModal();
+                <?php unset($_SESSION["message"]); ?>
+            <?php endif; ?>
         });
-
-        function showSuccessModal() {
-        successModal.style.display = 'flex';
-        }
-
-        function hideSuccessModal() {
-            successModal.style.display = 'none';
-        }
-
-        closeSuccessModal.addEventListener('click', hideSuccessModal);
-        okSuccessButton.addEventListener('click', hideSuccessModal);
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                hideSuccessModal();
-            }
-        });
-
-        <?php if (!empty($_SESSION["message"])): ?>
-            showSuccessModal();
-            <?php unset($_SESSION["message"]); ?>
-        <?php endif; ?>
-    });
-
     </script>
 
 </body>
+
 </html>

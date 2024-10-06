@@ -1,0 +1,282 @@
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    color: #4a3c31;
+    height: 100%;
+    background: url('../images/bg3.png') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+}
+
+
+body {
+    display: flex;
+    flex-direction: row; 
+    height: 100vh;
+    margin: 0;
+    padding: 10px;
+    overflow: hidden
+}
+
+
+main {
+    flex: 1;
+    max-width: 75%;
+    margin: 75px auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+header {
+    position: fixed;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+}
+
+header .logo {
+    font-size: 20px;
+    margin-left: 10px;
+    font-weight: 900;
+    color: #977644;
+    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+}
+
+header .nav-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+}
+
+header nav a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #000000;
+    font-weight: 800;
+    font-size: small;
+    transition: color 0.3s ease, text-decoration-color 0.3s ease;
+}
+
+header nav a.current {
+    color: #E1BE42;
+}
+
+header nav a:hover {
+    color: #E1BE42;
+}
+
+
+header .account-info {
+    display: flex;
+    align-items: center;
+    margin-right: 30px;
+}
+
+header .account-info .user-name {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #4a3c31;
+    font-size: 17px;
+    text-align: right;
+}
+
+header .account-info img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+
+img.notification-icon {
+    margin-right: 10px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #f0f0f0;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown img {
+    cursor: pointer;
+}
+
+
+div#notificationDropdown {
+    width: 250px;
+}
+
+p {
+    padding: 0 15px 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.receipt-container {
+    background-color: white;
+    padding: 20px;
+    width: 350px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+}
+
+.receipt-container h1, .receipt-container h2 {
+    margin: 0;
+}
+
+.header {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+
+.header p {
+    font-size: 12px;
+    margin: 4px 0;
+}
+
+.receipt-id {
+    text-align: left;
+    font-size: 12px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    font-size: 12px;
+}
+
+.receipt-table th, .receipt-table td {
+    text-align: left;
+    padding: 5px;
+}
+
+.receipt-table th {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+}
+
+.receipt-table .total-row {
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+}
+
+.receipt-footer {
+    font-size: 12px;
+    margin-top: 20px;
+}
+
+.receipt-footer p {
+    margin: 0;
+    margin-bottom: 5px;
+}
+
+p.footer {
+    border-bottom: 1px #ddd dotted;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+}
+
+.footer-note {
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+p.footer-note1 {
+    margin-bottom: 30px;
+}
+
+.print-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+@media print {
+    /* Hide everything in the body when printing */
+    body * {
+        visibility: hidden; 
+    }
+
+    /* Show only the receipt container and its children */
+    .receipt-container, .receipt-container * {
+        visibility: visible; 
+    }
+
+    /* Position the receipt container for printing */
+    .receipt-container {
+        position: absolute; /* Ensures it is positioned correctly on the page */
+        left: 0;
+        top: 0;
+        width: 350px; /* Set width according to your receipt size */
+        height: auto; /* Height can be auto to fit content */
+        margin: 0; /* No margin */
+        padding: 10px; /* Optional padding */
+    }
+
+    /* Optionally, set margin for printing */
+    @page {
+        margin: 0; /* Removes default page margins */
+    }
+}
