@@ -124,12 +124,20 @@ header .account-info img {
 }
 
 .dropdown-content a:hover {
-    background-color: #f1f1f1;
+    background-color: #ddd;
+    border-radius: 10px;
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
+    border-radius: 10px;
 }
+
+.dropdown img {
+    cursor: pointer;
+}
+
+
 
 main {
     flex: 1;

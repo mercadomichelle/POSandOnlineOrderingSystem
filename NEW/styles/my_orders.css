@@ -126,11 +126,14 @@ img.notification-icon {
 
 .dropdown-content a:hover {
     background-color: #ddd;
+    border-radius: 10px;
 }
 
 .dropdown:hover .dropdown-content {
     display: block;
+    border-radius: 10px;
 }
+
 
 .dropdown img {
     cursor: pointer;
