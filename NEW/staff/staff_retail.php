@@ -37,12 +37,14 @@ if ($result->num_rows === 1) {
 }
 
 // Fetch products
-$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_retail AS prod_price, 
-        products.prod_image_path, stocks.stock_quantity, 'retail' AS price_type 
+$sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, 
+               products.prod_price_wholesale, products.prod_price_retail, 
+               products.prod_image_path, stocks.stock_quantity 
         FROM products 
         JOIN stocks ON products.prod_id = stocks.prod_id";
-
 $result = $mysqli->query($sql);
+
+$_SESSION['prod_price'] = 'retail';
 
 $products = [];
 if ($result->num_rows > 0) {
@@ -68,12 +70,12 @@ usort($products, function ($a, $b) {
     return 0; // Both are in stock, keep original order
 });
 
-
 // Handle quantity update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     $prod_id = $_POST['prod_id'];
     $quantity = max(1, (int)$_POST['quantity']);
     $login_id = $_SESSION['login_id'];
+    $price_type = $_POST['price_type'];
 
     // Update the cart with the new quantity
     $sql = "UPDATE cart SET quantity = ? WHERE prod_id = ? AND login_id = ?";
@@ -90,9 +92,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     $stmt->close();
 
     // Redirect to avoid resubmission issues
-    header("Location: staff.php");
+    header("Location: staff_retail.php");
     exit();
 }
+
 
 // Handle item removal
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
@@ -123,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
     $stmt->close();
 
     // Redirect to avoid resubmission issues
-    header("Location: staff.php");
+    header("Location: staff_retail.php");
     exit();
 }
 
@@ -164,10 +167,20 @@ $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
 // Fetch cart items
 $login_id = $_SESSION['login_id'];
 
-$sql = "SELECT products.prod_id, products.prod_name, cart.quantity, products.prod_price_retail AS prod_price 
+$price_type = 'retail';
+if (isset($_POST['price_type']) && in_array($_POST['price_type'], ['retail', 'wholesale'])) {
+    $price_type = $_POST['price_type'];
+}
+
+$sql = "SELECT products.prod_id, products.prod_name, cart.quantity, cart.price_type,
+        CASE 
+            WHEN cart.price_type = 'retail' THEN products.prod_price_retail
+                ELSE products.prod_price_wholesale
+            END AS prod_price 
         FROM cart 
         JOIN products ON cart.prod_id = products.prod_id 
         WHERE cart.login_id = ?";
+
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("i", $login_id);
 $stmt->execute();
@@ -183,7 +196,8 @@ while ($row = $result->fetch_assoc()) {
         'prod_id' => $row['prod_id'],
         'name' => $row['prod_name'],
         'quantity' => $row['quantity'],
-        'price' => $row['prod_price']
+        'price' => $row['prod_price'],
+        'price_type' => $row['price_type']
     ];
 }
 
@@ -221,6 +235,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="dropdown notifications-dropdown">
                 <img src="../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p class="notif">Notifications</p>
                     <?php if (empty($notifications)): ?>
                         <a href="#">No new notifications</a>
                     <?php else: ?>
@@ -274,30 +289,39 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <div class="product-grid">
                     <?php foreach ($products as $product): ?>
                         <?php
-                        $display_stock = max(0, $product['stock_quantity']);
+                        $price_type = isset($_SESSION['price_type']) ? $_SESSION['price_type'] : 'retail';
+                        $display_stock = isset($product['stock_quantity']) ? max(0, $product['stock_quantity']) : 0;
                         ?>
                         <div class="product-card">
                             <?php if ($display_stock == 0): ?>
                                 <div class="out-of-stock-overlay">OUT OF STOCK</div>
                             <?php endif; ?>
+
                             <img src="<?php echo htmlspecialchars($product['prod_image_path']); ?>" alt="<?php echo htmlspecialchars($product['prod_name']); ?>">
                             <h4><?php echo htmlspecialchars($product['prod_brand']); ?></h4>
                             <p><?php echo htmlspecialchars($product['prod_name']); ?></p>
-                            <h3>₱ <?php echo number_format($product['prod_price'], 2); ?> / kilo</h3>
-                            <!-- <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div> -->
+                            <h3>
+                                ₱
+                                <?php
+                                if (isset($_POST['price_type']) && $_POST['price_type'] === 'wholesale') {
+                                    $price = $product['prod_price_wholesale'];
+                                } else {
+                                    $price = $product['prod_price_retail'];
+                                }
+                                echo number_format($price, 2);
+                                ?>
+                                / sack
+                            </h3>
+                            <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div>
 
                             <form class="product-actions" method="POST" action="function/add_to_cart.php">
                                 <input type="hidden" name="source" value="retail">
                                 <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
-                                <input type="hidden" name="product_type" value="<?php echo htmlspecialchars($product['price_type']); ?>"> <!-- Ensure this value matches the price type -->
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
                                 <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
                                 <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
                             </form>
-
-
-
                         </div>
                     <?php endforeach; ?>
 
@@ -319,7 +343,9 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <?php else: ?>
                     <div id="cart-items">
                         <?php foreach ($cart as $item): ?>
-                            <div class="cart-item">
+                            <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>"
+                                data-price="<?php echo htmlspecialchars($item['price']); ?>"
+                                data-price-type="<?php echo htmlspecialchars($item['price_type']); ?>">
                                 <span class="item-quantity">
                                     <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
                                 </span>
@@ -332,16 +358,18 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                     </span>
                                 </div>
                                 <div class="cart-item-controls">
-                                    <form method="POST" action="staff.php" class="qty-form">
+                                    <form method="POST" action="staff_retail.php" class="qty-form">
                                         <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                        <input type="hidden" name="price_type" value="<?php echo htmlspecialchars($item['price_type']); ?>"> <!-- Ensure price_type is passed -->
                                         <input type="hidden" name="update_cart" value="1">
                                         <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
                                         <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
                                         <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
                                         <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
                                     </form>
-                                    <form method="POST" action="staff.php" class="remove-form">
+                                    <form method="POST" action="staff_retail.php" class="remove-form">
                                         <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                        <input type="hidden" name="price" value="<?php echo htmlspecialchars($item['price']); ?>"> <!-- Add price hidden field -->
                                         <input type="hidden" name="remove_item" value="1">
                                         <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
                                     </form>
@@ -380,7 +408,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     <div id="messageContent">
                         <div class="alert error">
                             <p>Are you sure you want to remove this item from your cart?</p>
-                            <form id="deleteItemForm" method="POST" action="staff.php">
+                            <form id="deleteItemForm" method="POST" action="staff_retail.php">
                                 <input type="hidden" name="prod_id" id="delete_prod_id">
                                 <input type="hidden" name="remove_item" value="1">
                                 <button type="submit" class="confirm-delete-btn">Yes, Remove</button>
@@ -429,21 +457,22 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
                 function recalculateTotal() {
                     const cartItemsContainer = document.getElementById('cart-items');
-                    const subtotalElement = document.querySelector('.subtotal-amount');
-                    const totalElement = document.querySelector('.subtotal-amount');
+                    const totalElement = document.querySelector('.total-amount');
 
-                    let subtotal = 0;
+                    let total = 0;
+
+                    // Calculate the total price of the cart
                     cartItemsContainer.querySelectorAll('.cart-item').forEach(cartItem => {
                         const quantity = parseInt(cartItem.querySelector('.qty-input').value);
                         const pricePerUnit = parseFloat(cartItem.querySelector('.item-price-per-unit').textContent.replace('₱', '').replace(/,/g, ''));
-                        subtotal += quantity * pricePerUnit;
+                        total += quantity * pricePerUnit;
                     });
 
-                    subtotalElement.textContent = `₱${subtotal.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-                    totalElement.textContent = `₱${(subtotal).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+                    // Update the total amount
+                    if (totalElement) {
+                        totalElement.textContent = `₱${total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+                    }
                 }
-
-
 
                 function updateQuantity(button, change) {
                     const input = button.parentNode.querySelector('.qty-input');
@@ -453,7 +482,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     }
 
                     let currentQuantity = parseInt(input.value);
-                    const maxQuantity = parseInt(input.getAttribute('data-max'));
+                    const maxQuantity = parseInt(input.getAttribute('data-max')) || Infinity;
 
                     currentQuantity += change;
 
@@ -472,39 +501,29 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     }
 
                     const pricePerUnitElement = cartItem.querySelector('.item-price-per-unit');
-                    if (!pricePerUnitElement) {
-                        console.error('Price per unit element not found');
-                        return;
-                    }
 
                     const pricePerUnit = parseFloat(pricePerUnitElement.textContent.replace('₱', '').replace(/,/g, ''));
                     const totalPriceElement = cartItem.querySelector('.item-total-price');
-                    if (!totalPriceElement) {
-                        console.error('Total price element not found');
-                        return;
-                    }
-
                     const totalPrice = currentQuantity * pricePerUnit;
+
                     totalPriceElement.textContent = `₱${totalPrice.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
 
                     const quantityElement = cartItem.querySelector('.item-quantity');
-                    const productNameElement = cartItem.querySelector('.item-name');
-
-                    if (!quantityElement || !productNameElement) {
-                        console.error('Quantity or product name element not found');
-                        return;
-                    }
-
                     quantityElement.textContent = `${currentQuantity}x`;
 
                     recalculateTotal();
 
+                    const prodId = cartItem.getAttribute('data-prod-id');
+                    const priceType = cartItem.getAttribute('data-price-type'); // Get price type
+
+                    // Send the product ID, price type, and new quantity via AJAX
                     const xhr = new XMLHttpRequest();
                     xhr.open("POST", "function/update_cart_quantity.php", true);
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    xhr.send(`prod_id=${cartItem.querySelector('input[name="prod_id"]').value}&quantity=${currentQuantity}`);
-                }
+                    xhr.send(`prod_id=${prodId}&price_type=${priceType}&quantity=${currentQuantity}`);
 
+
+                }
 
 
                 function checkout() {
@@ -516,17 +535,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         totalQuantity += quantity;
                     });
 
-                    // Check if total quantity is less than 10
-                    if (totalQuantity < 10) {
-                        // Show custom modal instead of alert
-                        showCheckoutAlertModal();
-                        return; // Stop the function here if the quantity is less than 10
-                    }
-
-                    // Redirect to the checkout page
                     window.location.href = "staff_checkout.php";
                 }
-
 
                 function showCheckoutAlertModal() {
                     const modal = document.getElementById('checkoutAlertModal');

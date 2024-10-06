@@ -127,6 +127,24 @@ if (isset($_POST['order_status'], $_POST['order_id'])) {
     }
 }
 
+// Initialize arrays to group orders by status
+$groupedOrders = [
+    'Pending' => [],
+    'Being Packed' => [],
+    'For Delivery' => [],
+    'Delivery Complete' => [],
+    'Cancelled' => []
+];
+
+// Group the orders by their status
+while ($row = $ordersResult->fetch_assoc()) {
+    $status = isset($row['order_status']) ? $row['order_status'] : 'Pending';
+    $groupedOrders[$status][] = $row;  // Push each order into the corresponding status array
+}
+
+// Calculate order_id offset
+$offset = 1000 - $min_id;
+
 
 $mysqli->close();
 ?>
@@ -149,6 +167,7 @@ $mysqli->close();
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p class="notif">Notifications</p>
                     <?php if (empty($notifications)): ?>
                         <a href="#">No new notifications</a>
                     <?php else: ?>
@@ -184,65 +203,68 @@ $mysqli->close();
         <div class="body">
             <div class="card">
                 <div class="sort-container">
-                <h3>Online Order Status</h3>
+                    <h2>Online Order Status</h2>
                     <div class="sort">
-                    <label for="sortOrderStatus">Sort by Status:</label>
-                    <select id="sortOrderStatus">
-                        <option value="all">All</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Being Packed">Being Packed</option>
-                        <option value="For Delivery">For Delivery</option>
-                        <option value="Delivery Complete">Delivery Complete</option>
-                    </select>
-                </div>
+                        <label for="sortOrderStatus">Sort by Status:</label>
+                        <select id="sortOrderStatus">
+                            <option value="all">All</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Being Packed">Being Packed</option>
+                            <option value="For Delivery">For Delivery</option>
+                            <option value="Delivery Complete">Delivery Complete</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div id="orderList">
-                    <?php if ($ordersResult->num_rows > 0): ?>
-                        <div class="order-header">
-                            <div>Order ID</div>
-                            <div>Customer Name</div>
-                            <div>Total Amount</div>
-                            <div>Order Date</div>
-                            <div>Status</div>
-                        </div>
-                        <?php
-                        while ($row = $ordersResult->fetch_assoc()):
-                            $currentStatus = isset($row['order_status']) ? $row['order_status'] : '';
-                        ?>
-                            <div class="order-item-container">
-                                <div class="order-item" data-order-id="<?php echo $row['order_id']; ?>">
-                                    <div><?php echo $row['order_id'] + $offset; ?></div>
-                                    <div><?php echo htmlspecialchars($row['first_name'] . " " . $row['last_name']); ?></div>
-                                    <div><?php echo number_format($row['total_amount'], 2); ?></div>
-                                    <div><?php echo date("F j, Y", strtotime($row['order_date'])); ?></div>
-                                    <div>
-                                        <form class="update-status-form">
-                                            <input type="hidden" name="order_id" value="<?php echo $row['order_id']; ?>">
-                                            <select name="order_status" <?php echo ($currentStatus === 'Cancelled') ? 'disabled' : ''; ?>>
-                                                <option value="Pending" <?php echo ($currentStatus === 'Pending') ? 'selected' : ''; ?>>Pending</option>
-                                                <option value="Being Packed" <?php echo ($currentStatus === 'Being Packed') ? 'selected' : ''; ?>>Being Packed</option>
-                                                <option value="For Delivery" <?php echo ($currentStatus === 'For Delivery') ? 'selected' : ''; ?>>For Delivery</option>
-                                                <option value="Delivery Complete" <?php echo ($currentStatus === 'Delivery Complete') ? 'selected' : ''; ?>>Delivery Complete</option>
-                                                <?php if ($currentStatus === 'Cancelled'): ?>
-                                                    <option value="Cancelled" selected disabled>Cancelled</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </form>
-                                    </div>
-                                    <div>
-                                        <button class="details-toggle">Details &#x25BC;</button>
-                                    </div>
-                                    <div class="order-details" style="display: none; width: 98%;">
-                                    </div>
-                                </div>
-                            </div>
+                    <?php foreach ($groupedOrders as $status => $orders): ?>
+                        <div class="order-section" id="<?php echo strtolower(str_replace(' ', '_', $status)); ?>">
+                            <h3><?php echo htmlspecialchars($status); ?> Orders</h3>
 
-                        <?php endwhile; ?>
-                    <?php else: ?>
-                        <p>No pending orders.</p>
-                    <?php endif; ?>
+                            <?php if (count($orders) > 0): ?>
+                                <div class="order-header">
+                                    <div>Order ID</div>
+                                    <div>Customer Name</div>
+                                    <div>Total Amount</div>
+                                    <div>Order Date</div>
+                                    <div>Status</div>
+                                </div>
+
+                                <?php foreach ($orders as $row): ?>
+                                    <div class="order-item-container">
+                                        <div class="order-item" data-order-id="<?php echo $row['order_id']; ?>">
+                                            <div><?php echo $row['order_id'] + $offset; ?></div>
+                                            <div><?php echo htmlspecialchars($row['first_name'] . " " . $row['last_name']); ?></div>
+                                            <div><?php echo number_format($row['total_amount'], 2); ?></div>
+                                            <div><?php echo date("F j, Y", strtotime($row['order_date'])); ?></div>
+                                            <div>
+                                                <form class="update-status-form">
+                                                    <input type="hidden" name="order_id" value="<?php echo $row['order_id']; ?>">
+                                                    <select name="order_status" <?php echo ($row['order_status'] === 'Cancelled') ? 'disabled' : ''; ?>>
+                                                        <option value="Pending" <?php echo ($row['order_status'] === 'Pending') ? 'selected' : ''; ?>>Pending</option>
+                                                        <option value="Being Packed" <?php echo ($row['order_status'] === 'Being Packed') ? 'selected' : ''; ?>>Being Packed</option>
+                                                        <option value="For Delivery" <?php echo ($row['order_status'] === 'For Delivery') ? 'selected' : ''; ?>>For Delivery</option>
+                                                        <option value="Delivery Complete" <?php echo ($row['order_status'] === 'Delivery Complete') ? 'selected' : ''; ?>>Delivery Complete</option>
+                                                        <?php if ($row['order_status'] === 'Cancelled'): ?>
+                                                            <option value="Cancelled" selected disabled>Cancelled</option>
+                                                        <?php endif; ?>
+                                                    </select>
+                                                </form>
+                                            </div>
+                                            <div>
+                                                <button class="details-toggle">Details &#x25BC;</button>
+                                            </div>
+                                            <div class="order-details" style="display: none; width: 98%;"></div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No orders found in this category.</p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
+
             </div>
         </div>
     </main>
@@ -292,17 +314,19 @@ $mysqli->close();
             $('#sortOrderStatus').on('change', function() {
                 const selectedStatus = $(this).val();
 
-                // Loop through all order items and hide or show based on the selected status
-                $('.order-item-container').each(function() {
-                    const orderStatus = $(this).find('select[name="order_status"]').val();
+                // Hide all sections
+                $('.order-section').hide();
 
-                    if (selectedStatus === 'all' || orderStatus === selectedStatus) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
+                // Show only the relevant section(s) based on the selected status
+                if (selectedStatus === 'all') {
+                    // Show all sections
+                    $('.order-section').show();
+                } else {
+                    // Show only the section corresponding to the selected status
+                    $('#' + selectedStatus.toLowerCase().replace(' ', '_')).show();
+                }
             });
+
         });
 
         // NOTIFICATIONS

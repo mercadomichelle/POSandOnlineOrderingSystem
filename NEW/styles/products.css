@@ -222,7 +222,6 @@ img.notification-icon {
     margin-right: 10px;
 }
 
-
 .dropdown {
     position: relative;
     display: inline-block;
@@ -262,7 +261,7 @@ div#notificationDropdown {
     width: 250px;
 }
 
-p {
+p.notif {
     padding: 0 15px 10px;
     border-bottom: 1px solid #ddd;
 }

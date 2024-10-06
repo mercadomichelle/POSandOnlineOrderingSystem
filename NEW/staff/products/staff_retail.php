@@ -105,6 +105,7 @@ $mysqli->close();
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
+                    <p class="notif">Notifications</p>
                     <?php if (empty($notifications)): ?>
                         <a href="../stocks/staff_stocks.php">No new notifications</a>
                     <?php else: ?>
@@ -365,7 +366,7 @@ $mysqli->close();
             });
 
 
-            
+
             document.addEventListener('DOMContentLoaded', function() {
                 const notifIcon = document.querySelector('.notification-icon');
                 const notifDropdown = document.getElementById('notificationDropdown');
