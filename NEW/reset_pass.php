@@ -50,11 +50,13 @@ $data->close();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password</title>
 </head>
+
 <body>
     <h2>Reset Password</h2>
     <form action="reset_password.php" method="POST">
@@ -66,7 +68,12 @@ $data->close();
         <button type="submit">Reset Password</button>
     </form>
 
-    <?php if (!empty($errorMessage)) { echo "<p style='color: red;'>$errorMessage</p>"; } ?>
-    <?php if (!empty($successMessage)) { echo "<p style='color: green;'>$successMessage</p>"; } ?>
+    <?php if (!empty($errorMessage)) {
+        echo "<p style='color: red;'>$errorMessage</p>";
+    } ?>
+    <?php if (!empty($successMessage)) {
+        echo "<p style='color: green;'>$successMessage</p>";
+    } ?>
 </body>
+
 </html>

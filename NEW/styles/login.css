@@ -11,12 +11,20 @@ body {
     background-image: url("../images/bg1.png");
     background-size: cover;
     background-position: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
     overflow: hidden; 
+}
+
+header {
+    margin: 20px 0;
+}
+
+header .logo {
+    font-size: 20px;
+    margin: 0 23px;
+    font-weight: 900;
+    color: #977644;
+    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
 }
 
 .welcome-message {
@@ -29,18 +37,13 @@ body {
 
 /* LOGIN AND REGISTER FORMS */
 
-.login-admin {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
 .login-container {
     border-radius: 20px;
     display: flex;
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
-    max-height: 90vh; 
+    height: 85vh; 
     overflow: auto;
 }
 
@@ -112,6 +115,8 @@ body {
     background: #9E896A;
     color: #FFFFFF;
 }
+
+
 
 /* FORM STYLING */
 

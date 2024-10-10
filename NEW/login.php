@@ -68,6 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $data->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -79,7 +80,12 @@ $data->close();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
-<body class="login-admin">
+
+<body>
+    <header>
+        <div class="logo" onclick="location.href='homepage.php';" style="cursor:pointer;">RICE</div>
+    </header>
+
     <div class="login-container">
         <div id="loginForm" class="login-form">
             <h3 class="welcome-message">Welcome to Escalona-Delen <br> Rice Dealer Website!</h3>
@@ -194,6 +200,7 @@ $data->close();
     </div>
 
     <script>
+        
         document.addEventListener('DOMContentLoaded', () => {
             const passwordToggles = document.querySelectorAll('.password-toggle');
 

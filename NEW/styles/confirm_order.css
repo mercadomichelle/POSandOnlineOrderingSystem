@@ -33,7 +33,7 @@ header {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 6px;
 }
 
 header .logo {
@@ -229,20 +229,28 @@ img.cart-icon {
 
 
 .cancel-btn {
-    display: flex;
-    align-items: center; 
-    background-color: #FFFAE8;
-    padding: 5px 0;
-    border: none;
     gap: 10px;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
     margin-top: -10px;
-    width: 100px;
+    width: 105px;
+    display: flex;
+    align-items: center;
+    background-color: #e1be426e;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
 .cancel-btn img.back-icon {
     height: 30px;
     width: 30px;
+}
+
+.cancel-btn:hover {
+    background-color: #e1be42e3;
 }
 
 form#paymentForm {
@@ -281,7 +289,7 @@ table th {
 }
 
 table td {
-    padding: 30px 15px;
+    padding: 25px 15px;
 }
 
 
@@ -314,7 +322,7 @@ h4 {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 25px;
+    padding: 5px;
 }
 
 .summary {
@@ -341,14 +349,14 @@ h4 {
 }
 
 .delivery-fee {
-    padding-bottom: 50px;
+    padding-bottom: 15px;
     border-bottom: 1px dashed #B5AEAE;
-
 }
+
 .total {
     font-size: 20px;
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 10px;
     display: flex;
     justify-content: space-between;
 }
@@ -631,8 +639,10 @@ img.delivery-icon {
 }
 
 .confirm-btn:disabled {
-    background-color: gray;
     cursor: not-allowed;
+    background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(19, 1, 1, 0.3));
+    color: light-dark(rgba(16, 16, 16, 0.3), rgba(255, 255, 255, 0.3));
+    border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3));
 }
 
 

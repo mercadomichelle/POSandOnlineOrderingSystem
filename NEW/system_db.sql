@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Sep 19, 2024 at 02:02 PM
+-- Generation Time: Sep 30, 2024 at 10:03 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -35,7 +35,6 @@ CREATE TABLE `cart` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `user_type` enum('customer','staff') DEFAULT 'customer',
   `price_type` enum('wholesale','retail') NOT NULL DEFAULT 'retail',
-  `product_type` varchar(50) NOT NULL,
   `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -43,11 +42,13 @@ CREATE TABLE `cart` (
 -- Dumping data for table `cart`
 --
 
-INSERT INTO `cart` (`cart_id`, `login_id`, `prod_id`, `quantity`, `created_at`, `user_type`, `price_type`, `product_type`, `price`) VALUES
-(67, 2, 1, 12, '2024-08-30 06:58:09', 'staff', 'retail', '', '0.00'),
-(70, 2, 3, 1, '2024-09-13 02:45:36', 'staff', 'retail', '', '0.00'),
-(71, 2, 2, 5, '2024-09-14 15:04:24', 'staff', 'retail', '', '0.00'),
-(72, 3, 2, 10, '2024-09-19 11:55:13', 'customer', 'retail', '', '0.00');
+INSERT INTO `cart` (`cart_id`, `login_id`, `prod_id`, `quantity`, `created_at`, `user_type`, `price_type`, `price`) VALUES
+(70, 2, 3, 5, '2024-09-13 02:45:36', 'staff', 'retail', '40.00'),
+(72, 3, 2, 10, '2024-09-19 11:55:13', 'customer', 'wholesale', '0.00'),
+(82, 2, 1, 3, '2024-09-26 16:03:07', 'staff', 'retail', '34.00'),
+(83, 3, 3, 4, '2024-09-30 02:41:59', 'customer', 'wholesale', '0.00'),
+(86, 3, 6, 1, '2024-09-30 03:19:58', '', 'wholesale', '1110.00'),
+(87, 2, 3, 5, '2024-09-30 03:33:59', 'staff', 'wholesale', '1150.00');
 
 -- --------------------------------------------------------
 
@@ -87,7 +88,7 @@ CREATE TABLE `orders` (
   `order_date` datetime DEFAULT current_timestamp(),
   `total_amount` decimal(10,2) NOT NULL,
   `order_source` enum('online','in-store') NOT NULL DEFAULT 'online',
-  `order_status` enum('Pending','Being Packed','For Delivery','Delivery Complete','Cancelled') NOT NULL DEFAULT 'Pending',
+  `order_status` enum('Pending','Being Packed','For Delivery','Delivery Complete','Cancelled','Paid') NOT NULL DEFAULT 'Pending',
   `status_processed_at` datetime DEFAULT NULL,
   `status_packed_at` datetime DEFAULT NULL,
   `status_shipped_at` datetime DEFAULT NULL,
@@ -113,14 +114,15 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (12, 3, '2024-08-27 18:46:04', '11650.00', 'online', 'Being Packed', NULL, NULL, NULL, NULL),
 (13, 3, '2024-08-27 18:47:07', '11550.00', 'online', 'For Delivery', NULL, '2024-09-07 06:17:36', '2024-09-07 06:17:36', '2024-09-07 17:50:41'),
 (14, 3, '2024-08-27 19:11:23', '15100.00', 'online', 'For Delivery', NULL, NULL, NULL, NULL),
-(15, 2, '2024-08-28 20:22:06', '12570.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL),
-(16, 2, '2024-08-28 21:24:33', '11300.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL),
-(17, 2, '2024-08-28 21:24:35', '150.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL),
+(15, 2, '2024-08-28 20:22:06', '12570.00', 'in-store', 'Paid', NULL, NULL, NULL, NULL),
+(16, 2, '2024-08-28 21:24:33', '11300.00', 'in-store', 'Paid', NULL, NULL, NULL, NULL),
+(17, 2, '2024-08-28 21:24:35', '150.00', 'in-store', 'Paid', NULL, NULL, NULL, NULL),
 (18, 3, '2024-08-29 21:50:30', '13172.00', 'online', 'For Delivery', NULL, '2024-09-07 06:17:06', '2024-09-07 11:49:30', NULL),
 (19, 3, '2024-08-29 22:05:39', '10650.00', 'online', 'Cancelled', NULL, NULL, NULL, NULL),
 (20, 3, '2024-08-29 22:06:51', '10650.00', 'online', 'Cancelled', NULL, NULL, NULL, NULL),
-(21, 2, '2024-08-29 22:13:35', '13260.00', 'in-store', 'Pending', NULL, NULL, NULL, NULL),
-(22, 3, '2024-09-13 10:43:31', '11450.00', 'online', 'Being Packed', NULL, '2024-09-13 04:48:11', NULL, NULL);
+(21, 2, '2024-08-29 22:13:35', '13260.00', 'in-store', 'Paid', NULL, NULL, NULL, NULL),
+(22, 3, '2024-09-13 10:43:31', '11450.00', 'online', 'Pending', NULL, '2024-09-30 04:08:24', '2024-09-30 04:08:27', NULL),
+(25, 2, '2024-09-20 21:41:58', '1400.00', 'in-store', 'Paid', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -216,18 +218,17 @@ CREATE TABLE `profile` (
   `email` varchar(255) NOT NULL,
   `phone` varchar(11) NOT NULL,
   `address` varchar(255) NOT NULL,
-  `barangay` varchar(100) NOT NULL,
-  `city` varchar(100) NOT NULL,
-  `province` varchar(100) NOT NULL,
-  `zip_code` varchar(4) NOT NULL
+  `zip_code` varchar(4) NOT NULL,
+  `latitude` float DEFAULT NULL,
+  `longitude` float DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `profile`
 --
 
-INSERT INTO `profile` (`username`, `email`, `phone`, `address`, `barangay`, `city`, `province`, `zip_code`) VALUES
-('custo', 'asdsad@gmail.com', '42143424363', 'Banay-Banay 1st, San Jose, Batangas', 'Banay-banay 1st', 'San Josee', 'Batangas', '4224');
+INSERT INTO `profile` (`username`, `email`, `phone`, `address`, `zip_code`, `latitude`, `longitude`) VALUES
+('custo', 'asdsad@gmail.com', '42143424363', 'President Jose P. Laurel Highway, Banaybanay I, Mojon-Tampoy, San Jose, Batangas, Calabarzon, 4227, Philippines', '4224', 13.9034, 121.104);
 
 -- --------------------------------------------------------
 
@@ -269,13 +270,13 @@ CREATE TABLE `stocks` (
 --
 
 INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`) VALUES
-(1, 1, 40, '2024-08-30 13:29:13'),
-(2, 2, 21, '2024-09-14 11:08:08'),
+(1, 1, 55, '2024-09-30 03:18:16'),
+(2, 2, 31, '2024-09-20 09:08:50'),
 (6, 3, 9, '2024-09-14 11:07:42'),
 (10, 5, 40, '2024-09-14 11:05:45'),
-(12, 4, 4, '2024-09-14 11:07:54'),
-(13, 6, 38, '2024-08-29 13:50:30'),
-(45, 17, 39, '2024-09-05 08:43:28');
+(12, 4, 6, '2024-09-30 03:19:49'),
+(13, 6, 39, '2024-09-20 05:17:24'),
+(45, 17, 40, '2024-09-20 05:14:33');
 
 --
 -- Indexes for dumped tables
@@ -345,7 +346,7 @@ ALTER TABLE `stocks`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `login`
@@ -357,7 +358,7 @@ ALTER TABLE `login`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `order_items`

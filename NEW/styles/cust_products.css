@@ -33,7 +33,7 @@ header {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 6px;
 }
 
 header .logo {
@@ -85,6 +85,7 @@ header .account-info .user-name {
     color: #4a3c31;
     font-size: 17px;
     text-align: right;
+    text-decoration: none;
 }
 
 header .account-info img {
@@ -92,6 +93,43 @@ header .account-info img {
     height: 30px;
     border-radius: 50%;
     cursor: pointer;
+}
+
+
+.login-btn {
+    display: flex;
+    align-items: center; 
+    border: 2px solid #4a3c31; 
+    padding: 2px 12px;
+    border-radius: 25px;
+    cursor: pointer; 
+    transition: background-color 0.3s, border-color 0.3s; 
+}
+
+/* User name link styles */
+.login-btn .user-name {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #4a3c31;
+    font-size: 17px;
+    text-decoration: none;
+}
+
+/* Account icon styles */
+.login-btn img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%; 
+}
+
+/* Hover effects */
+.login-btn:hover {
+    background-color: #e1be42e3;
+    border-color: #3a2e24;
+}
+
+.login-btn .user-name:hover {
+    color: #3a2e24; 
 }
 
 main {
@@ -160,14 +198,13 @@ p.notif {
     border-radius: 20px;
     color: black;
     padding: 10px 20px;
-    width: 17%;
+    width: 20%;
     font-size: 16px;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-right: 10px;    
-    cursor: pointer;
+    margin-right: 10px;
 }
 
 .filter-button-current {

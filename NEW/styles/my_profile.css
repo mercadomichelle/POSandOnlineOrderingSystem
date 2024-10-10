@@ -32,7 +32,7 @@ header {
     align-items: center;
     background-color: rgba(255, 255, 255, 0.7);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    padding: 10px;
+    padding: 6px;
     pointer-events: auto;
 }
 
@@ -110,7 +110,6 @@ header .account-info img {
     background-color: #f0f0f0;
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
     z-index: 1;
-    padding: 10px;
     border-radius: 5px;
     min-width: 150px;
 }
@@ -170,9 +169,8 @@ h1 {
 }
 
 h2 {
-    margin-top: -5px;
-    margin-left: -10px;
-    font-size: 1.5em;
+    margin: -5px 0px 5px -3px;
+    font-size: 1.4em    ;
 }
 
 .divider {
@@ -185,7 +183,7 @@ h2 {
 
 .divider1 {
     width: 1px;
-    height: 460px; 
+    height: 430px; 
     background-color: #B5AEAE; 
     margin: 0 15px auto 50px;
 }
@@ -214,7 +212,7 @@ form {
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .form-group-wrapper {
