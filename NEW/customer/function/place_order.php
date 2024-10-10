@@ -8,7 +8,7 @@ $db = "system_db";
 
 // Check if the user is logged in
 if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../login.php");
+    header("Location: ../../homepage.php");
     exit();
 }
 

@@ -8,7 +8,7 @@ session_start();
 
 // Check if user is logged in
 if (!isset($_SESSION["username"])) {
-    header("Location: ../login.php");
+    header("Location: ../homepage.php");
     exit();
 }
 
@@ -63,14 +63,21 @@ $mysqli->close();
             </nav>
         </div>
         <div class="account-info">
-            <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
-            <div class="dropdown">
-                <img src="../images/account-icon.png" alt="Account" class="account-icon">
-                <div class="dropdown-content">
-                    <a href="../customer/my_profile.php">My Profile</a>
-                    <a href="../logout.php">Logout</a>
+            <?php if (isset($_SESSION["username"])): ?>
+                <!-- Show user name and logout option if logged in -->
+                <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
+                <div class="dropdown">
+                    <img src="../images/account-icon.png" alt="Account" class="account-icon">
+                    <div class="dropdown-content">
+                        <a href="my_profile.php">My Profile</a>
+                        <a href="../logout.php">Logout</a>
+                    </div>
                 </div>
-            </div>
+            <?php else: ?>
+                <!-- Show login button if not logged in -->
+                <span ><a class="user-name" href="../login.php">Login</a></span>
+                <img src="../images/account-icon.png" alt="Account" class="account-icon">
+            <?php endif; ?>
         </div>
     </header>
 

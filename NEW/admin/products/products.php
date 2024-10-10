@@ -387,61 +387,14 @@ $mysqli->close();
                 };
             }
 
-            // Handle search input
-            const searchInput = document.getElementById('searchInput');
-            const productCards = document.querySelectorAll('.product-card');
-            const noProductFound = document.getElementById('noProductFound');
-
-            searchInput.addEventListener('input', function() {
-                const searchValue = searchInput.value.toLowerCase();
-                let anyCardVisible = false;
-
-                productCards.forEach(card => {
-                    const brandElement = card.querySelector('h4');
-                    const nameElement = card.querySelector('p');
-                    const price = card.getAttribute('data-price');
-
-                    const brand = brandElement ? brandElement.textContent.toLowerCase() : '';
-                    const name = nameElement ? nameElement.textContent.toLowerCase() : '';
-                    const priceText = price ? price.toLowerCase() : '';
-
-                    if (brand.includes(searchValue) || name.includes(searchValue) || priceText.includes(searchValue)) {
-                        card.style.display = '';
-                        anyCardVisible = true;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                noProductFound.style.display = anyCardVisible ? 'none' : 'block';
-            });
-
-
-            // NOTIFICATIONS
-            document.addEventListener('DOMContentLoaded', function() {
-                const notifIcon = document.querySelector('.notification-icon');
-                const notifDropdown = document.getElementById('notificationDropdown');
-
-                notifIcon.addEventListener('click', function(event) {
-                    event.stopPropagation(); // Prevent the click event from bubbling up
-                    notifDropdown.classList.toggle('show');
-                });
-
-                // Close the dropdown if the user clicks outside of it
-                window.addEventListener('click', function(event) {
-                    if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
-                        notifDropdown.classList.remove('show');
-                    }
-                });
-            });
-
-
             // Handle the wholesale button click
             document.getElementById('retailBtn').onclick = function() {
                 window.location.href = 'products_retail.php';
             };
         });
     </script>
+    <script src="../../js/notif.js"></script>
+    <script src="../../js/search.js"></script>
 
 </body>
 

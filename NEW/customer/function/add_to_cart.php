@@ -7,7 +7,7 @@ $db = "system_db";
 session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../../login.php");
+    header("Location: ../../homepage.php");
     exit();
 }
 
@@ -83,7 +83,7 @@ if ($result->num_rows === 1) {
     exit();
 } else {
     // Handle user not found
-    header("Location: ../../login.php");
+    header("Location: ../../homepage.php");
 }
 
 $stmt->close();

@@ -7,7 +7,7 @@ $db = "system_db";
 session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../login.php");
+    header("Location: ../homepage.php");
     exit();
 }
 
@@ -157,7 +157,7 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
                         <input type="hidden" id="longitude" name="longitude" value="<?php echo htmlspecialchars($profileData['longitude']); ?>">
                         <div id="suggestions" class="suggestions-container"></div>
                     </div>
-                    <div id="map" style="height: 230px; width: 100%; z-index:auto;"></div>
+                    <div id="map" style="height: 200px; width: 100%; z-index:auto;"></div>
                     <div class="form-group">
                         <label for="zip_code">Zip Code</label>
                         <input type="text" id="zip_code" name="zip_code" value="<?php echo htmlspecialchars($profileData['zip_code']); ?>" required>

@@ -7,7 +7,7 @@ $db = "system_db";
 session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../login.php");
+    header("Location: ../homepage.php");
     exit();
 }
 

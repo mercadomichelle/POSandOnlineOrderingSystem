@@ -41,6 +41,45 @@ if ($result->num_rows === 1) {
     $_SESSION["last_name"] = "";
 }
 
+
+// Check for order completion action
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['complete_order_id'])) {
+    $complete_order_id = $_POST['complete_order_id'];
+
+    // Update order status to "Delivered"
+    $update_sql = "UPDATE orders SET order_status = 'Delivered', status_delivered_at = NOW() WHERE order_id = ?";
+    $update_stmt = $mysqli->prepare($update_sql);
+    $update_stmt->bind_param("i", $complete_order_id);
+
+    if ($update_stmt->execute()) {
+        $_SESSION["successMessage"] = "Order marked as delivered.";
+    } else {
+        $_SESSION["errorMessage"] = "Error updating order status: " . $mysqli->error;
+    }
+
+    $update_stmt->close();
+    header("Location: delivery.php");
+    exit();
+}
+
+// Retrieve ordered items for the specified order_id
+$orderItemsSql = "SELECT order_items.prod_id, order_items.quantity, products.prod_name, products.prod_price_wholesale, products.prod_brand
+    FROM order_items
+    INNER JOIN products ON order_items.prod_id = products.prod_id
+    WHERE order_items.order_id = ?";
+$stmtItems = $mysqli->prepare($orderItemsSql);
+$stmtItems->bind_param("i", $order_id);
+$stmtItems->execute();
+$orderItemsResult = $stmtItems->get_result();
+$orderItems = $orderItemsResult->fetch_all(MYSQLI_ASSOC);
+
+$stmtItems->close();
+
+$orderSubTotal = 0;
+foreach ($orderItems as $item) {
+    $orderSubTotal += $item['prod_price_wholesale'] * $item['quantity'];
+}
+
 $stmt->close();
 $mysqli->close();
 ?>
@@ -70,21 +109,61 @@ $mysqli->close();
         </div>
     </header>
 
-    <main>
-        <div class="card">
-        <button type="button" class="back-btn" onclick="window.location.href='delivery.php';">
-                <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
-            <div class="address-details">
-                <h2>Delivery Address Details</h2>
-                <p><strong>Order ID:</strong> <?php echo htmlspecialchars($order_id); ?></p>
-                <p><strong>Address:</strong> <?php echo htmlspecialchars($address); ?></p>
-                <p><strong>City:</strong> <?php echo htmlspecialchars($city); ?></p>
-                <p><strong>Zip Code:</strong> <?php echo htmlspecialchars($zip_code); ?></p>
+    <main>
+        <section class="dashboard">
+
+            <div class="card">
+                <button type="button" class="back-btn" onclick="window.location.href='delivery.php';">
+                    <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
+                </button>
+
+                <div class="details-container">
+                    <div class="address-details">
+                        <h2>Delivery Address Details</h2>
+                        <p><strong>Order ID:</strong> <?php echo htmlspecialchars($order_id); ?></p>
+                        <p><strong>Address:</strong> <?php echo htmlspecialchars($address); ?></p>
+                        <div class="items-details">
+                            <h3>Ordered Items</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>Brand</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($orderItems as $item): ?>
+                                        <tr>
+                                            <td><?php echo htmlspecialchars($item['prod_name']); ?></td>
+                                            <td><?php echo htmlspecialchars($item['prod_brand']); ?></td>
+                                            <td><?php echo htmlspecialchars($item['quantity']); ?></td>
+                                            <td>₱<?php echo number_format($item['prod_price_wholesale'], 2); ?></td>
+                                            <td>₱<?php echo number_format($item['prod_price_wholesale'] * $item['quantity'], 2); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="order-total">
+                            <strong>Total Amount: </strong>₱<?php echo number_format($orderSubTotal, 2); ?>
+                        </div>
+                    </div>
+
+
+                    <div id="map" class="map-container"></div>
+                </div>
+                <form method="POST" action="">
+                    <input type="hidden" name="complete_order_id" value="<?php echo htmlspecialchars($order_id); ?>">
+                    <button type="submit" class="btn-delivered">Mark as Delivered</button>
+                </form>
             </div>
 
-            <div id="map"></div>
-        </div>
+        </section>
     </main>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>

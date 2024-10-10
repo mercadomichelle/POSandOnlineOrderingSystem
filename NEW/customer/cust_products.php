@@ -1,41 +1,45 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
-
-if (!isset($_SESSION["username"])) {
-    header("Location: ../login.php");
-    exit();
-}
-
+// Establish database connection
 $mysqli = new mysqli($host, $user, $password, $db);
 
 // Check for connection errors
 if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error . " - Error Number: " . $mysqli->connect_errno);
+    die("Connection failed: " . $mysqli->connect_error);
 }
 
+// Check if user is logged in
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
 
-$username = $_SESSION["username"];
+    // Fetch user details
+    $sql = "SELECT id, first_name, last_name FROM login WHERE username = ?";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-// Fetch user details
-$sql = "SELECT id, first_name, last_name FROM login WHERE username = ?";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 1) {
-    $userData = $result->fetch_assoc();
-    $_SESSION["login_id"] = $userData['id'];
-    $_SESSION["first_name"] = $userData['first_name'];
-    $_SESSION["last_name"] = $userData['last_name'];
+    if ($result->num_rows === 1) {
+        $userData = $result->fetch_assoc();
+        $_SESSION["login_id"] = $userData['id'];
+        $_SESSION["first_name"] = $userData['first_name'];
+        $_SESSION["last_name"] = $userData['last_name'];
+    } else {
+        // If login is invalid, redirect to login page
+        header("Location: ../homepage.php");
+        exit();
+    }
 } else {
+    // User is not logged in, handle as guest
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
+    $_SESSION["login_id"] = null; // Set login_id to null or don't use it
 }
 
 // Fetch products
@@ -185,22 +189,36 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
         <div class="logo">RICE</div>
         <div class="nav-wrapper">
             <nav>
-                <a href="../customer/customer.php">HOME</a>
-                <a href="../customer/cust_products.php" class="current">PRODUCTS</a>
-                <a href="../customer/my_orders.php" id="orders-link">MY ORDERS</a>
-                <a href="../customer/about_us.php" id="about-link">ABOUT US</a>
+                <a href="customer.php">HOME</a>
+                <a href="cust_products.php" class="current">PRODUCTS</a>
+                <?php if (isset($_SESSION["username"])): ?>
+                    <a href="my_orders.php" id="orders-link">MY ORDERS</a>
+                    <a href="about_us.php" id="about-link">ABOUT US</a>
+                <?php else: ?>
+                    <a href="about_us.php" id="about-link">ABOUT US</a>
+                <?php endif; ?>
             </nav>
         </div>
         <div class="account-info">
-            <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
-            <div class="dropdown">
-                <img src="../images/account-icon.png" alt="Account" class="account-icon">
-                <div class="dropdown-content">
-                    <a href="../customer/my_profile.php">My Profile</a>
-                    <a href="../logout.php">Logout</a>
+            <?php if (isset($_SESSION["username"])): ?>
+                <!-- Show user name and logout option if logged in -->
+                <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
+                <div class="dropdown">
+                    <img src="../images/account-icon.png" alt="Account" class="account-icon">
+                    <div class="dropdown-content">
+                        <a href="my_profile.php">My Profile</a>
+                        <a href="../logout.php">Logout</a>
+                    </div>
                 </div>
-            </div>
+            <?php else: ?>
+                <!-- Show login button if not logged in -->
+                <div class="login-btn">
+                    <span><a class="user-name" href="../login.php">Login</a></span>
+                    <img src="../images/account-icon.png" alt="Account" class="account-icon">
+                </div>
+            <?php endif; ?>
         </div>
+
     </header>
 
     <main>
@@ -234,13 +252,24 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <h3>₱ <?php echo number_format($product['prod_price'], 2); ?> / sack</h3>
                             <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div>
 
-                            <form class="product-actions" method="POST" action="function/add_to_cart.php">
-                                <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
-                                <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
-                                <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
-                                <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
-                                <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
-                            </form>
+                            <?php if (isset($_SESSION["username"])): ?>
+                                <form class="product-actions" method="POST" action="function/add_to_cart.php">
+                                    <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
+                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
+                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
+                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
+                                    <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
+                                </form>
+                            <?php else: ?>
+                                <!-- Redirect non-logged-in users to login -->
+                                <form class="product-actions" method="POST" action="function/add_to_cart.php">
+                                    <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
+                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
+                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
+                                    <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
+                                    <button class="add-to-cart-btn" onclick="redirectToHomepage(event)">Add</button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
 
@@ -354,6 +383,10 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </main>
 
     <script>
+        function redirectToHomepage(event) {
+            event.preventDefault();
+            window.location.href = '../login.php';
+        }
         document.addEventListener('DOMContentLoaded', function() {
             var loadingScreen = document.getElementById("loadingScreen");
 

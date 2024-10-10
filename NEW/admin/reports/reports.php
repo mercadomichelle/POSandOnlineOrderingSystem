@@ -137,25 +137,8 @@ $mysqli->close();
     </main>
 
 
-    <script>
-        // NOTIFICATIONS
-        document.addEventListener('DOMContentLoaded', function() {
-            const notifIcon = document.querySelector('.notification-icon');
-            const notifDropdown = document.getElementById('notificationDropdown');
+    <script src="../../js/notif.js"></script>
 
-            notifIcon.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent the click event from bubbling up
-                notifDropdown.classList.toggle('show');
-            });
-
-            // Close the dropdown if the user clicks outside of it
-            window.addEventListener('click', function(event) {
-                if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
-                    notifDropdown.classList.remove('show');
-                }
-            });
-        });
-    </script>
 </body>
 
 </html>

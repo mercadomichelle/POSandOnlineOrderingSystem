@@ -3,7 +3,7 @@ session_start();
 
 // Check if the user is logged in
 if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../login.php");
+    header("Location: ../../homepage.php");
     exit();
 }
 
@@ -169,13 +169,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <button type="button" class="cancel-btn" onclick="window.location.href='../cust_products.php';">
                 <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
-
-                <?php if ($formattedAddress === "No address found"): ?>
-                        <div class="no-address-warning">
-                            <button onclick="window.location.href='../my_profile.php'" class="update-profile-btn">Go to Profile</button>
-                    </div>
-                    <?php endif; ?>
-
+            <?php if ($formattedAddress === "No address found"): ?>
+                <div class="no-address-warning">
+                    <button onclick="window.location.href='../my_profile.php'" class="update-profile-btn">Go to Profile</button>
+                </div>
+            <?php endif; ?>
 
             <h4>
                 <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon">CHECKOUT ORDER
@@ -220,7 +218,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <span>Delivery Fee</span>
                             <span>₱ <?php echo number_format($deliveryFee, 2); ?></span>
                         </div>
-                        <p>City: <?php echo htmlspecialchars($city); ?></p> <!-- Display the extracted city here -->
 
                     </div>
                     <div class="total">
@@ -233,7 +230,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
                 <div class="delivery-details">
                     <h5><img src="../../images/delivery-icon.png" alt="Delivery" class="delivery-icon">DELIVERY DETAILS</h5>
-                    <!-- Replace this section in your HTML where you display the delivery address -->
                     <div class="delivery-address">
                         <h6>Select Delivery Details:</h6>
                         <div class="custom-dropdown">
@@ -248,7 +244,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         </div>
                     </div>
 
-                    
+
                     <div>
                         <input type="checkbox" name="request_invoice" id="request_invoice">
                         <label for="request_invoice">Request Invoice</label>
@@ -270,7 +266,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </main>
 
     <script>
-        document.querySelector('.confirm-btn').disabled = true; 
+        document.querySelector('.confirm-btn').disabled = true;
 
         document.getElementById('selected-address').addEventListener('click', function() {
             const dropdownOptions = document.getElementById('dropdown-options');

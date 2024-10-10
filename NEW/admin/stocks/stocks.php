@@ -235,38 +235,10 @@ $mysqli->close();
         </div>
     </main>
 
-
+    <script src="../../js/notif.js"></script>
+    <script src="../../js/search.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Search Functionality
-            const searchStockInput = document.getElementById('searchInput');
-            const stockCards = document.querySelectorAll('.stock-card');
-            const noStockFound = document.getElementById('noStockFound');
-
-            searchStockInput.addEventListener('input', function() {
-                const searchValue = searchStockInput.value.toLowerCase();
-                let anyCardVisible = false;
-
-                stockCards.forEach(card => {
-                    const brandElement = card.querySelector('h4');
-                    const nameElement = card.querySelector('p');
-                    const stockQuantity = card.getAttribute('data-stock');
-
-                    const brand = brandElement ? brandElement.textContent.toLowerCase() : '';
-                    const name = nameElement ? nameElement.textContent.toLowerCase() : '';
-                    const stockText = stockQuantity ? stockQuantity.toLowerCase() : '';
-
-                    if (brand.includes(searchValue) || name.includes(searchValue) || stockText.includes(searchValue)) {
-                        card.style.display = '';
-                        anyCardVisible = true;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
-
-                noStockFound.style.display = anyCardVisible ? 'none' : 'block';
-            });
-
             // Add Stock Button Click Handler
             document.querySelectorAll('.add-stock-button').forEach(button => {
                 button.addEventListener('click', function() {
@@ -296,24 +268,6 @@ $mysqli->close();
         function closeMessageModal() {
             document.getElementById('messageModal').style.display = 'none';
         }
-
-        // NOTIFICATIONS
-        document.addEventListener('DOMContentLoaded', function() {
-            const notifIcon = document.querySelector('.notification-icon');
-            const notifDropdown = document.getElementById('notificationDropdown');
-
-            notifIcon.addEventListener('click', function(event) {
-                event.stopPropagation(); // Prevent the click event from bubbling up
-                notifDropdown.classList.toggle('show');
-            });
-
-            // Close the dropdown if the user clicks outside of it
-            window.addEventListener('click', function(event) {
-                if (!notifIcon.contains(event.target) && !notifDropdown.contains(event.target)) {
-                    notifDropdown.classList.remove('show');
-                }
-            });
-        });
 
         // document.getElementById('lowStockBtn').onclick = function() {
         // Filter to show only low stock items
