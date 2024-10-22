@@ -395,7 +395,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             <form id="checkoutForm" method="POST" action="staff_checkout.php">
                 <?php foreach ($cart as $item): ?>
-                    <input type="hidden" id="source" value="<?php echo isset($_SESSION['source']) && $_SESSION['source'] === 'wholesale' ? 'wholesale' : 'retail'; ?>">
+                    <input type="hidden" id="source" value="retail">
                     <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
                     <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
                 <?php endforeach; ?>

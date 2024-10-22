@@ -49,24 +49,22 @@ if ($result->num_rows === 1) {
         $stmt->bind_param("iiis", $quantity, $login_id, $prod_id, $price_type);
     } else {
         // Get the price based on the source (wholesale or retail)
-        if ($source === 'wholesale') {
-            $sql = "SELECT prod_price_wholesale AS price FROM products WHERE prod_id = ?";
-        } else {
-            $sql = "SELECT prod_price_retail AS price FROM products WHERE prod_id = ?";
-        }
-        $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param("i", $prod_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $prod = $result->fetch_assoc();
-        $price = $prod['price'];
-        $stmt->close();
+        $sql = $source === 'wholesale' ? 
+        "SELECT prod_price_wholesale AS price FROM products WHERE prod_id = ?" : 
+        "SELECT prod_price_retail AS price FROM products WHERE prod_id = ?";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $prod_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $prod = $result->fetch_assoc();
+    $price = $prod['price'];
 
-        // Insert new product into cart with the correct price and price_type
-        $sql = "INSERT INTO cart (login_id, prod_id, quantity, price, user_type, price_type) VALUES (?, ?, ?, ?, ?, ?)";
-        $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param("iiidss", $login_id, $prod_id, $quantity, $price, $user_type, $price_type);        
-    }
+
+// Insert new product into cart with the correct price and price_type
+$sql = "INSERT INTO cart (login_id, prod_id, quantity, price, user_type, price_type) VALUES (?, ?, ?, ?, ?, ?)";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("iiidss", $login_id, $prod_id, $quantity, $price, $user_type, $price_type);
+}
     $stmt->execute();
 
     // Redirect to appropriate page

@@ -15,6 +15,7 @@ body {
     flex-direction: column;
     padding-top: 10px;
     min-height: 95vh;
+    overflow: hidden;
 }
 
 header {
@@ -260,19 +261,162 @@ p.notif {
     border-bottom: 1px solid #ddd;
 }
 
-.card {
+.dashboard {
+    font-family: 'Sulphur Point', sans-serif;
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
+    border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
     margin: 20px;
-    text-align: left;
+    height: calc(100vh - 97px);
+    width: calc(100vw - 250px);
+    display: flex;
 }
 
-.card h3 {
-    margin-top: 0;
-    color: #9537d3;
+.upper, .upper1 {
+    display: flex;
+    flex-direction: column;
 }
+
+.card1 h3, .card2 h3, .card3 h3,
+.card4 h3, .card5 h3, .card6 h3,
+.card7 h3 {
+    margin-top: -8px;
+    margin-bottom: 0;
+    color: #4a3c31;
+    font-weight: 500;
+    font-family: system-ui;
+}
+
+.card1 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    border-color: 1px solid black;
+    padding: 14px;
+    margin: 15px 5px 5px 15px;
+    text-align: left;
+    width: 55vw;
+    height: 23vh;
+}
+
+.card2 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 14px;
+    margin: 5px 5px 5px 15px;
+    text-align: left;
+    width: 55vw;
+    height: 23vh;
+}
+
+.card3 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 14px;
+    margin: 5px 5px 15px 15px;
+    text-align: left;
+    width: 55vw;
+    height: 23vh;
+}
+
+.bottom {
+    display: flex;
+    flex-direction: row;
+}
+
+.card4 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 12px;
+    margin: 15px 15px 5px 5px;
+    text-align: left;
+    width: 21vw;
+    height: 12vh;
+}
+
+.card5 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 12px;
+    margin: 5px 15px 5px 5px;
+    text-align: left;
+    width: 21vw;
+    height: 12vh;
+}
+
+.card6 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 12px;
+    margin: 5px 15px 5px 5px;
+    text-align: left;
+    width: 21vw;
+    height: 12vh;
+}
+
+.card7 {
+    background-color: #fff3c9b0;
+    border-radius: 15px;
+    border: 1px solid;
+    padding: 12px;
+    margin: 5px 10px 15px 5px;
+    text-align: left;
+    width: 21vw;
+    height: 29.5vh;
+}
+
+
+.daily, .monthly, .weekly, .yearly {
+    background-color: #ffea9f;
+    border-radius: 12px;
+    border: 1px solid;
+    padding: 4px;
+    margin: 4px;
+    width: 135px;
+    height: 30px;
+    cursor: pointer;
+}
+
+
+.daily:hover, .monthly:hover, .weekly:hover, .yearly:hover {
+    background-color: #f9e07d;
+}
+
+
+/* GRAPHS */
+/* canvas { */
+    /* width: 100% !important; */
+    /* height: 105% !important; */
+    /* margin: -25px 0; */
+/* } */
+
+canvas#salesDistributionChart {
+    height: 115% !important;
+    margin: -20px 0;
+}
+
+.sorting-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -25px;
+    margin-bottom: -10px;
+}
+
+.sorting-container label {
+    margin-right: 10px; /* Space between label and dropdown */
+}
+
+.sorting-container select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
 
 @media (min-width: 650px) {
     header {

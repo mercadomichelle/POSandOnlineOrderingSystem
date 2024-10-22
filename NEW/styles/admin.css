@@ -15,6 +15,7 @@ body {
     flex-direction: column;
     padding-top: 10px;
     min-height: 95vh;
+    overflow: hidden;
 }
 
 header {
@@ -259,19 +260,123 @@ p.notif {
     border-bottom: 1px solid #ddd;
 }
 
-.card {
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin: 20px;
-    text-align: left;
+.upper {
+    font-family: 'Sulphur Point', sans-serif;
+    display: flex;
+    flex-direction: row;
+    height: 30vh;
 }
 
-.card h3 {
-    margin-top: 0;
-    color: #4a3c31;
+.card1 {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    margin: 20px 5px 5px 20px;
+    text-align: left;
+    width: 33vw;
 }
+
+.card1 h3, .card2 h3, .card3 h3,
+.card4 h3, .card5 h3 {
+    margin-top: -5px;
+    margin-bottom: -10px;
+    color: #4a3c31;
+    font-weight: 500;
+    font-family: system-ui;
+}
+
+.card2 {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    margin: 20px 10px 5px 5px;
+    text-align: left;
+    width: 46vw;
+}
+
+.bottom {
+    font-family: 'Sulphur Point', sans-serif;
+    display: flex;
+    flex-direction: row;
+    height: 62vh;
+}
+
+.card3 {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    margin: 5px 5px 13px 20px;
+    text-align: left;
+    width: 40vw;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; 
+}
+
+.card4 {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    margin: 5px 10px 5px 5px;
+    text-align: left;
+    width: 38vw;
+    height: 20vh;
+}
+
+.card5 {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 14px;
+    margin: 10px 10px 5px 5px;
+    text-align: left;
+    width: 38vw;
+    height: 31vh;
+}
+
+/* CANVAS */
+/* canvas#mostPurchasedRiceChart {
+    display: block;
+    box-sizing: border-box;
+    height: 178px;
+    width: 469px;
+} */
+
+canvas {
+    width: 100% !important;
+    height: auto;
+}
+
+canvas#salesRevenueChart {
+    height: 105% !important;
+    margin: -25px 0px;
+}
+
+canvas#purchasePreferencesChart {
+    margin: 10px 0px;
+}
+
+.sorting-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -25px;
+    margin-bottom: -10px;
+}
+
+.sorting-container label {
+    margin-right: 10px; /* Space between label and dropdown */
+}
+
+.sorting-container select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
 
 @media (min-width: 650px) {
     header {

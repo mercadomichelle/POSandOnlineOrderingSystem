@@ -509,7 +509,7 @@ p.notif {
     position: fixed;
     top: 75px;
     right: 14px;
-    /* width: 295px; */
+    width: 295px;
     background-color: #FFFAE8;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;

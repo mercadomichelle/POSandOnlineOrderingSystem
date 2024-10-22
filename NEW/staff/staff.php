@@ -314,7 +314,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div>
 
                             <form class="product-actions" method="POST" action="function/add_to_cart.php">
-                                <input type="hidden" name="source" value="<?php echo htmlspecialchars($price_type); ?>"> <!-- Wholesale or Retail -->
+                                <input type="hidden" name="source" value="wholesale"> <!-- Wholesale or Retail -->
                                 <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
                                 <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
                                 <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
@@ -395,7 +395,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             <form id="checkoutForm" method="POST" action="staff_checkout.php">
                 <?php foreach ($cart as $item): ?>
-                    <input type="hidden" id="source" value="<?php echo isset($_SESSION['source']) && $_SESSION['source'] === 'retail' ? 'retail' : 'wholesale'; ?>">
+                    <input type="hidden" id="source" value="wholesale">
                     <input type="hidden" name="prod_id[]" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
                     <input type="hidden" name="quantity[]" value="<?php echo htmlspecialchars($item['quantity']); ?>">
                 <?php endforeach; ?>
