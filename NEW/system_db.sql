@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Oct 22, 2024 at 07:26 PM
+-- Generation Time: Nov 04, 2024 at 03:03 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -50,6 +50,26 @@ INSERT INTO `alternative_varieties` (`id`, `product_id`, `alternative_product_id
 (16, 6, 17),
 (17, 17, 6),
 (18, 17, 4);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `branches`
+--
+
+CREATE TABLE `branches` (
+  `branch_id` int(11) NOT NULL,
+  `branch_name` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `branches`
+--
+
+INSERT INTO `branches` (`branch_id`, `branch_name`) VALUES
+(1, 'Calero'),
+(2, 'Bauan'),
+(3, 'San Pascual');
 
 -- --------------------------------------------------------
 
@@ -201,7 +221,7 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (19, 3, '2024-08-29 22:05:39', '10650.00', 'online', 'wholesale', 'Cancelled', NULL, NULL, NULL, NULL),
 (20, 3, '2024-08-29 22:06:51', '10650.00', 'online', 'wholesale', 'Cancelled', NULL, NULL, NULL, NULL),
 (22, 3, '2024-09-13 10:43:31', '11450.00', 'in-store', 'wholesale', 'Pending', NULL, '2024-09-30 04:08:24', '2024-09-30 04:08:27', NULL),
-(40, 11, '2024-10-06 19:18:59', '11450.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL),
+(40, 11, '2024-10-02 23:18:59', '11450.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL),
 (42, 2, '2024-10-06 22:20:49', '14880.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
 (43, 2, '2024-10-07 14:25:59', '9040.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
 (44, 2, '2024-10-08 14:26:30', '5550.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
@@ -228,9 +248,9 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (65, 2, '2024-10-18 22:17:40', '56.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
 (66, 2, '2024-10-18 22:18:52', '1050.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
 (67, 2, '2024-10-18 22:30:45', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
-(68, 2, '2024-10-18 22:30:45', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
-(69, 2, '2024-10-18 22:30:47', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
-(70, 2, '2024-10-18 22:30:47', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL);
+(68, 2, '2024-10-21 21:43:11', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(69, 2, '2024-10-23 00:00:00', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(70, 2, '2024-10-24 22:30:47', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -399,21 +419,22 @@ CREATE TABLE `stocks` (
   `stock_id` int(11) NOT NULL,
   `prod_id` int(11) NOT NULL,
   `stock_quantity` int(11) NOT NULL,
-  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `last_updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `branch_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `stocks`
 --
 
-INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`) VALUES
-(1, 1, 46, '2024-10-18 14:30:45'),
-(2, 2, 9, '2024-10-18 14:17:40'),
-(6, 3, 0, '2024-10-12 14:36:00'),
-(10, 5, 22, '2024-10-18 14:18:52'),
-(12, 4, 5, '2024-10-17 16:07:43'),
-(13, 6, 30, '2024-10-17 13:18:26'),
-(45, 17, 33, '2024-10-17 15:15:50');
+INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`, `branch_id`) VALUES
+(1, 1, 46, '2024-10-26 15:18:04', 1),
+(2, 2, 9, '2024-10-26 15:18:12', 2),
+(6, 3, 0, '2024-10-26 15:18:07', 2),
+(10, 5, 22, '2024-10-26 15:18:14', 3),
+(12, 4, 5, '2024-10-26 15:18:09', 3),
+(13, 6, 30, '2024-10-26 15:18:16', 1),
+(45, 17, 33, '2024-10-26 15:32:52', 1);
 
 --
 -- Indexes for dumped tables
@@ -426,6 +447,12 @@ ALTER TABLE `alternative_varieties`
   ADD PRIMARY KEY (`id`),
   ADD KEY `product_id` (`product_id`),
   ADD KEY `alternative_product_id` (`alternative_product_id`);
+
+--
+-- Indexes for table `branches`
+--
+ALTER TABLE `branches`
+  ADD PRIMARY KEY (`branch_id`);
 
 --
 -- Indexes for table `cart`
