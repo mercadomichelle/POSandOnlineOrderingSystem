@@ -499,7 +499,11 @@ $mysqli->close();
                         labels: {
                             font: {
                                 size: 11
-                            }
+                            },
+                            usePointStyle: false,
+                            boxWidth: 30,
+                            boxHeight: 1,
+                            padding: 15
                         }
                     },
                     tooltip: {
@@ -518,145 +522,244 @@ $mysqli->close();
         });
 
 
-        // CUSTOMER PURCHASE PREFERENCES
-function fetchCustomerPreferences(month) {
-    $.ajax({
-        url: 'dashboard/fetch_customer_preferences.php',
-        type: 'GET',
-        data: {
-            month: month
-        },
-        dataType: 'json',
-        success: function(data) {
-            console.log("Parsed JSON:", data);
 
-            var labels = [];
-            var riceVarieties = {};
-            var alternativeData = []; // To hold alternative rice percentages
+        // Function to format the date string
+        function formatDate(dateString) {
+            const date = new Date(dateString); // Create a new Date object
+            const options = {
+                month: 'short',
+                day: 'numeric'
+            }; // Specify options for formatting
+            return date.toLocaleString('en-US', options); // Format the date
+        }
 
-            data.forEach(function(item) {
-                // Add the day to the labels array if it's not already there
-                if (!labels.includes(item.day)) {
-                    labels.push(item.day);
-                }
 
-                // Process regular rice varieties
-                Object.keys(item.percentages).forEach(function(variety) {
-                    if (!riceVarieties[variety]) {
-                        riceVarieties[variety] = {
-                            label: variety, // Show rice variety name here
-                            data: [],
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)', // Regular rice color
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        };
-                    }
-                    riceVarieties[variety].data.push(item.percentages[variety]);
-                });
+        function fetchCustomerPreferences(month) {
+            $.ajax({
+                url: 'dashboard/fetch_customer_preferences.php?timestamp=' + new Date().getTime(),
+                type: 'GET',
+                data: {
+                    month: month
+                },
+                dataType: 'json',
+                success: function(data) {
+                    console.log("Parsed JSON:", data);
 
-                // Process alternative rice varieties
-                if (item.alternatives.length > 0) {
-                    item.alternatives.forEach(function(alternative) {
-                        let alternativePercentage = item.percentages[alternative] || 0;
-                        alternativeData.push({
-                            day: item.day,
-                            variety: alternative,
-                            percentage: alternativePercentage
+                    var labels = [];
+                    var riceVarieties = {};
+                    var alternativeNames = {}; // Store alternative names for each day
+
+                    // Define a color palette for rice varieties
+                    const colorPalette = [
+                        'rgba(255, 99, 132, 0.4)',
+                        'rgba(54, 162, 235, 0.4)',
+                        'rgba(75, 192, 192, 0.4)',
+                        'rgba(153, 102, 255, 0.4)',
+                        'rgba(255, 159, 64, 0.4)',
+                        'rgba(255, 205, 86, 0.4)',
+                    ];
+
+                    data.forEach(function(item) {
+                        if (!labels.includes(item.day)) {
+                            labels.push(item.day);
+                        }
+
+                        // Store alternative names by day for later access in the tooltip
+                        alternativeNames[item.day] = item.alternatives;
+
+                        Object.keys(item.percentages).forEach(function(variety) {
+                            // Initialize riceVarieties if not already done
+                            if (!riceVarieties[variety]) {
+                                let backgroundColor, borderColor;
+
+                                // Use unique color for each rice variety
+                                const index = Object.keys(riceVarieties).length; // Use the current count of varieties
+                                if (variety === "Alternative Rice") {
+                                    backgroundColor = 'rgba(255, 159, 64, 0.4)'; // Color for Alternative Rice
+                                    borderColor = 'rgba(255, 159, 64, 1)';
+                                } else {
+                                    backgroundColor = colorPalette[index % colorPalette.length]; // Background color
+                                    borderColor = colorPalette[index % colorPalette.length].replace('0.4', '1'); // Fully opaque border color
+                                }
+
+                                riceVarieties[variety] = {
+                                    label: variety,
+                                    data: [],
+                                    backgroundColor: backgroundColor,
+                                    borderColor: borderColor,
+                                    borderWidth: 1
+                                };
+                            }
+                            // Push the percentage data for each variety
+                            riceVarieties[variety].data.push(item.percentages[variety]);
                         });
                     });
-                }
-            });
 
-            // Create datasets for regular rice varieties
-            var datasets = Object.values(riceVarieties);
+                    // Extract datasets from riceVarieties
+                    var datasets = Object.values(riceVarieties);
 
-            // Prepare dataset for alternative rice with label "Alternative Rice"
-            var alternativeDataset = {
-                label: "Alternative Rice", // This will be displayed in the legend and for tooltips
-                data: [],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)', // Alternative rice color
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            };
+                    // Sort datasets to ensure "Alternative Rice" is last
+                    datasets.sort((a, b) => a.label === "Alternative Rice" ? 1 : (b.label === "Alternative Rice" ? -1 : 0));
 
-            // Fill the alternative dataset with values for each day
-            labels.forEach(day => {
-                const alternativeForDay = alternativeData.find(a => a.day === day);
-                alternativeDataset.data.push(alternativeForDay ? alternativeForDay.percentage : 0);
-            });
+                    console.log("Datasets:", datasets);
 
-            // Push the alternative dataset to the end of the datasets array
-            datasets.push(alternativeDataset);
-
-            // Log the datasets before updating the chart
-            console.log("Datasets:", datasets);
-
-            if (labels.length > 0 && datasets.length > 0) {
-                purchasePreferencesChart.data.labels = labels;
-                purchasePreferencesChart.data.datasets = datasets;
-                purchasePreferencesChart.update();
-            } else {
-                console.warn("No data to display on the chart.");
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("Error fetching customer preferences:", error);
-        }
-    });
-}
-
-// Function to format the date string
-function formatDate(dateString) {
-    const date = new Date(dateString); // Create a new Date object
-    const options = {
-        month: 'short',
-        day: 'numeric'
-    }; // Specify options for formatting
-    return date.toLocaleString('en-US', options); // Format the date
-}
-
-var ctx4 = document.getElementById('purchasePreferencesChart').getContext('2d');
-var purchasePreferencesChart = new Chart(ctx4, {
-    type: 'bar',
-    data: {
-        labels: [], // This will be updated by the AJAX response
-        datasets: [] // Filled by the success callback
-    },
-    options: {
-        indexAxis: 'y', // This makes the bar chart horizontal
-        scales: {
-            x: {
-                beginAtZero: true,
-                title: {
-                    display: true,
-                    text: 'Percentage' // Label for x-axis
-                }
-            },
-            y: {
-                beginAtZero: true,
-                stacked: true // Stacked bar chart
-            }
-        },
-        plugins: {
-            legend: {
-                position: 'top' // Places the legend at the top of the chart
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        // Check if it's the alternative rice
-                        if (tooltipItem.dataset.label === "Alternative Rice") {
-                            return "Alternative Rice"; // Always show "Alternative Rice" for the label
-                        }
-                        // Display the name of the rice variety and its percentage for regular rice
-                        return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + '%';
+                    // Add labels and datasets to the chart
+                    if (labels.length > 0 && datasets.length > 0) {
+                        purchasePreferencesChart.data.labels = labels;
+                        purchasePreferencesChart.data.datasets = datasets;
+                        purchasePreferencesChart.update();
+                    } else {
+                        console.warn("No data to display on the chart.");
                     }
+
+                    // Update the tooltip alternative names globally
+                    purchasePreferencesChart.options.plugins.tooltip.callbacks.alternativeNames = alternativeNames;
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching customer preferences:", error);
+                }
+            });
+        }
+
+        var ctx4 = document.getElementById('purchasePreferencesChart').getContext('2d');
+        var purchasePreferencesChart = new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: [], // Updated by the AJAX response
+                datasets: [] // Filled by the success callback
+            },
+            options: {
+                maintainAspectRatio: false, // Prevents Chart.js from enforcing aspect ratio
+                indexAxis: 'y', // Horizontal bar chart
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Percentage' // X-axis label
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        stacked: true // Stacked chart
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: {
+                                size: 11
+                            },
+                            usePointStyle: true // Changes legend box to a circle
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Get the day index (label) to match it with alternative names
+                                var dayLabel = purchasePreferencesChart.data.labels[tooltipItem.dataIndex];
+                                var altNames = purchasePreferencesChart.options.plugins.tooltip.callbacks.alternativeNames;
+
+                                if (tooltipItem.dataset.label === "Alternative Rice") {
+                                    var alternatives = altNames[dayLabel] || []; // Fallback if no alternatives
+                                    var alternativeNamesList = alternatives.join(", ");
+                                    return `Alternative (${alternativeNamesList}): ${tooltipItem.raw.toFixed(2)}%`;
+                                }
+
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(2)}%`;
+                            }
+                        }
+                    }
+
                 }
             }
-        }
-    }
-});
+        });
 
+//STOCK ALLOCATION
+        $(document).ready(function() {
+            // Fetch stock allocation data using jQuery AJAX
+            $.ajax({
+                url: 'dashboard/fetch_stock_allocation.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    console.log("Parsed JSON:", data);
+
+                    const riceVarieties = data.riceVarieties;
+                    const branchStocks = data.branchStocks;
+                    const maxStocks = data.maxStocks;
+
+                    console.log("Rice Varieties:", riceVarieties);
+                    console.log("Branch Stocks:", branchStocks);
+
+                    // Check if riceVarieties is not empty and branchStocks has valid data
+                    if (branchStocks && riceVarieties.length > 0 && branchStocks[riceVarieties[0]]) {
+                        const branchNames = Object.keys(branchStocks[riceVarieties[0]]);
+
+                        const datasets = branchNames.map((branch, index) => ({
+                            label: branch,
+                            data: riceVarieties.map(rice => branchStocks[rice][branch] || 0), // Use 0 if undefined
+                            backgroundColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 0.7)`,
+                            borderColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 1)`,
+                            borderWidth: 1
+                        }));
+
+                        // Line dataset for maximum stock
+                        const maxStockDataset = {
+                            label: 'Maximum Stock',
+                            data: riceVarieties.map(rice => maxStocks[rice] || 0), // Use 0 if undefined
+                            borderColor: 'black',
+                            borderWidth: 2,
+                            type: 'line',
+                            fill: false,
+                            pointStyle: 'circle',
+                            pointRadius: 5,
+                            pointBackgroundColor: 'black'
+                        };
+
+                        // Create the chart
+                        const ctx = document.getElementById('stockAllocationChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: riceVarieties,
+                                datasets: [...datasets, maxStockDataset]
+                            },
+                            options: {
+                                responsive: true,
+                                scales: {
+                                    x: {
+                                        title: {
+                                            display: true,
+                                            text: 'Rice Varieties'
+                                        },
+                                        stacked: true
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'Stock Quantity'
+                                        },
+                                        beginAtZero: true
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        position: 'top'
+                                    }
+                                }
+                            }
+                        });
+                    } else {
+                        console.error("Invalid branchStocks or riceVarieties is empty.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching stock allocation data:', error);
+                }
+            });
+        });
     </script>
 
 

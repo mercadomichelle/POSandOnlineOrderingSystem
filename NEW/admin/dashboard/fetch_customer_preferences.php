@@ -83,20 +83,22 @@ $response = []; // Initialize the final response array
 
 foreach ($rice_variety_totals as $day => $varieties) {
     $rice_percentages = []; // Reset for each day
-    $alternatives = []; // Reset for alternatives
+    $alternatives = []; // Array to hold alternative varieties for this day
 
     foreach ($varieties as $variety => $quantity) {
         // Include only top varieties
         if (in_array($variety, $top_varieties)) {
             $percent = ($quantity / $daily_totals[$day]) * 100;
             $rice_percentages[$variety] = $percent;
+        }
+    }
 
-            // Recommend alternatives for the top varieties
-            $alternative_varieties = []; // Initialize an array for alternatives
-            if (!empty($alternative)) {
-                $alternative_varieties[] = $alternative; // Collect alternatives
-            }
-            $alternatives[$variety] = $alternative_varieties; // Store alternatives for the variety
+    // Process alternatives for each top variety
+    foreach ($varieties as $variety => $quantity) {
+        if (in_array($variety, $top_varieties) && !empty($alternative)) {
+            $alternativePercent = ($quantity / $daily_totals[$day]) * 100;
+            $rice_percentages["Alternative Rice"] = $alternativePercent;
+            $alternatives[] = $alternative; // Track the alternative variety name
         }
     }
 
@@ -104,11 +106,12 @@ foreach ($rice_variety_totals as $day => $varieties) {
     if (!empty($rice_percentages)) {
         $response[] = [
             'day' => $day, // Add the day
-            'percentages' => $rice_percentages, // Add the rice variety percentages
-            'alternatives' => $alternatives // Add alternative rice varieties
+            'percentages' => $rice_percentages, // Include percentages for top varieties and alternatives
+            'alternatives' => $alternatives // Add alternatives as an array
         ];
     }
 }
+
 
 // Return the data as JSON
 header('Content-Type: application/json');
@@ -116,4 +119,5 @@ echo json_encode($response, JSON_PRETTY_PRINT); // Pretty print for readability
 
 // Close the connection
 $mysqli->close();
+
 ?>
