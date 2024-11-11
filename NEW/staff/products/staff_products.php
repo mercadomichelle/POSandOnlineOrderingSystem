@@ -183,9 +183,11 @@ $mysqli->close();
                     <?php endforeach; ?>
 
                 </div>
+
                 <div id="noProductFound" class="no-product-found" style="display: none;">
                     <p>No product found</p>
                 </div>
+                
                 <div id="addProductModal" class="modal">
                     <div class="modal-content">
                         <span class="close">&times;</span>

@@ -274,11 +274,11 @@ p.notif {
     padding: 14px;
     margin: 20px 5px 5px 20px;
     text-align: left;
-    width: 33vw;
+    width: calc(100% - 300px);
 }
 
 .card1 h3, .card2 h3, .card3 h3,
-.card4 h3, .card5 h3 {
+.card4 h3, .card6 h3 {
     margin-top: -5px;
     margin-bottom: -10px;
     color: #4a3c31;
@@ -293,14 +293,18 @@ p.notif {
     padding: 14px;
     margin: 20px 10px 5px 5px;
     text-align: left;
-    width: 46vw;
+    width: calc(100% - 100px);
 }
 
 .bottom {
     font-family: 'Sulphur Point', sans-serif;
     display: flex;
     flex-direction: row;
-    height: 62vh;
+    height: 60vh;
+}
+
+.bottom1 {
+    height: 59vh;
 }
 
 .card3 {
@@ -310,7 +314,8 @@ p.notif {
     padding: 14px;
     margin: 5px 5px 13px 20px;
     text-align: left;
-    width: 40vw;
+    width: calc(100% - 300px);
+    height: calc(100% - 45px);
     /* overflow: auto; */
     /* scrollbar-width: thin; */
     /* scrollbar-color: #888 #f1f1f1;  */
@@ -323,8 +328,8 @@ p.notif {
     padding: 14px;
     margin: 5px 10px 5px 5px;
     text-align: left;
-    width: 38vw;
-    height: 20vh;
+    width: calc(100% - 45px);
+    height: calc(100% - 240px);
 }
 
 .card5 {
@@ -334,21 +339,39 @@ p.notif {
     padding: 14px;
     margin: 10px 10px 5px 5px;
     text-align: left;
-    width: 38vw;
-    height: 31vh;
+    width: calc(100% - 45px);
+    height: calc(100% - 240px);
+}
+
+.card5 h4 {
+    margin-top: -5px;
+    margin-bottom: -10px;
+    display: grid;
+    font-size: larger;
+    justify-content: center;
+    font-weight: 900;
+}
+
+.card6 {
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    border-radius: 15px;
+    border-style: solid;
+    border-color: #E1BE42;
+    border-width: thin;
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    padding: 10px;
+    margin: 8px 8px 5px 5px;
+    text-align: left;
+    width: 36vw;
+    height: calc(100% - 40px);
 }
 
 /* CANVAS */
-/* canvas#mostPurchasedRiceChart {
-    display: block;
-    box-sizing: border-box;
-    height: 178px;
-    width: 469px;
-} */
+
 
 canvas {
     width: 100% !important;
-    height: auto;
+    height: 98% !important;
 }
 
 canvas#salesRevenueChart {
@@ -428,6 +451,97 @@ canvas#purchasePreferencesChart {
         height: 85px;
     }
 }
+
+
+@media (min-width: 1441px) {
+
+    .card1 {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 14px;
+        margin: 20px 5px 5px 20px;
+        text-align: left;
+        width: calc(100% - 900px);
+        height: calc(100% - 53px);
+    }
+
+    .card2 {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 14px;
+        margin: 20px 10px 5px 5px;
+        text-align: left;
+        width: calc(100% - 900px);
+        height: calc(100% - 53px);
+    }
+
+    .card3 {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 14px;
+        margin: 5px 5px 13px 20px;
+        text-align: left;
+        width: calc(100% - 900px);
+        height: calc(100% - 1px);
+        /* overflow: auto; */
+        /* scrollbar-width: thin; */
+        /* scrollbar-color: #888 #f1f1f1;  */
+    }
+
+    .card4 {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 14px;
+        margin: 5px 10px 5px 5px;
+        text-align: left;
+        width: calc(100% - 42px);
+        height: calc(100% - 453px);
+    }
+
+    .card5 {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 14px;
+        margin: 10px 10px 5px 5px;
+        text-align: left;
+        width: calc(100% - 42px);
+        height: calc(100% - 435px);
+    }
+
+    .card5 h4 {
+        margin-top: -5px;
+        margin-bottom: -10px;
+        display: grid;
+        font-size: larger;
+        justify-content: center;
+        font-weight: 900;
+    }
+
+    .card6 {
+        /* background-color: rgba(255, 255, 255, 0.8); */
+        border-radius: 15px;
+        border-style: solid;
+        border-color: #E1BE42;
+        border-width: thin;
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+        padding: 10px;
+        margin: 8px 8px 5px 5px;
+        text-align: left;
+        width: 36vw;
+        height: 26vh;
+    }
+
+    canvas#salesRevenueChart {
+        height: 103% !important;
+    }
+}
+
+
 
 @media (max-width: 649px) {
     header .logo {
@@ -520,11 +634,74 @@ canvas#purchasePreferencesChart {
     }
 
     main {
-        margin: 45px -10px auto 100px;
+        margin: 45px 0 20px 100px;
         padding: 0;
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1; 
     }
 
     .card{
         margin: 20px 20px auto 20px;
+
+    }
+
+    .card1 h3, .card2 h3, .card3 h3, .card4 h3, .card6 h3 {
+        font-size: 12px;
+        font-weight: 700;
+
+    }
+
+    .dashboard {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .upper{
+        flex-direction: column;
+        /* height: 51vh; */
+        height: 5%;
+    }
+
+    .bottom {
+        flex-direction: column;
+    }
+
+    .card1, .card2, .card3, .card4, .card5 {
+        width:  86%;
+        margin: 20px 10px -10px 20px;
+    }
+
+    .card4 {
+        height: 15pc;
+    }
+
+    .card5 {
+        height: (100% - 270px)
+    }
+
+    .card6 {
+        width: auto;
+        height: calc(100% - 40px);
+    }
+}
+
+@media (max-width: 320px) {
+    .card1, .card2, .card3, .card4, .card5 {
+        width:  72%;
+        margin: 20px 10px -10px 20px;
+    }
+
+    .card1, .card2 {
+        height: 40%;
+    }
+    
+    canvas {
+        margin-top: 10px;
+    }    
+
+    .upper, .bottom {
+        flex-direction: column;
+        height: 67vh;
     }
 }

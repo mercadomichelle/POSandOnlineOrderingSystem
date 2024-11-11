@@ -285,56 +285,59 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="cart-summary">
                 <h4>
                     <img src="../../images/cart-icon.png" alt="Cart" class="cart-icon">MY CART
+                    <button class="toggle-cart">⏷</button>
                 </h4>
 
-                <?php if ($cartIsEmpty): ?>
-                    <p class="no-items-message">No items in the cart</p>
-                <?php else: ?>
-                    <div id="cart-items">
-                        <?php foreach ($cart as $item): ?>
-                            <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                <span class="item-quantity">
-                                    <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
-                                </span>
-                                <div class="cart-item-info">
-                                    <span class="item-name">
-                                        <?php echo htmlspecialchars($item['name']); ?>
+                <div id="cart-contents">
+                    <?php if ($cartIsEmpty): ?>
+                        <p class="no-items-message">No items in the cart</p>
+                    <?php else: ?>
+                        <div id="cart-items">
+                            <?php foreach ($cart as $item): ?>
+                                <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                    <span class="item-quantity">
+                                        <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
                                     </span>
-                                    <span class="item-price-per-unit">
-                                        ₱<?php echo number_format($item['price'], 2); ?> / sack
-                                    </span>
+                                    <div class="cart-item-info">
+                                        <span class="item-name">
+                                            <?php echo htmlspecialchars($item['name']); ?>
+                                        </span>
+                                        <span class="item-price-per-unit">
+                                            ₱<?php echo number_format($item['price'], 2); ?> / sack
+                                        </span>
+                                    </div>
+                                    <div class="cart-item-controls">
+                                        <form method="POST" action="cust_products.php" class="qty-form">
+                                            <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                            <input type="hidden" name="update_cart" value="1">
+                                            <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
+                                            <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
+                                            <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
+                                            <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
+                                        </form>
+                                        <form method="POST" action="cust_products.php" class="remove-form">
+                                            <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                            <input type="hidden" name="remove_item" value="1">
+                                            <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="cart-item-controls">
-                                    <form method="POST" action="cust_products.php" class="qty-form">
-                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                        <input type="hidden" name="update_cart" value="1">
-                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
-                                        <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
-                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
-                                        <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
-                                    </form>
-                                    <form method="POST" action="cust_products.php" class="remove-form">
-                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                        <input type="hidden" name="remove_item" value="1">
-                                        <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <?php endforeach; ?>
 
-                    <!-- Orders summary section -->
-                    <div class="total-row fee">
-                        <span class="subtotal-label">Sub Total:</span>
-                        <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
-                    </div>
-                    <div class="total-row total">
-                        <span class="total-label">TOTAL:</span>
-                        <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
-                    </div>
-                    <div class="minimum-order">Minimum order quantity to checkout: 10 sacks</div>
-                    <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
-                <?php endif; ?>
+                            <!-- Orders summary section -->
+                            <div class="total-row fee">
+                                <span class="subtotal-label">Sub Total:</span>
+                                <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
+                            </div>
+                            <div class="total-row total">
+                                <span class="total-label">TOTAL:</span>
+                                <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
+                            </div>
+                            <div class="minimum-order">Minimum order quantity to checkout: 10 sacks</div>
+                            <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
+                        <?php endif; ?>
+                        </div>
+                </div>
             </div>
 
             <form id="checkoutForm" method="POST" action="checkout.php">
@@ -383,10 +386,66 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </main>
 
     <script>
+        function updateNavLinks() {
+            const ordersLink = document.getElementById('orders-link');
+            const aboutLink = document.getElementById('about-link');
+
+            if (window.innerWidth <= 649) {
+                ordersLink.textContent = 'ORDERS';
+                aboutLink.textContent = 'ABOUT';
+            } else {
+                ordersLink.textContent = 'MY ORDERS';
+                aboutLink.textContent = 'ABOUT US';
+            }
+        }
+
+        window.addEventListener('resize', updateNavLinks);
+        window.addEventListener('DOMContentLoaded', updateNavLinks);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var cartSummary = document.querySelector('.cart-summary');
+            var toggleButton = document.querySelector('.toggle-cart');
+
+            // Check the screen width and minimize the cart on load if in mobile mode
+            if (window.innerWidth <= 640) {
+                cartSummary.classList.add('minimized');
+                toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for mobile
+            }
+
+            // Toggle cart function to handle minimizing and expanding
+            function toggleCart() {
+                // Toggle the minimized class on click
+                cartSummary.classList.toggle('minimized');
+
+                // Update the button icon based on the current state
+                if (cartSummary.classList.contains('minimized')) {
+                    toggleButton.innerHTML = '⏶'; // Show "Expand" icon
+                } else {
+                    toggleButton.innerHTML = '⏷'; // Show "Collapse" icon
+                }
+            }
+
+            // Attach the toggle function to the button click event
+            toggleButton.addEventListener('click', toggleCart);
+
+            // Ensure cart expands on larger screens if resized
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 640) {
+                    cartSummary.classList.remove('minimized');
+                    toggleButton.innerHTML = '⏷'; // Set to "Collapse" icon on desktop
+                } else if (!cartSummary.classList.contains('minimized')) {
+                    cartSummary.classList.add('minimized');
+                    toggleButton.innerHTML = '⏶'; // Set to "Expand" icon on mobile
+                }
+            });
+        });
+
+
         function redirectToHomepage(event) {
             event.preventDefault();
             window.location.href = '../login.php';
         }
+
         document.addEventListener('DOMContentLoaded', function() {
             var loadingScreen = document.getElementById("loadingScreen");
 

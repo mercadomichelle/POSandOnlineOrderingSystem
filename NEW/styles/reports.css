@@ -267,14 +267,16 @@ p.notif {
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin: 20px;
-    height: calc(100vh - 97px);
-    width: calc(100vw - 250px);
+    height: calc(89%);
+    width: calc(97%);
     display: flex;
 }
 
 .upper, .upper1 {
     display: flex;
     flex-direction: column;
+    /* height: 84vh; */
+    width: 60vw;
 }
 
 .card1 h3, .card2 h3, .card3 h3,
@@ -283,6 +285,7 @@ p.notif {
     margin-top: -8px;
     margin-bottom: 0;
     color: #4a3c31;
+    font-size: 16px;
     font-weight: 500;
     font-family: system-ui;
 }
@@ -296,7 +299,7 @@ p.notif {
     margin: 15px 5px 5px 15px;
     text-align: left;
     width: 55vw;
-    height: 23vh;
+    height: calc(25%);
 }
 
 .card2 {
@@ -307,7 +310,7 @@ p.notif {
     margin: 5px 5px 5px 15px;
     text-align: left;
     width: 55vw;
-    height: 23vh;
+    height: calc(25%);
 }
 
 .card3 {
@@ -318,7 +321,7 @@ p.notif {
     margin: 5px 5px 15px 15px;
     text-align: left;
     width: 55vw;
-    height: 23vh;
+    height: calc(26%);
 }
 
 .bottom {
@@ -333,7 +336,7 @@ p.notif {
     padding: 12px;
     margin: 15px 15px 5px 5px;
     text-align: left;
-    width: 21vw;
+    width: 20vw;
     height: 12vh;
 }
 
@@ -344,7 +347,7 @@ p.notif {
     padding: 12px;
     margin: 5px 15px 5px 5px;
     text-align: left;
-    width: 21vw;
+    width: 20vw;
     height: 12vh;
 }
 
@@ -355,7 +358,7 @@ p.notif {
     padding: 12px;
     margin: 5px 15px 5px 5px;
     text-align: left;
-    width: 21vw;
+    width: 20vw;
     height: 12vh;
 }
 
@@ -366,10 +369,14 @@ p.notif {
     padding: 12px;
     margin: 5px 10px 15px 5px;
     text-align: left;
-    width: 21vw;
-    height: 29.5vh;
+    width: 20vw;
+    height: 30%;
 }
 
+.btn1, .btn2 {
+    display: flex;
+    justify-content: center;
+}
 
 .daily, .monthly, .weekly, .yearly {
     background-color: #ffea9f;
@@ -377,8 +384,8 @@ p.notif {
     border: 1px solid;
     padding: 4px;
     margin: 4px;
-    width: 135px;
-    height: 30px;
+    width: 130px;
+    height: 26px;
     cursor: pointer;
 }
 
@@ -566,5 +573,77 @@ canvas#salesDistributionChart {
 
     .card{
         margin: 20px 20px auto 20px;
+
+    }
+
+    .card1 h3, .card2 h3, .card3 h3, .card4 h3, .card5 h3, .card6 h3, .card7 h3 {
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .dashboard {
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1; 
+        display: flex;
+        flex-direction: column;
+        height: calc(48%);
+        width: calc(90%);
+    }
+    
+    .upper, .upper1{
+        flex-direction: column;
+        height: 87vh;
+        width: 70vw;
+    }
+    
+    .card1, .card2, .card3, .card4, .card5, .card6, .card7 {
+        width:  85%;
+        margin: 20px 10px -10px 20px;
+    }
+
+    .daily, .monthly, .weekly, .yearly{ 
+        margin: 4px;
+        width: 120px;
+        height: 25px;
+    }
+}
+
+@media (max-width: 320px) {
+    .dashboard {
+        height: calc(53%);
+        width: calc(84%);
+    }
+
+    .card1, .card2, .card3, .card4, .card5, .card6, .card7 {
+        width:  72%;
+        margin: 10px 10px -5px 10px;
+    }
+
+    .card4, .card5, .card6, .card7 {
+        width: 74%;
+    }
+
+    .daily, .monthly, .weekly, .yearly{ 
+        margin: 4px;
+        width: 70px;
+        height: 25px;
+    }
+
+    .card1, .card2, .card3 {
+        height: 40%;
+    }
+    
+    canvas {
+        margin-top: 10px;
+    }    
+
+    .upper, .upper1{
+        flex-direction: column;
+        height: 67vh;
+        width: 100%;
+    }
+    .upper1 {
+        margin-top: 180px;
     }
 }

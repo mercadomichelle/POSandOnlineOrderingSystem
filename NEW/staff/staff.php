@@ -336,56 +336,58 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <div class="cart-summary">
                 <h4>
                     <img src="../../images/cart-icon.png" alt="Cart" class="cart-icon">CART
+                    <button class="toggle-cart">⏷</button>
                 </h4>
 
-                <?php if ($cartIsEmpty): ?>
-                    <p class="no-items-message">No items in the cart</p>
-                <?php else: ?>
-                    <div id="cart-items">
-                        <?php foreach ($cart as $item): ?>
-                            <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>"
-                                data-price="<?php echo htmlspecialchars($item['price']); ?>"
-                                data-price-type="<?php echo htmlspecialchars($item['price_type']); ?>">
-                                <span class="item-quantity">
-                                    <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
-                                </span>
-                                <div class="cart-item-info">
-                                    <span class="item-name">
-                                        <?php echo htmlspecialchars($item['name']); ?>
+                <div id="cart-contents">
+                    <?php if ($cartIsEmpty): ?>
+                        <p class="no-items-message">No items in the cart</p>
+                    <?php else: ?>
+                        <div id="cart-items">
+                            <?php foreach ($cart as $item): ?>
+                                <div class="cart-item" data-prod-id="<?php echo htmlspecialchars($item['prod_id']); ?>"
+                                    data-price="<?php echo htmlspecialchars($item['price']); ?>"
+                                    data-price-type="<?php echo htmlspecialchars($item['price_type']); ?>">
+                                    <span class="item-quantity">
+                                        <?php echo htmlspecialchars($item['quantity']) . 'x'; ?>
                                     </span>
-                                    <span class="item-price-per-unit">
-                                        ₱<?php echo number_format($item['price'], 2); ?> / sack
-                                    </span>
+                                    <div class="cart-item-info">
+                                        <span class="item-name">
+                                            <?php echo htmlspecialchars($item['name']); ?>
+                                        </span>
+                                        <span class="item-price-per-unit">
+                                            ₱<?php echo number_format($item['price'], 2); ?> / sack
+                                        </span>
+                                    </div>
+                                    <div class="cart-item-controls">
+                                        <form method="POST" action="staff.php" class="qty-form">
+                                            <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                            <input type="hidden" name="price_type" value="<?php echo htmlspecialchars($item['price_type']); ?>"> <!-- Ensure price_type is passed -->
+                                            <input type="hidden" name="update_cart" value="1">
+                                            <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
+                                            <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
+                                            <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
+                                            <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
+                                        </form>
+                                        <form method="POST" action="staff.php" class="remove-form">
+                                            <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
+                                            <input type="hidden" name="price" value="<?php echo htmlspecialchars($item['price']); ?>"> <!-- Add price hidden field -->
+                                            <input type="hidden" name="remove_item" value="1">
+                                            <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
+                                        </form>
+                                    </div>
                                 </div>
-                                <div class="cart-item-controls">
-                                    <form method="POST" action="staff.php" class="qty-form">
-                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                        <input type="hidden" name="price_type" value="<?php echo htmlspecialchars($item['price_type']); ?>"> <!-- Ensure price_type is passed -->
-                                        <input type="hidden" name="update_cart" value="1">
-                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)">-</button>
-                                        <input type="number" class="qty-input" value="<?php echo htmlspecialchars($item['quantity']); ?>" min="1" name="quantity">
-                                        <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)">+</button>
-                                        <span class="item-total-price">₱<?php echo number_format($item['quantity'] * $item['price'], 2); ?></span>
-                                    </form>
-                                    <form method="POST" action="staff.php" class="remove-form">
-                                        <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($item['prod_id']); ?>">
-                                        <input type="hidden" name="price" value="<?php echo htmlspecialchars($item['price']); ?>"> <!-- Add price hidden field -->
-                                        <input type="hidden" name="remove_item" value="1">
-                                        <button class="remove-item" type="button" onclick="showDeleteModal('<?php echo htmlspecialchars($item['prod_id']); ?>')">×</button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                            <?php endforeach; ?>
+                        </div>
 
-                    <div class="total-row total">
-                        <span class="total-label">TOTAL:</span>
-                        <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
-                    </div>
-                    <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to payment</button>
-                <?php endif; ?>
+                        <div class="total-row total">
+                            <span class="total-label">TOTAL:</span>
+                            <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
+                        </div>
+                        <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to payment</button>
+                    <?php endif; ?>
+                </div>
             </div>
-
 
             <div id="loadingScreen" class="loading-screen" style="display: none;">
                 <div class="spinner"></div>
@@ -441,6 +443,36 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 });
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+    var cartSummary = document.querySelector('.cart-summary');
+    var toggleButton = document.querySelector('.toggle-cart');
+
+    // Minimize cart if in mobile mode
+    if (window.innerWidth <= 640) {
+        cartSummary.classList.add('minimized');
+        toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for minimized cart
+    }
+
+    // Toggle cart function to handle minimizing and expanding
+    function toggleCart() {
+        cartSummary.classList.toggle('minimized');
+        toggleButton.innerHTML = cartSummary.classList.contains('minimized') ? '⏶' : '⏷';
+    }
+
+    // Attach the toggle function to the button
+    toggleButton.addEventListener('click', toggleCart);
+
+    // Ensure cart expands on larger screens if resized
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 640) {
+            cartSummary.classList.remove('minimized');
+            toggleButton.style.display = 'none'; // Hide toggle button on desktop
+        } else {
+            toggleButton.style.display = 'inline'; // Show toggle button on mobile
+        }
+    });
+});
 
 
         document.addEventListener('DOMContentLoaded', function() {

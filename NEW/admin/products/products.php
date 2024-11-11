@@ -160,7 +160,7 @@ $mysqli->close();
                 <div class="product-grid">
                     <div class="product-card add-new" id="addNewProductBtn">
                         <div class="add-icon">+</div>
-                        <p>Add new product</p>
+                        <p1>Add new product</p1>
                     </div>
                     <?php foreach ($products as $product): ?>
                         <div class="product-card" data-price="<?php echo htmlspecialchars($product['prod_price']); ?>">
@@ -190,9 +190,11 @@ $mysqli->close();
                     <?php endforeach; ?>
 
                 </div>
+
                 <div id="noProductFound" class="no-product-found" style="display: none;">
                     <p>No product found</p>
                 </div>
+
                 <div id="addProductModal" class="modal">
                     <div class="modal-content">
                         <span class="close">&times;</span>
@@ -285,6 +287,8 @@ $mysqli->close();
     </main>
 
 
+    <script src="../../js/notif.js"></script>
+    <script src="../../js/search.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var addProductModal = document.getElementById("addProductModal");
@@ -393,8 +397,6 @@ $mysqli->close();
             };
         });
     </script>
-    <script src="../../js/notif.js"></script>
-    <script src="../../js/search.js"></script>
 
 </body>
 

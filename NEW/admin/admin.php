@@ -133,7 +133,7 @@ $mysqli->close();
             <div class="upper">
                 <div class="card1">
                     <h3>Most Purchased Rice Varieties</h3>
-                    <canvas id="mostPurchasedRiceChart"></canvas>
+                    <canvas id="mostPurchasedRiceChart" style="height: 150px; max-height: 150px;"></canvas>
                 </div>
                 <div class="card2">
                     <h3>Peak Buying Periods</h3>
@@ -143,7 +143,7 @@ $mysqli->close();
                             <option value="monthly">Monthly</option>
                         </select>
                     </div>
-                    <canvas id="peakBuyingChart"></canvas>
+                    <canvas id="peakBuyingChart" style="height: 150px; max-height: 150px;"></canvas>
 
                 </div>
             </div>
@@ -166,16 +166,19 @@ $mysqli->close();
                             <option value="12">December</option>
                         </select>
                     </div>
-                    <canvas id="purchasePreferencesChart" width="400" height="200"></canvas>
+                    <canvas id="purchasePreferencesChart" style="height: 540px; max-height: 550px;"></canvas>
                 </div>
                 <div class="bottom1">
                     <div class="card4">
                         <h3>Sales Revenue</h3>
-                        <canvas id="salesRevenueChart"></canvas>
+                        <canvas id="salesRevenueChart" ></canvas>
                     </div>
                     <div class="card5">
-                        <h3>Stock Allocation Across Branches</h3>
-                        <canvas id="stockAllocationChart"></canvas>
+                        <h4>RECOMMENDATIONS</h4>
+                        <div class="card6">
+                            <h3>Stock Allocation Across Branches</h3>
+                            <canvas id="stockAllocationChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -676,90 +679,85 @@ $mysqli->close();
             }
         });
 
-//STOCK ALLOCATION
-        $(document).ready(function() {
-            // Fetch stock allocation data using jQuery AJAX
-            $.ajax({
-                url: 'dashboard/fetch_stock_allocation.php',
-                type: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    console.log("Parsed JSON:", data);
+        $.ajax({
+    url: 'dashboard/fetch_stock_allocation.php',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data) {
+        console.log("Fetched data:", data);
 
-                    const riceVarieties = data.riceVarieties;
-                    const branchStocks = data.branchStocks;
-                    const maxStocks = data.maxStocks;
+        const riceVarieties = data.riceVarieties;
+        const branchStocks = data.branchStocks;
+        const maxStocks = data.maxStocks;
 
-                    console.log("Rice Varieties:", riceVarieties);
-                    console.log("Branch Stocks:", branchStocks);
+        console.log("Rice Varieties:", riceVarieties);
+        console.log("Branch Stocks:", branchStocks);
+        console.log("Max Stocks:", maxStocks);
 
-                    // Check if riceVarieties is not empty and branchStocks has valid data
-                    if (branchStocks && riceVarieties.length > 0 && branchStocks[riceVarieties[0]]) {
-                        const branchNames = Object.keys(branchStocks[riceVarieties[0]]);
+        if (branchStocks && riceVarieties.length > 0 && branchStocks[riceVarieties[0]]) {
+            const branchNames = Object.keys(branchStocks[riceVarieties[0]]);
+            console.log("Branch Names:", branchNames);
 
-                        const datasets = branchNames.map((branch, index) => ({
-                            label: branch,
-                            data: riceVarieties.map(rice => branchStocks[rice][branch] || 0), // Use 0 if undefined
-                            backgroundColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 0.7)`,
-                            borderColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 1)`,
-                            borderWidth: 1
-                        }));
+            const datasets = branchNames.map((branch, index) => ({
+                label: branch,
+                data: riceVarieties.map(rice => branchStocks[rice][branch] || 0),
+                backgroundColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 0.7)`,
+                borderColor: `rgba(${Math.floor(255 - index * 30)}, ${Math.floor(100 + index * 20)}, ${Math.floor(150 + index * 30)}, 1)`,
+                borderWidth: 1
+            }));
 
-                        // Line dataset for maximum stock
-                        const maxStockDataset = {
-                            label: 'Maximum Stock',
-                            data: riceVarieties.map(rice => maxStocks[rice] || 0), // Use 0 if undefined
-                            borderColor: 'black',
-                            borderWidth: 2,
-                            type: 'line',
-                            fill: false,
-                            pointStyle: 'circle',
-                            pointRadius: 5,
-                            pointBackgroundColor: 'black'
-                        };
+            const maxStockDataset = {
+                label: 'Maximum Stock',
+                data: riceVarieties.map(rice => maxStocks[rice] || 0),
+                borderColor: 'black',
+                borderWidth: 2,
+                type: 'line',
+                fill: false,
+                pointStyle: 'circle',
+                pointRadius: 5,
+                pointBackgroundColor: 'black'
+            };
 
-                        // Create the chart
-                        const ctx = document.getElementById('stockAllocationChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: riceVarieties,
-                                datasets: [...datasets, maxStockDataset]
-                            },
-                            options: {
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        title: {
-                                            display: true,
-                                            text: 'Rice Varieties'
-                                        },
-                                        stacked: true
-                                    },
-                                    y: {
-                                        title: {
-                                            display: true,
-                                            text: 'Stock Quantity'
-                                        },
-                                        beginAtZero: true
-                                    }
-                                },
-                                plugins: {
-                                    legend: {
-                                        position: 'top'
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        console.error("Invalid branchStocks or riceVarieties is empty.");
-                    }
+            const ctx = document.getElementById('stockAllocationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: riceVarieties,
+                    datasets: [...datasets, maxStockDataset]
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error fetching stock allocation data:', error);
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Rice Varieties'
+                            },
+                            stacked: true
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Stock Quantity'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    }
                 }
             });
-        });
+        } else {
+            console.error ("Invalid branchStocks or riceVarieties is empty.");
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error('Error fetching stock allocation data:', error);
+    }
+});
     </script>
 
 

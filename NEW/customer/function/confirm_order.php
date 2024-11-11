@@ -266,64 +266,85 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </main>
 
     <script>
-        document.querySelector('.confirm-btn').disabled = true;
+    // Initially check if the address is set to enable or disable the button
+    const formattedAddress = "<?php echo $formattedAddress; ?>";
+    const confirmButton = document.querySelector('.confirm-btn');
 
-        document.getElementById('selected-address').addEventListener('click', function() {
-            const dropdownOptions = document.getElementById('dropdown-options');
-            dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-        });
+    // Disable if no address, enable otherwise
+    if (formattedAddress === "No address found") {
+        confirmButton.disabled = true;
+    } else {
+        confirmButton.disabled = false;
+    }
 
-        document.querySelectorAll('.dropdown-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const selectedAddress = this.getAttribute('data-value');
-                document.getElementById('selected-address').textContent = selectedAddress;
-                document.getElementById('dropdown-options').style.display = 'none';
+    // Dropdown selection logic for address
+    document.getElementById('selected-address').addEventListener('click', function(event) {
+        event.stopPropagation();
+        const dropdownOptions = document.getElementById('dropdown-options');
+        dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
+    });
 
-                // AJAX request to get delivery fee based on selected address
-                fetch(`get_delivery_fee.php?address=${encodeURIComponent(selectedAddress)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const deliveryFee = data.fee;
+    // Hide dropdown if clicked outside
+    document.addEventListener('click', function(event) {
+        const dropdownOptions = document.getElementById('dropdown-options');
+        if (dropdownOptions && dropdownOptions.style.display === 'block') {
+            dropdownOptions.style.display = 'none';
+        }
+    });
+
+    // Dropdown option selection
+    document.querySelectorAll('.dropdown-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const selectedAddress = this.getAttribute('data-value');
+            document.getElementById('selected-address').textContent = selectedAddress;
+            document.getElementById('dropdown-options').style.display = 'none';
+
+            // Fetch delivery fee based on selected address
+            fetch(`get_delivery_fee.php?address=${encodeURIComponent(selectedAddress)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.fee) {
+                        const deliveryFee = parseFloat(data.fee);
                         document.querySelector('.delivery-fee span:last-child').textContent = `₱ ${deliveryFee.toFixed(2)}`;
 
                         // Update total
                         const subTotal = parseFloat(document.querySelector('.sub-total span:last-child').textContent.replace('₱ ', ''));
-                        const total = subTotal + parseFloat(deliveryFee);
+                        const total = subTotal + deliveryFee;
                         document.querySelector('.total span:last-child').textContent = `₱ ${total.toFixed(2)}`;
-                    })
-                    .catch(error => console.error('Error fetching delivery fee:', error));
-            });
+
+                        // Enable the "Place Order" button after delivery fee is updated
+                        confirmButton.disabled = false;
+                    } else {
+                        console.error('Invalid fee data');
+                    }
+                })
+                .catch(error => console.error('Error fetching delivery fee:', error));
         });
+    });
 
+    // Function to update nav links on resize
+    function updateNavLinks() {
+        const ordersLink = document.getElementById('orders-link');
+        const aboutLink = document.getElementById('about-link');
 
-        // Hide dropdown if clicked outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.querySelector('.custom-dropdown');
-            if (!dropdown.contains(event.target)) {
-                document.getElementById('dropdown-options').style.display = 'none';
-            }
-        });
-
-        function updateNavLinks() {
-            const ordersLink = document.getElementById('orders-link');
-            const aboutLink = document.getElementById('about-link');
-
-            if (window.innerWidth <= 649) {
-                ordersLink.textContent = 'ORDERS';
-                aboutLink.textContent = 'ABOUT';
-            } else {
-                ordersLink.textContent = 'MY ORDERS';
-                aboutLink.textContent = 'ABOUT US';
-            }
+        if (window.innerWidth <= 649) {
+            ordersLink.textContent = 'ORDERS';
+            aboutLink.textContent = 'ABOUT';
+        } else {
+            ordersLink.textContent = 'MY ORDERS';
+            aboutLink.textContent = 'ABOUT US';
         }
+    }
 
-        window.addEventListener('resize', updateNavLinks);
-        window.addEventListener('DOMContentLoaded', updateNavLinks);
+    window.addEventListener('resize', updateNavLinks);
+    window.addEventListener('DOMContentLoaded', updateNavLinks);
 
-        document.querySelector('form').addEventListener('submit', function() {
-            document.getElementById('loadingScreen').style.display = 'flex';
-        });
-    </script>
+    // Show loading screen on form submit
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('loadingScreen').style.display = 'flex';
+    });
+</script>
+
 </body>
 
 </html>

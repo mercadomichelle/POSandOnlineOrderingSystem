@@ -99,7 +99,7 @@ header .account-info img {
     top: 80px;
     left: 20px;
     width: 200px;
-    height: 86%;
+    height: calc(100% - 115px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -347,7 +347,12 @@ p.notif {
 .no-product-found {
     font-size: large;
     text-align: center;
-    margin-top: -75px;
+    /* margin-top: -75px; */
+}
+
+#noProductFound {
+    display: none;
+    padding: 20px;
 }
 
 .card {
@@ -360,9 +365,8 @@ p.notif {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    width: 97%;
-    height: 102.5%;
-    max-height: calc(90vh - 107px);
+    /* width: 97%; */
+    max-height: calc(90vh - 120px);
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1; 
@@ -774,7 +778,7 @@ label {
         top: 75px;
         left: 10px;
         width: 100px;
-        height: 88%;
+        /* height: 88%; */
     }
 
     .sidebar nav ul li a {
@@ -803,21 +807,15 @@ label {
         margin-right: 2px;
     }
 
-    .filter-button-current {
+    .filter-button-current, .filter-button {
         padding: 5px 25px;
-        font-size: 12px;
-        width: 25%;
-    }
-
-    .filter-button {
-        padding: 5px 25px;
-        font-size: 12px;
-        width: 25%;
+        font-size: 10px;
+        width: 28%;
     }
 
     .filter-button img, .filter-button-current img {
-        width: 25px;
-        height: 25px;
+        width: 20px;
+        height: 20px;
         margin: -5px 5px;
     }
     
@@ -833,20 +831,23 @@ label {
     }
 
     #searchInput {
-        width: 100px;
-        padding: 7px 40px 7px 10px;
+        width: 60px;
+        padding: 4px 40px 4px 10px;
         font-size: 12px;
         margin-bottom: -2px;
     }
     
-    .card {
+    .card {        
         padding: 10px;
-        width: 98%;
-        max-width: 98%;
-        height: 84vh;
+        width: 77vw;
+        height: 82vh;
         max-height: 84vh;
         margin: 0px auto auto 0px;
         /* box-sizing: border-box; */
+    }
+    
+    .card h3 {
+        font-size: smaller;
     }
 
     .product-controls {
@@ -856,7 +857,7 @@ label {
 
     .product-grid {
         grid-template-columns: repeat(2, 1fr); 
-        gap: 10px;
+        gap: 8px;
     }
 
     .product-card, .product-card.add-new {
@@ -867,37 +868,71 @@ label {
     }
 
     .product-card img {
-        max-height: 150px; 
+        max-height: 130px; 
     }
 
     .product-actions {
         flex-direction: row;
         margin-bottom: 5px;
     }
-
+    
+    .product-card h4 {
+        font-size: medium;
+    }    
+    
     .product-card p {
-        margin: 10px;
+        margin: 8px;
+        font-size: medium;    
+    }
+
+    .product-card p1 {
+        font-size: small;
     }
 
     .product-actions .edit-button, 
     .product-actions .delete-button {
-        padding: 5px 10px; 
+        padding: 5px 12px; 
         width: 100%; 
-        margin: 0px;
+        margin: -2px;
+    }
+
+    .product-actions button img {
+        width: 18px;
+        height: 18px;
+        margin: auto 2px;
     }
 
     .add-new {
-        font-size: 18px; /* Reduce font size */
-        padding: 15px; /* Adjust padding */
-        height: 100px; /* Set a fixed height */
-        max-height: 150px; /* Limit the height */
+        font-size: 18px; 
+        padding: 15px; 
+        height: 100px; 
+        max-height: 150px; 
     }
 
     .add-icon {
-        font-size: 55px; /* Adjust icon size */
+        font-size: 45px; 
         margin-bottom: -5px;
     }
 
+    .modal-content {
+        width: 60%;
+    }
+    
+    .message-modal-content {
+        max-width: 50%;
+        height: 12%;
+    }
+
+    .pagination-container {
+        font-size: smaller;
+    }
+}
+
+
+@media (max-width: 520px) {
+    .card {        
+        width: 71vw;
+    }
 }
 
 @media (max-width: 375px) {
@@ -1061,3 +1096,9 @@ label {
 
 }
 
+@media (min-width: 1441px) {
+
+    .card {
+        max-height: calc(100% - 375px);
+    }
+}

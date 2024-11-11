@@ -99,7 +99,7 @@ header .account-info img {
     top: 80px;
     left: 20px;
     width: 200px;
-    height: 86%;
+    height: calc(100% - 115px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -355,9 +355,9 @@ p.notif {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    width: 97%;
+    /* width: 97%; */
     height: 102.5%;
-    max-height: calc(90vh - 107px);
+    max-height: calc(90vh - 120px);
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1; 
@@ -838,7 +838,22 @@ input[type="number"] {
         width: 100%; 
         margin: 0px;
     }
+    
+    .modal-content {
+        padding: 15px;
+        width: 60%;
+    }
+    
+    input[type="number"] {
+        padding: 8px;
+        margin-bottom: 0;
+        font-size: 11px;
+    }    
 
+    .add-btn {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 }
 
 
@@ -951,7 +966,7 @@ input[type="number"] {
         width: 102%;
         max-width: 102%;
         height: 85.5vh;
-        max-height: 86vh;
+        max-height: 84vh;
         margin: 0px auto auto 0px;
         box-sizing: border-box;
     }
@@ -1005,3 +1020,9 @@ input[type="number"] {
 
 }
 
+@media (min-width: 1441px) {
+
+    .card {
+        max-height: calc(80% - 120px);
+    }
+}

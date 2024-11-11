@@ -14,7 +14,8 @@ body {
     display: flex;
     flex-direction: column;
     padding-top: 10px;
-    min-height: 95vh;
+    max-height: 95vh;
+    overflow: hidden;
 }
 
 header {
@@ -131,7 +132,7 @@ main {
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 20px;
+    padding: 20px 20px 10px 20px;
     box-sizing: border-box;
     margin-top: 20px;
 }
@@ -359,14 +360,15 @@ footer {
         margin-left: 50px;
     }
     footer {
-        margin: 20px auto;
-        padding: 15px 15px;
+        border-radius: 60px;
+        margin: -5px auto;
+        padding: 0;
         text-align: center;
     }
     .divider {
         width: 280px;
         height: 1px;
-        margin: 10px 0;
+        margin: -5px 0;
     }
         
     header nav a {
@@ -386,5 +388,26 @@ footer {
         margin-right: 15px;
     }
     
+    .contact-item img {
+        width: 45px;
+        height: 45px;
+    }
 
+    .main {
+        margin-top: 40px;
+    }
+
+    .about-us {
+        padding: 10px;
+    }
+    
+    .about-us h1 {
+        font-size: x-large;
+    }    
+
+    .about-us p {
+        font-size: small;
+        line-height: 1.2;
+        margin-bottom: 0;
+    }    
 }

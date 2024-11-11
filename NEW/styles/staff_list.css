@@ -27,7 +27,7 @@ header {
     position: fixed;
     left: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 1;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -98,7 +98,7 @@ header .account-info img {
     top: 80px;
     left: 20px;
     width: 200px;
-    height: 86%;
+    height: calc(100% - 115px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -275,9 +275,10 @@ p {
     padding: 20px;
     margin: 0;
     text-align: left;
+    /* z-index: 1; */
     flex-grow: 1;
-    width: 97%;
-    max-height: calc(90vh - 52px);
+    /* width: 97%; */
+    max-height: calc(90vh - 68px);
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1; 
@@ -378,7 +379,7 @@ p {
     background-color: rgba(0,0,0,0.4);
     font-size: smaller;
     align-content: center;
-    z-index: 1003;
+    z-index: 1000;
 }
 
 .modal-content {
@@ -389,6 +390,10 @@ p {
     width: 80%;
     max-width: 400px;
     border-radius: 20px;
+}
+
+.modal-content h2, .modal-content1 h2 {
+    font-size: large;
 }
 
 .modal-content1 {
@@ -506,10 +511,10 @@ input[type="text"],
 input[type="password"],
 input[type="email"] {
     width: calc(100% - 22px);
-    padding: 10px;
+    padding: 7px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    margin-bottom: 5px;
+    margin-bottom: 0;
     font-size: 12px;
 }
 
@@ -519,7 +524,7 @@ input#edit_username.edit,
 input#edit_phone.edit,
 input#edit_email.edit
  {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 label {
@@ -719,7 +724,7 @@ label {
     }
 
     .card{
-        margin: 20px 20px 75px 20px;
+        margin: 20px 20px 55px 10px;
         position: sticky;
         height: calc(100% - 70px);    
     }
@@ -748,8 +753,49 @@ label {
         font-size: 10px;
     }
 
+    .modal-content { 
+        width: 70%;
+        height: 75%;    
+    }
+    
+    .modal-content1 {
+    width: 70%;
+    }
+
+    .modal-content h2, .modal-content1 h2 {
+        font-size: large;
+    }
+    
     .message-modal-content {    
         max-width: 40%;
         height: 15%;
+    }
+
+    input[type="text"], input[type="password"], input[type="email"] {
+        padding: 5px;
+        margin-bottom: 0;
+        font-size: 12px;
+    }
+
+}
+
+@media (max-width: 510px) {
+    .staff-header div, .staff-item div {
+        font-size: xx-small;
+    }
+
+    .staff-header, .staff-item {
+        grid-template-columns: 0.2fr 0.8fr 1fr 1fr 0.8fr 1fr 0.2fr 0.2fr;
+        gap: 2px;
+    }
+    .edit img, .delete img {
+        width: 15px;
+        height: 15px;
+    }
+
+    .card {
+        max-height: 87%;
+        width: calc(86%);
+        padding: 10px;
     }
 }
