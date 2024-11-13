@@ -333,7 +333,7 @@ footer {
         justify-content: space-between;
         align-items: center;
         padding: 0 10px;
-        margin: -110px auto 20px;
+        margin: -180px auto 20px;
     }
 
     .contact-info {
@@ -399,6 +399,7 @@ footer {
 
     .about-us {
         padding: 10px;
+        margin-bottom: -50px;
     }
     
     .about-us h1 {

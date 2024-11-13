@@ -449,7 +449,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     var toggleButton = document.querySelector('.toggle-cart');
 
     // Minimize cart if in mobile mode
-    if (window.innerWidth <= 640) {
+    if (window.innerWidth <= 999) {
         cartSummary.classList.add('minimized');
         toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for minimized cart
     }
@@ -465,7 +465,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
     // Ensure cart expands on larger screens if resized
     window.addEventListener('resize', function() {
-        if (window.innerWidth > 640) {
+        if (window.innerWidth > 999) {
             cartSummary.classList.remove('minimized');
             toggleButton.style.display = 'none'; // Hide toggle button on desktop
         } else {

@@ -401,54 +401,74 @@ canvas#purchasePreferencesChart {
 }
 
 
-@media (min-width: 650px) {
-    header {
-        padding: 8px 20px;
+@media (min-width: 650px) and (max-width: 829px) {
+
+    main {
+        margin: 65px 0 auto 100px;
     }
-    
-    .highlight {
-        flex-direction: row;
-        justify-content: space-between;
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 15px;
+    }
+
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info img {
+        margin-right: 10px;
+    }
+
+    header .account-info {
+        display: flex;
         align-items: center;
+        margin-right: 15px;
     }
 
-    .highlight-text {
-        max-width: 35%;
-        text-align: left;
-        margin-left: 100px;
-        margin-top: -150px;
+    .sidebar {
+        top: 75px;
+        left: 10px;
+        width: 100px;
+        /* height: 88%; */
     }
 
-    .highlight-text h1 {
-        font-size: 48px;
-    }
-    
-    .highlight-text .highlights {
-        font-size: 58px;
-    }
-
-    .highlight-image {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        max-width: 500px;
+    .sidebar nav ul li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
     }
 
-    footer {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-        margin: -110px auto 20px;
+    .sidebar nav ul li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
     }
 
-    .contact-info {
-        flex-direction: row;
-        justify-content: space-around;
+    .sidebar ul.reports li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
     }
 
-    .divider {
-        height: 85px;
+    .sidebar ul.reports li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .card1 h3, .card2 h3, .card3 h3, .card4 h3, .card6 h3 {
+        font-size: medium;
     }
 }
 

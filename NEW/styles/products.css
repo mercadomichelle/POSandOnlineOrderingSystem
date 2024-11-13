@@ -705,40 +705,241 @@ label {
 }
 
 
-@media (min-width: 650px) {
-    header {
-        padding: 8px 20px;
-    }
+@media (min-width: 1001px) and (max-width: 1200px) {
     
-    .highlight {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
+    .card {        
+        width: 96%;
     }
 
-    .highlight-text {
-        max-width: 35%;
-        text-align: left;
-        margin-left: 100px;
-        margin-top: -150px;
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
     }
 
-    .highlight-text h1 {
-        font-size: 48px;
-    }
-    
-    .highlight-text .highlights {
-        font-size: 58px;
+    .filter-button-current {
+        width: 25%;
     }
 
-    .highlight-image {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        max-width: 500px;
+    .filter-button {
+        width: 20%;
     }
-
 }
+
+@media (min-width: 830px) and (max-width: 1000px) {
+    
+    .card {        
+        padding: 10px;
+        width: 72vw;
+        height: auto;
+        max-height: 78vh;
+        margin: 0px auto auto 0px;
+        /* box-sizing: border-box; */
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .filter-button-current {
+        width: 25%;
+    }
+
+    .filter-button {
+        width: 20%;
+    }
+}
+
+@media (min-width: 650px) and (max-width: 829px) {
+    main {
+        margin: 65px 0 auto 100px;
+        padding: 0 10px;
+        width: calc(100% - 20px);
+    }
+
+    header .logo {
+        font-size: 18px;
+        margin-left: 0;
+        margin-right: 15px;
+    }
+
+    header nav a {
+        margin: 0 5px;
+        font-size: xx-small;
+        text-align: center;
+    }
+
+    header .account-info .user-name {
+        font-size: 12px;
+        margin-right: 5px;
+    }
+
+    header .account-info img {
+        margin-right: 10px;
+    }
+
+    header .account-info {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+    }
+
+    .sidebar {
+        top: 75px;
+        left: 10px;
+        width: 100px;
+        /* height: 88%; */
+    }
+
+    .sidebar nav ul li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar nav ul li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .sidebar ul.reports li a {
+        font-size: xx-small;
+        gap: 5px;
+        padding: 13px 5px;
+        justify-content: center;
+    }
+
+    .sidebar ul.reports li img {
+        width: 20px;
+        height: 20px;
+        margin-right: 2px;
+    }
+
+    .filter-button-current, .filter-button {
+        padding: 5px 25px;
+        font-size: 10px;
+        width: 28%;
+    }
+
+    .filter-button img, .filter-button-current img {
+        width: 20px;
+        height: 20px;
+        margin: -5px 5px;
+    }
+    
+    .search-container {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .search-icon {
+        transform: translateY(-50%);
+        width: 21px;
+        height: 21px;
+    }
+
+    #searchInput {
+        width: 110px;
+        padding: 4px 40px 4px 10px;
+        font-size: 12px;
+        margin-bottom: -2px;
+    }
+    
+    .card {        
+        padding: 10px;
+        width: 98%;
+        height: 82vh;
+        max-height: 84vh;
+        margin: 0px auto auto 0px;
+        /* box-sizing: border-box; */
+    }
+    
+    .card h3 {
+        font-size: smaller;
+    }
+
+    .product-controls {
+        margin-left: 0px;
+        margin-right: 10px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 8px;
+    }
+
+    .product-card, .product-card.add-new {
+        padding: 10px;
+        width: 100%;
+        height: auto;
+        max-height: 345px;
+    }
+
+    .product-card img {
+        max-height: 130px; 
+    }
+
+    .product-actions {
+        flex-direction: row;
+        margin-bottom: 5px;
+    }
+    
+    .product-card h4 {
+        font-size: medium;
+    }    
+    
+    .product-card p {
+        margin: 8px;
+        font-size: medium;    
+    }
+
+    .product-card p1 {
+        font-size: small;
+    }
+
+    .product-actions .edit-button, 
+    .product-actions .delete-button {
+        padding: 5px 12px; 
+        width: 100%; 
+        margin: -2px;
+    }
+
+    .product-actions button img {
+        width: 18px;
+        height: 18px;
+        margin: auto 2px;
+    }
+
+    .add-new {
+        font-size: 18px; 
+        padding: 15px; 
+        height: 100px; 
+        max-height: 150px; 
+    }
+
+    .add-icon {
+        font-size: 45px; 
+        margin-bottom: -5px;
+    }
+
+    .modal-content {
+        width: 60%;
+    }
+    
+    .message-modal-content {
+        max-width: 50%;
+        height: 12%;
+    }
+
+    .pagination-container {
+        font-size: smaller;
+    }
+}
+
 
 @media (max-width: 649px) {
     main {
@@ -839,9 +1040,9 @@ label {
     
     .card {        
         padding: 10px;
-        width: 77vw;
-        height: 82vh;
-        max-height: 84vh;
+        width: 98%;
+        height: auto;
+        max-height: 81vh;
         margin: 0px auto auto 0px;
         /* box-sizing: border-box; */
     }
@@ -928,12 +1129,12 @@ label {
     }
 }
 
-
 @media (max-width: 520px) {
     .card {        
-        width: 71vw;
+        width: 87%;
     }
 }
+
 
 @media (max-width: 375px) {
     main {
@@ -1092,6 +1293,38 @@ label {
         padding: 5px 10px; 
         width: 100%; 
         margin: 0px;
+    }
+
+}
+
+
+@media (min-width: 650px) {
+    .highlight {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .highlight-text {
+        max-width: 35%;
+        text-align: left;
+        margin-left: 100px;
+        margin-top: -150px;
+    }
+
+    .highlight-text h1 {
+        font-size: 48px;
+    }
+    
+    .highlight-text .highlights {
+        font-size: 58px;
+    }
+
+    .highlight-image {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        max-width: 500px;
     }
 
 }

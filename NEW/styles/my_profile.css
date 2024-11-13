@@ -136,8 +136,6 @@ header .account-info img {
     cursor: pointer;
 }
 
-
-
 main {
     flex: 1;
     display: flex;
@@ -145,6 +143,9 @@ main {
     align-items: center;
     justify-content: center;
     padding: 70px 20px 20px;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; 
 }
 
 .profile-container {
@@ -158,6 +159,9 @@ main {
     box-sizing: border-box;
     margin: 0 10px;
     position: relative;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; 
 }
 
 h1 {
@@ -405,6 +409,8 @@ button:hover {
         margin-left: 0;
         margin-right: 7px;
     }
+
+    
     .contact-info {
         flex-direction: column;
         align-items: start;
@@ -415,6 +421,7 @@ button:hover {
         padding: 15px 15px;
         text-align: center;
     }
+    
     .divider {
         width: 280px;
         height: 1px;
@@ -441,6 +448,7 @@ button:hover {
     .profile-container {
         height: auto;
         padding: 10px;
+        border-radius: 15px;
     }
     
     h1 {
