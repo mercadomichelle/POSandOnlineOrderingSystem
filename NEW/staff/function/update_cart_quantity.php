@@ -1,15 +1,13 @@
 <?php
-session_start(); // Ensure session is started
+session_start(); 
 
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-// Create a new MySQLi connection
 $mysqli = new mysqli($host, $user, $password, $db);
 
-// Check for connection errors
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }

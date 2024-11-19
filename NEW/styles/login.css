@@ -5,6 +5,19 @@
     box-sizing: border-box;
 }
 
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
 /* General Styles */
 body {
     font-family: 'Poppins', sans-serif;
@@ -14,6 +27,7 @@ body {
     background-position: center;
     margin: 0;
     overflow: hidden; 
+    height: 100vh;
 }
 
 header {
@@ -21,11 +35,8 @@ header {
 }
 
 header .logo {
-    font-size: 20px;
-    margin: 0 23px;
-    font-weight: 900;
-    color: #977644;
-    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+    height: 50px;
+    margin: -8px 0 -18px 21px;
 }
 
 .welcome-message {
@@ -44,7 +55,8 @@ header .logo {
     justify-content: center;
     align-items: center;
     box-sizing: border-box;
-    height: 85vh; 
+    max-height: 85vh;
+    height: 100vh; 
     overflow: auto;
 }
 
@@ -63,26 +75,29 @@ header .logo {
     margin: 20px;
     width: 100%;
     max-width: 380px;
-    min-height: 60vh;
+    max-height: 500px;
+    height: 500px;
     overflow: auto;
 }
 
 .register-form {
     backdrop-filter: blur(5px);
     border-radius: 30px;
-    background: rgba(248, 248, 248, 0.1);
+    background: #f8f8f81a;
     display: flex;
     flex-direction: column;
     align-items: center;
+    align-content: center;
     padding: 20px 25px;
     box-sizing: border-box;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3);
     margin: 20px;
     width: 100%;
     max-width: 380px;
-    max-height: 80vh;
+    max-height: fit-content;
     overflow: auto;
 }
+
 .login-toggle {
     margin-bottom: 30px;
     border: 1px solid;
@@ -133,7 +148,7 @@ header .logo {
 .form-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     width: 100%;
 }
 
@@ -225,7 +240,6 @@ header .logo {
 /* Error Modal */
 
 .error-modal {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -287,7 +301,6 @@ header .logo {
 
 /* Success Modal */
 .success-modal {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -332,9 +345,43 @@ header .logo {
     color: #000; 
 }
 
+.password-requirements {
+    display: none;
+    margin-top: 5px;
+    font-size: 0.7em;
+    color: #424141;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.password-requirements p {
+    margin: auto auto -8px auto;
+    font-weight: bold;
+}
+
+.password-requirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px;
+}
+
+.password-requirements li {
+    margin: 5px 0;
+}
+
+.password-requirements li.met {
+    color: green;
+}
+
+.password-requirements li.unmet {
+    color: red;
+}
+
+.error {
+    border: 1px solid red;
+}
+
 
 .loading-screen {
-    display: none; 
     position: fixed;
     top: 0;
     left: 0;
@@ -374,13 +421,29 @@ header .logo {
     }
 }
 
+@media (min-width: 300px) and (max-width: 649px) {
 
-@media (max-width: 500px) {
+    header .logo {
+        height: 40px;
+        margin-left: 10px;
+    }
+
     .login-form, .register-form {
         display: initial;
         max-width: 335px;
+        font-weight: 600;
     }
     
+    .login-form{
+        height: min-content;
+        max-height: 500px;
+        max-width: fit-content;
+    }
+
+    .register-form {
+        align-content: center;
+    }
+
     .login-button, .register-button{
         font-size: 11px;
     }

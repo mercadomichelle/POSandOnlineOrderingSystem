@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -22,6 +22,9 @@ $prod_id = $_POST['prod_id'];
 $quantity = $_POST['quantity'];
 $user_type = 'staff';
 $source = $_POST['source'];  // Get source page: wholesale or retail
+
+// Save the order type (wholesale or retail) in the session
+$_SESSION['order_type'] = $source; 
 
 // Fetch the login id based on the session username
 $sql = "SELECT id FROM login WHERE username = ?";
@@ -52,19 +55,18 @@ if ($result->num_rows === 1) {
         $sql = $source === 'wholesale' ? 
         "SELECT prod_price_wholesale AS price FROM products WHERE prod_id = ?" : 
         "SELECT prod_price_retail AS price FROM products WHERE prod_id = ?";
-    $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("i", $prod_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $prod = $result->fetch_assoc();
-    $price = $prod['price'];
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("i", $prod_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $prod = $result->fetch_assoc();
+        $price = $prod['price'];
 
-
-// Insert new product into cart with the correct price and price_type
-$sql = "INSERT INTO cart (login_id, prod_id, quantity, price, user_type, price_type) VALUES (?, ?, ?, ?, ?, ?)";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("iiidss", $login_id, $prod_id, $quantity, $price, $user_type, $price_type);
-}
+        // Insert new product into cart with the correct price and price_type
+        $sql = "INSERT INTO cart (login_id, prod_id, quantity, price, user_type, price_type) VALUES (?, ?, ?, ?, ?, ?)";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("iiidss", $login_id, $prod_id, $quantity, $price, $user_type, $price_type);
+    }
     $stmt->execute();
 
     // Redirect to appropriate page

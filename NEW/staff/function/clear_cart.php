@@ -1,17 +1,16 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['login_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
 // Database connection
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
+if (!isset($_SESSION['login_id'])) {
+    header("Location: ../login.php");
+    exit();
+}
 $mysqli = new mysqli($host, $user, $password, $db);
 
 if ($mysqli->connect_error) {

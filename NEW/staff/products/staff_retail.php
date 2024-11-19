@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -18,6 +18,7 @@ if ($mysqli->connect_error) {
 }
 
 $username = $_SESSION["username"];
+
 $sql = "SELECT first_name, last_name FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
@@ -94,12 +95,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Retail Products</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/products.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
 
             <div class="dropdown notifications-dropdown">

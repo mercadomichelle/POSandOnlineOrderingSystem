@@ -1,3 +1,17 @@
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
 html,
 body {
     margin: 0;
@@ -41,11 +55,8 @@ header {
 }
 
 header .logo {
-    font-size: 20px;
-    margin-left: 10px;
-    font-weight: 900;
-    color: #977644;
-    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+    height: 50px;
+    margin: -10px 0 -18px 15px;
 }
 
 header .nav-wrapper {
@@ -217,6 +228,12 @@ img.order-icon {
 .sorting-options select {
     padding: 5px;
     font-size: 16px;
+}
+
+p.no-orders {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .orders-list {
@@ -428,9 +445,8 @@ button:hover {
 
 @media (min-width: 50px) and (max-width: 580px) {
     header .logo {
-        font-size: 18px;
-        margin-left: 0;
-        margin-right: 7px;
+        height: 40px;
+        margin-left: 10px;
     }
 
     header nav a {

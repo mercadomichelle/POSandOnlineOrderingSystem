@@ -1,3 +1,17 @@
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
 html, body {
     margin: 0;
     padding: 0;
@@ -32,11 +46,8 @@ header {
 }
 
 header .logo {
-    font-size: 20px;
-    margin-left: 10px;
-    font-weight: 900;
-    color: #977644;
-    text-shadow: 0 3px 2px rgba(0, 0, 0, 0.2);
+    height: 50px;
+    margin: -10px 0 -18px 15px;
 }
 
 header .nav-wrapper {
@@ -315,7 +326,7 @@ p.notif {
     margin: 5px 5px 13px 20px;
     text-align: left;
     width: calc(100% - 300px);
-    height: calc(100% - 45px);
+    height: calc(100% - 25px);
     /* overflow: auto; */
     /* scrollbar-width: thin; */
     /* scrollbar-color: #888 #f1f1f1;  */
@@ -329,18 +340,18 @@ p.notif {
     margin: 5px 10px 5px 5px;
     text-align: left;
     width: calc(100% - 45px);
-    height: calc(100% - 240px);
+    height: calc(95% - 240px);
 }
 
 .card5 {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 14px;
+    padding: 10px;
     margin: 10px 10px 5px 5px;
     text-align: left;
-    width: calc(100% - 45px);
-    height: calc(100% - 240px);
+    width: calc(100% - 38px);
+    height: calc(95% - 240px);
 }
 
 .card5 h4 {
@@ -375,7 +386,7 @@ canvas {
 }
 
 canvas#salesRevenueChart {
-    height: 110% !important;
+    height: 105% !important;
     margin: -25px 0px;
 }
 
@@ -408,9 +419,8 @@ canvas#purchasePreferencesChart {
     }
 
     header .logo {
-        font-size: 18px;
-        margin-left: 0;
-        margin-right: 15px;
+        height: 40px;
+        margin-left: 10px;
     }
 
     header nav a {
@@ -565,9 +575,8 @@ canvas#purchasePreferencesChart {
 
 @media (max-width: 649px) {
     header .logo {
-        font-size: 18px;
-        margin-left: 0;
-        margin-right: 15px;
+        height: 40px;
+        margin-left: 10px;
     }
 
     .contact-info {

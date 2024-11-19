@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -25,6 +25,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mysqli->begin_transaction();
 
     try {
+        // Delete related rows in the alternative_varieties table
+        $sql = "DELETE FROM alternative_varieties WHERE product_id = ?";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("i", $prod_id);
+        $stmt->execute();
+        $stmt->close();
+
         // Delete related rows in the stocks table
         $sql = "DELETE FROM stocks WHERE prod_id = ?";
         $stmt = $mysqli->prepare($sql);

@@ -1,13 +1,24 @@
 <?php
 session_start();
 
-// Check if the user is logged in
+$host = "localhost";
+$user = "root";
+$password = "";
+$db = "system_db";
+
 if (!isset($_SESSION['login_id'])) {
     header("Location: ../../login.php");
     exit();
 }
 
-// Fetch order details from the session
+$mysqli = new mysqli($host, $user, $password, $db);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+$login_id = $_SESSION['login_id'];
+
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
 $quantities = $_SESSION['cart']['quantity'] ?? [];
 
@@ -20,20 +31,6 @@ if (count($prod_ids) !== count($quantities)) {
 
 // Calculate total quantity
 $totalQuantity = array_sum($quantities);
-
-// Database connection details
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-$login_id = $_SESSION['login_id'];
 
 // Fetch cart items
 $sql = "SELECT products.prod_id, products.prod_name, cart.quantity, 
@@ -118,12 +115,13 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Confirm Order</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/confirm_order.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
@@ -153,12 +151,13 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             <button type="button" class="cancel-btn" onclick="redirectBasedOnSource();">
                 <img src="../../images/back-icon.png" alt="Back" class="back-icon">Back</button>
 
-            <h4>
-                <img src="../../images/order-icon.png" alt="Cart" class="cart-icon">ORDER ITEMS
-            </h4>
 
             <div class="cart">
                 <div class="summary">
+                
+            <h4>
+                <img src="../../images/order-icon.png" alt="Cart" class="cart-icon">ORDER ITEMS
+            </h4>
                     <table>
                         <thead>
                             <tr>

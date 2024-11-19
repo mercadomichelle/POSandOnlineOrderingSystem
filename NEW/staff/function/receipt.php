@@ -1,17 +1,17 @@
 <?php
 session_start();
 
-// Check if the user is logged in
-if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../login.php");
-    exit();
-}
-
-// Database connection details
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
+
+date_default_timezone_set('Asia/Manila');
+
+if (!isset($_SESSION['login_id'])) {
+    header("Location: ../../login.php");
+    exit();
+}
 
 $mysqli = new mysqli($host, $user, $password, $db);
 
@@ -20,6 +20,16 @@ if ($mysqli->connect_error) {
 }
 
 $login_id = $_SESSION['login_id'];
+$order_id = $_SESSION['order_id'] ?? 0; // Fallback in case order_id is not set
+
+if ($order_id == 0) {
+    $_SESSION['error_message'] = "Order ID is not set. Please try again.";
+    header("Location: confirm_order.php");
+    exit();
+}
+
+$receiptID = '110' . $order_id; 
+$_SESSION['receipt_id'] = $receiptID;  
 
 // Fetch cart items from the database based on the logged-in user's cart
 $sql = "SELECT products.prod_id, products.prod_name, cart.quantity, 
@@ -55,6 +65,23 @@ while ($row = $result->fetch_assoc()) {
 $total = $subTotal;
 $_SESSION['total_amount'] = $total;
 
+// Fetch the status_processed_at timestamp for the current order
+$sql = "SELECT status_processed_at FROM orders WHERE order_id = ?";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $order_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$statusProcessedAt = null;
+
+if ($row = $result->fetch_assoc()) {
+    $statusProcessedAt = $row['status_processed_at'];
+} else {
+    // If no timestamp is found, handle the error
+    $_SESSION['error_message'] = "Order details not found.";
+    header("Location: confirm_order.php");
+    exit();
+}
 
 // STOCKS NOTIFICATIONS
 $sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
@@ -89,10 +116,10 @@ foreach ($stocks as $stock) {
 
 $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
 
-
 $stmt->close();
 $mysqli->close();
 ?>
+
 
 
 <!DOCTYPE html>
@@ -101,13 +128,14 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rice Website | Confirm Order</title>
+    <title>Rice Website | Order Receipt</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/receipt.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
@@ -139,15 +167,15 @@ $mysqli->close();
             <img src="../../images/close-icon.png" alt="Close" class="close-btn" id="closeReceiptBtn" width="25" height="25">
 
             <div class="header">
-                <h1>Escalona-Delen</h1>
+                <h1>Escalona-Delen Rice Dealer</h1>
                 <p>(63)912-3456-789</p>
-                <p>escalona-delen@email.com</p>
+                <p>escalona-delen@gmail.com</p>
                 <p>M.h Del Pilar St. Brgy 19,</p>
-                <p>Batangas City</p>
+                <p>Batangas City, Philippines</p>
             </div>
 
             <div class="receipt-id">
-                <strong>Receipt ID:</strong> 00001
+                <strong>Receipt ID:</strong> <?php echo $receiptID; ?>
             </div>
 
             <table class="receipt-table">
@@ -173,7 +201,7 @@ $mysqli->close();
                         <td>₱ <?= number_format($total, 2); ?></td>
                     </tr>
                     <tr>
-                        <td colspan="3">Payment Received :</td>
+                        <td colspan="3">CASH :</td>
                         <td>₱ <?= number_format($_SESSION['payment_received'] ?? 0, 2); ?></td>
                     </tr>
                     <tr>
@@ -184,7 +212,10 @@ $mysqli->close();
             </table>
 
             <div class="receipt-footer">
-                <p class="footer">Transaction No. 00001 - <?= date('m/d/Y - H:i:s'); ?></p>
+                <p class="footer">
+                    Transaction No. <?php echo $receiptID; ?> - 
+                    <?= htmlspecialchars(date('m/d/Y - h:i:s A', strtotime($statusProcessedAt))); ?>
+                </p>
                 <p class="footer-note">THIS IS YOUR OFFICIAL RECEIPT</p>
                 <p class="footer-note1">Thank You, Come Again!</p>
             </div>

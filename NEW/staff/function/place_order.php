@@ -6,6 +6,8 @@ $user = "root";
 $password = "";
 $db = "system_db";
 
+date_default_timezone_set('Asia/Manila');
+
 $mysqli = new mysqli($host, $user, $password, $db);
 
 if ($mysqli->connect_error) {
@@ -22,105 +24,52 @@ if (!isset($_SESSION['login_id'])) {
 $login_id = $_SESSION['login_id'];
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
 $quantities = $_SESSION['cart']['quantity'] ?? [];
-$price_types = $_SESSION['cart']['price_type'] ?? []; 
-$_SESSION['order_type'] = $order_type;
+$price_types = $_SESSION['cart']['price_type'] ?? [];
 
+if (empty($prod_ids) || empty($quantities) || empty($price_types)) {
+    $_SESSION['error_message'] = "Cart is empty.";
+    header("Location: ../staff.php");
+    exit();
+}
+
+// Get the order type from session
+$order_type = $_SESSION['order_type'] ?? null;
+
+if (!$order_type) {
+    $_SESSION['error_message'] = "Order type not set.";
+    header("Location: ../staff.php");
+    exit();
+}
 
 // Begin transaction
 $mysqli->begin_transaction();
 
 try {
     $totalAmount = 0;
-
-// Determine the order type by checking all items in the cart
-$order_type = 'retail'; // Default to retail
-foreach ($price_types as $type) {
-    if ($type === 'wholesale') {
-        $order_type = 'wholesale';
-        break; // If any product is wholesale, set order_type to wholesale
-    }
-}
-
-// Calculate total amount for all products
-for ($i = 0; $i < count($prod_ids); $i++) {
-    $prod_id = $prod_ids[$i];
-    $quantity = $quantities[$i];
-
-    // Fetch the price based on the price_type for each product
-    $sql = $price_types[$i] === 'wholesale' ? 
-        "SELECT prod_price_wholesale AS prod_price FROM products WHERE prod_id = ?" : 
-        "SELECT prod_price_retail AS prod_price FROM products WHERE prod_id = ?";
-
-    $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("i", $prod_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $price = $row['prod_price'];
-
-    // Calculate the total amount for this product
-    $totalAmount += $price * $quantity;
-}
-
-// Insert the order with the determined order_type
-$sql = "INSERT INTO orders (login_id, order_date, total_amount, order_source, order_type) VALUES (?, NOW(), ?, ?, ?)";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("idss", $login_id, $totalAmount, $order_source, $order_type);
-$stmt->execute();
-$order_id = $stmt->insert_id;
     
-    // Calculate total amount
-    for ($i = 0; $i < count($prod_ids); $i++) {
-        $prod_id = $prod_ids[$i];
+    // Calculate total amount for all products in the cart
+    foreach ($prod_ids as $i => $prod_id) {
         $quantity = $quantities[$i];
-
-        // Fetch the price for each product based on price_type
-        $sql = $price_types[$i] === 'wholesale' ? 
-            "SELECT prod_price_wholesale AS prod_price FROM products WHERE prod_id = ?" : 
+        $sql = $price_types[$i] === 'wholesale' ?
+            "SELECT prod_price_wholesale AS prod_price FROM products WHERE prod_id = ?" :
             "SELECT prod_price_retail AS prod_price FROM products WHERE prod_id = ?";
-
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("i", $prod_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $row = $result->fetch_assoc();
         $price = $row['prod_price'];
-
-        // Calculate the cost for the current item and add to total amount
         $totalAmount += $price * $quantity;
     }
 
-    // Add a fixed delivery fee (assuming it's constant)
-    $deliveryFee = 0;
-    $totalAmount += $deliveryFee;
-
-    // Set order source to 'in-store'
-    $order_source = 'in-store';
-
-    // Insert the order into the orders table with order_type
-    $sql = "INSERT INTO orders (login_id, order_date, total_amount, order_source, order_type) VALUES (?, NOW(), ?, ?, ?)";
-    $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("idss", $login_id, $totalAmount, $order_source, $order_type);
-    $stmt->execute();
-    
-    // Get the generated order_id
-    $order_id = $stmt->insert_id;
-
-    // Process each cart item
-    for ($i = 0; $i < count($prod_ids); $i++) {
-        $prod_id = $prod_ids[$i];
+    // Process cart items
+    foreach ($prod_ids as $i => $prod_id) {
         $quantity = $quantities[$i];
 
         // Reduce stock quantity
         $sql = "UPDATE stocks SET stock_quantity = stock_quantity - ? WHERE prod_id = ?";
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("ii", $quantity, $prod_id);
-        $stmt->execute();
-
-        // Insert each product into the order_items table with the same order_id
-        $sql = "INSERT INTO order_items (order_id, prod_id, quantity) VALUES (?, ?, ?)";
-        $stmt->prepare($sql);
-        $stmt->bind_param("iii", $order_id, $prod_id, $quantity);
         $stmt->execute();
     }
 
@@ -132,6 +81,9 @@ $order_id = $stmt->insert_id;
 
     // Commit transaction
     $mysqli->commit();
+
+    // Store order type in the session (already set, no need to default)
+    $_SESSION['order_type'] = $order_type;
 
     // Clear cart session data
     unset($_SESSION['cart']);
