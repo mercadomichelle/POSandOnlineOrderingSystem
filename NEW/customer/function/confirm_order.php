@@ -1,11 +1,18 @@
 <?php
 session_start();
 
-// Check if the user is logged in
 if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
     exit();
 }
+
+$mysqli = new mysqli($host, $user, $password, $db);
+
+if ($mysqli->connect_error) {
+    die("Connection failed: " . $mysqli->connect_error);
+}
+
+$login_id = $_SESSION['login_id'];
 
 // Fetch order details from the session
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
@@ -20,20 +27,6 @@ if (count($prod_ids) !== count($quantities)) {
 
 // Calculate total quantity
 $totalQuantity = array_sum($quantities);
-
-// Database connection details
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-$login_id = $_SESSION['login_id'];
 
 // Fetch cart items
 $sql = "SELECT products.prod_id, products.prod_name, cart.quantity, products.prod_price_wholesale AS prod_price 
@@ -61,7 +54,7 @@ while ($row = $result->fetch_assoc()) {
 
 $stmt1->close(); // Close the first statement after it's used
 
-// Fetch user's profile delivery address and city
+// Fetch user's profile delivery address
 $sql = "SELECT address, city FROM profile WHERE username = ?";
 $stmt2 = $mysqli->prepare($sql); // Use a different variable for this statement
 $stmt2->bind_param("s", $_SESSION['username']);
@@ -71,53 +64,14 @@ $addressResult = $stmt2->get_result();
 if ($addressResult->num_rows === 1) {
     $addressData = $addressResult->fetch_assoc();
     $formattedAddress = $addressData['address'];
-    $city = $addressData['city']; // Fetch city
-    error_log("City retrieved: " . $city);
 } else {
     $formattedAddress = "No address found";
-    $city = null; // Handle case where city is not found
 }
 
 $stmt2->close(); // Close the second statement
 
-// Fetch delivery fee based on user's city
-$deliveryFee = 0; // Initialize default fee
-
-if ($city) {
-    // Corrected SQL query with a placeholder
-    $sql = "SELECT city, fee FROM delivery_fees WHERE city = ?";
-    $stmt3 = $mysqli->prepare($sql); // Use a new variable for this statement
-
-    if ($stmt3 === false) {
-        error_log("Error preparing statement: " . $mysqli->error);
-        $_SESSION['errorMessage'] = "Database error.";
-        exit(); // Exit if there is a serious database error
-    }
-
-    // Bind the city parameter to the query
-    $stmt3->bind_param("s", $city);
-
-    // Execute the statement
-    if ($stmt3->execute()) {
-        // Fetch the result
-        $feeResult = $stmt3->get_result();
-
-        if ($feeResult->num_rows === 1) {
-            $feeData = $feeResult->fetch_assoc();
-            $deliveryFee = $feeData['fee']; // Set the fee from the database
-        } else {
-            $deliveryFee = 1;  // Default delivery fee if no match found
-            error_log("No delivery fee found for city: " . $city);
-            $_SESSION['errorMessage'] = "Delivery fee not found for city: " . $city;
-        }
-    } else {
-        error_log("SQL Error: " . $stmt3->error);
-    }
-
-    $stmt3->close(); // Close the third prepared statement
-} else {
-    $deliveryFee = 0; // Default if city is not set
-}
+// Set delivery fee to a fixed value
+$deliveryFee = 100; // Default fee
 
 // Calculate the total (subtotal + delivery fee)
 $total = $subTotal + $deliveryFee;
@@ -138,6 +92,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Checkout Order</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/confirm_order.css">
 </head>
 
@@ -175,10 +130,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 </div>
             <?php endif; ?>
 
-            <h4>
-                <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon">CHECKOUT ORDER
-            </h4>
-
             <?php if ($errorMessage): ?>
                 <div class="message error">
                     <p><?php echo $errorMessage; ?></p>
@@ -187,6 +138,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
             <div class="cart">
                 <div class="summary">
+
+                    <h4>
+                        <img src="../../images/checkout-icon.png" alt="Cart" class="cart-icon">CHECKOUT ORDER
+                    </h4>
+
                     <table>
                         <thead>
                             <tr>
@@ -266,84 +222,54 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
     </main>
 
     <script>
-    // Initially check if the address is set to enable or disable the button
-    const formattedAddress = "<?php echo $formattedAddress; ?>";
-    const confirmButton = document.querySelector('.confirm-btn');
+        // Initially check if the address is set to enable or disable the button
+        const formattedAddress = "<?php echo $formattedAddress; ?>";
+        const confirmButton = document.querySelector('.confirm-btn');
 
-    // Disable if no address, enable otherwise
-    if (formattedAddress === "No address found") {
-        confirmButton.disabled = true;
-    } else {
-        confirmButton.disabled = false;
-    }
-
-    // Dropdown selection logic for address
-    document.getElementById('selected-address').addEventListener('click', function(event) {
-        event.stopPropagation();
-        const dropdownOptions = document.getElementById('dropdown-options');
-        dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Hide dropdown if clicked outside
-    document.addEventListener('click', function(event) {
-        const dropdownOptions = document.getElementById('dropdown-options');
-        if (dropdownOptions && dropdownOptions.style.display === 'block') {
-            dropdownOptions.style.display = 'none';
-        }
-    });
-
-    // Dropdown option selection
-    document.querySelectorAll('.dropdown-option').forEach(option => {
-        option.addEventListener('click', function() {
-            const selectedAddress = this.getAttribute('data-value');
-            document.getElementById('selected-address').textContent = selectedAddress;
-            document.getElementById('dropdown-options').style.display = 'none';
-
-            // Fetch delivery fee based on selected address
-            fetch(`get_delivery_fee.php?address=${encodeURIComponent(selectedAddress)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data && data.fee) {
-                        const deliveryFee = parseFloat(data.fee);
-                        document.querySelector('.delivery-fee span:last-child').textContent = `₱ ${deliveryFee.toFixed(2)}`;
-
-                        // Update total
-                        const subTotal = parseFloat(document.querySelector('.sub-total span:last-child').textContent.replace('₱ ', ''));
-                        const total = subTotal + deliveryFee;
-                        document.querySelector('.total span:last-child').textContent = `₱ ${total.toFixed(2)}`;
-
-                        // Enable the "Place Order" button after delivery fee is updated
-                        confirmButton.disabled = false;
-                    } else {
-                        console.error('Invalid fee data');
-                    }
-                })
-                .catch(error => console.error('Error fetching delivery fee:', error));
-        });
-    });
-
-    // Function to update nav links on resize
-    function updateNavLinks() {
-        const ordersLink = document.getElementById('orders-link');
-        const aboutLink = document.getElementById('about-link');
-
-        if (window.innerWidth <= 649) {
-            ordersLink.textContent = 'ORDERS';
-            aboutLink.textContent = 'ABOUT';
+        // Disable if no address, enable otherwise
+        if (formattedAddress === "No address found") {
+            confirmButton.disabled = true;
         } else {
-            ordersLink.textContent = 'MY ORDERS';
-            aboutLink.textContent = 'ABOUT US';
+            confirmButton.disabled = false;
         }
-    }
 
-    window.addEventListener('resize', updateNavLinks);
-    window.addEventListener('DOMContentLoaded', updateNavLinks);
+        // Dropdown selection logic for address
+        document.getElementById('selected-address').addEventListener('click', function(event) {
+            event.stopPropagation();
+            const dropdownOptions = document.getElementById('dropdown-options');
+            dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
+        });
 
-    // Show loading screen on form submit
-    document.querySelector('form').addEventListener('submit', function() {
-        document.getElementById('loadingScreen').style.display = 'flex';
-    });
-</script>
+        // Hide dropdown if clicked outside
+        document.addEventListener('click', function(event) {
+            const dropdownOptions = document.getElementById('dropdown-options');
+            if (dropdownOptions && dropdownOptions.style.display === 'block') {
+                dropdownOptions.style.display = 'none';
+            }
+        });
+
+        // Function to update nav links on resize
+        function updateNavLinks() {
+            const ordersLink = document.getElementById('orders-link');
+            const aboutLink = document.getElementById('about-link');
+
+            if (window.innerWidth <= 649) {
+                ordersLink.textContent = 'ORDERS';
+                aboutLink.textContent = 'ABOUT';
+            } else {
+                ordersLink.textContent = 'MY ORDERS';
+                aboutLink.textContent = 'ABOUT US';
+            }
+        }
+
+        window.addEventListener('resize', updateNavLinks);
+        window.addEventListener('DOMContentLoaded', updateNavLinks);
+
+        // Show loading screen on form submit
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+        });
+    </script>
 
 </body>
 

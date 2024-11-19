@@ -8,7 +8,7 @@ $password = "";
 $db = "system_db";
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
     exit();
 }
 

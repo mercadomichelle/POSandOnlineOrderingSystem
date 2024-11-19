@@ -1,10 +1,11 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -15,6 +16,23 @@ $mysqli = new mysqli($host, $user, $password, $db);
 
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
+}
+
+$username = $_SESSION["username"];
+
+$sql = "SELECT first_name, last_name FROM login WHERE username = ?";
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    $userData = $result->fetch_assoc();
+    $_SESSION["first_name"] = $userData['first_name'];
+    $_SESSION["last_name"] = $userData['last_name'];
+} else {
+    $_SESSION["first_name"] = "Guest";
+    $_SESSION["last_name"] = "";
 }
 
 // Fetch product and stock data
@@ -32,22 +50,6 @@ if ($result->num_rows > 0) {
     }
 } else {
     echo "No stocks found.";
-}
-
-$username = $_SESSION["username"];
-$sql = "SELECT first_name, last_name FROM login WHERE username = ?";
-$stmt = $mysqli->prepare($sql);
-$stmt->bind_param("s", $username);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 1) {
-    $userData = $result->fetch_assoc();
-    $_SESSION["first_name"] = $userData['first_name'];
-    $_SESSION["last_name"] = $userData['last_name'];
-} else {
-    $_SESSION["first_name"] = "Guest";
-    $_SESSION["last_name"] = "";
 }
 
 // STOCKS NOTIFICATIONS
@@ -104,12 +106,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Product Stocks</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/stocks.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
 
             <div class="dropdown notifications-dropdown">
@@ -269,14 +272,6 @@ $mysqli->close();
             document.getElementById('messageModal').style.display = 'none';
         }
 
-        // document.getElementById('lowStockBtn').onclick = function() {
-        // Filter to show only low stock items
-        // };
-
-        // Handle the all stocks button click
-        // document.getElementById('allStocksBtn').onclick = function() {
-        // Show all stocks
-        // };
     </script>
 </body>
 

@@ -1,13 +1,14 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
     exit();
 }
 
@@ -83,7 +84,7 @@ if ($result->num_rows === 1) {
     exit();
 } else {
     // Handle user not found
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
 }
 
 $stmt->close();

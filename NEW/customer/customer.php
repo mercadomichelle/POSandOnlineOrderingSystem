@@ -1,26 +1,22 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
-
-// Check if user is logged in
 if (!isset($_SESSION["username"])) {
-    header("Location: ../homepage.php");
+    header("Location: ../index.php");
     exit();
 }
 
-// Create a new database connection
 $mysqli = new mysqli($host, $user, $password, $db);
 
-// Check connection
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Fetch user details
 $username = $_SESSION["username"];
 $sql = "SELECT first_name, last_name FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
@@ -48,12 +44,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Homepage</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
     <link rel="stylesheet" href="../styles/customer.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="../customer/customer.php" class="current">HOME</a>
@@ -104,7 +101,7 @@ $mysqli->close();
                 <img src="../images/message-icon.png" alt="Message Icon" onclick="openEmailModal()">
                 <div class="contact-text">
                     <p>Email Us</p>
-                    <p class="contact">escalona-delen@email.com</p>
+                    <p class="contact">escalona-delen@gmail.com</p>
                 </div>
             </div>
             <div class="divider"></div>

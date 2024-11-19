@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -17,8 +17,8 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Retrieve user data
 $username = $_SESSION["username"];
+
 $sql = "SELECT first_name, last_name FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
@@ -66,12 +66,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Dashboard | Rice Website</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/delivery.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE Delivery</div>
+        <div><img src="../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
             <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
             <div class="dropdown">
@@ -125,10 +126,7 @@ $mysqli->close();
             </div>
         </section>
     </main>
-
-    <script>
-        // JavaScript for any dynamic interaction can go here
-    </script>
+    
 </body>
 
 </html>

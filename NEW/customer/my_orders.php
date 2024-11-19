@@ -1,13 +1,13 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
-
 if (!isset($_SESSION["username"])) {
-    header("Location: ../homepage.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -69,7 +69,7 @@ $sql .= " AND orders.order_status != 'Cancelled'
 // Prepare the statement and bind parameters
 if ($order_status !== 'all') {
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("is", $login_id, $order_status); // "i" for login_id, "s" for status
+    $stmt->bind_param("is", $login_id, $order_status); 
 } else {
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("i", $login_id); // Only bind the login_id if status is "all"
@@ -116,12 +116,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | My Order</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
     <link rel="stylesheet" href="../styles/my_orders.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="../customer/customer.php">HOME</a>
@@ -251,7 +252,7 @@ $mysqli->close();
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p>No orders found.</p>
+                        <p class="no-orders">No orders found.</p>
                     <?php endif; ?>
                 </div>
             </div>

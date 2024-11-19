@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 $mysqli = new mysqli($host, $user, $password, $db);
 if ($mysqli->connect_error) {

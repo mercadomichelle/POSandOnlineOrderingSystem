@@ -1,13 +1,13 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
-
 if (!isset($_SESSION["username"])) {
-    header("Location: ../homepage.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -76,6 +76,7 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | My Profile</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
     <link rel="stylesheet" href="../styles/my_profile.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -84,7 +85,7 @@ unset($_SESSION['successMessage'], $_SESSION['errorMessage']);
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="../customer/customer.php">HOME</a>

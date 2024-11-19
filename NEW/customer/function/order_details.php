@@ -1,13 +1,14 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
 
-session_start();
 
 if (!isset($_SESSION["username"])) {
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
     exit();
 }
 
@@ -51,10 +52,10 @@ $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
-$orderSubTotal = 0; 
+$orderSubTotal = 0;
 if ($result->num_rows > 0) {
     $orderDetails = $result->fetch_all(MYSQLI_ASSOC);
-    
+
     foreach ($orderDetails as $item) {
         $orderSubTotal += $item['prod_price_wholesale'] * $item['quantity']; // Calculate order subtotal
     }
@@ -120,12 +121,13 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Order Details</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/order_details.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="../../customer/customer.php">HOME</a>
@@ -287,7 +289,6 @@ $mysqli->close();
             </div>
         </div>
 
-
         <div id="loadingScreen" class="loading-screen" style="display: none;">
             <div class="spinner"></div>
             <p>Loading...</p>
@@ -342,8 +343,6 @@ $mysqli->close();
         }
     });
 
-
-
     document.addEventListener('DOMContentLoaded', function() {
         const orderReceivedBtn = document.getElementById('orderReceivedBtn');
         const statusShippedAt = <?php echo json_encode(!empty($orderTimestamps['status_shipped_at'])); ?>;
@@ -360,7 +359,6 @@ $mysqli->close();
 
     window.addEventListener('resize', updateNavLinks);
     window.addEventListener('DOMContentLoaded', updateNavLinks);
-
 
     document.getElementById('closeModal').addEventListener('click', hideModal);
     document.getElementById('okButton').addEventListener('click', hideModal);

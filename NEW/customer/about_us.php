@@ -6,15 +6,12 @@ $user = "root";
 $password = "";
 $db = "system_db";
 
-// Establish database connection
 $mysqli = new mysqli($host, $user, $password, $db);
 
-// Check for connection errors
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Check if user is logged in
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 
@@ -32,7 +29,7 @@ if (isset($_SESSION['username'])) {
         $_SESSION["last_name"] = $userData['last_name'];
     } else {
         // If login is invalid, redirect to login page
-        header("Location: ../homepage.php");
+        header("Location: ../index.php");
         exit();
     }
 } else {
@@ -51,13 +48,14 @@ if (isset($_SESSION['username'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | About Us</title>
+    <link rel="icon" href="../favicon.png" type="image/png">
     <link rel="stylesheet" href="../styles/about_us.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="customer.php">HOME</a>
@@ -109,7 +107,7 @@ if (isset($_SESSION['username'])) {
                 <img src="../images/message-icon.png" alt="Message Icon" onclick="openEmailModal()">
                 <div class="contact-text">
                     <p>Email Us</p>
-                    <p class="contact">escalona-delen@email.com</p>
+                    <p class="contact">escalona-delen@gmail.com</p>
                 </div>
             </div>
             <div class="divider"></div>

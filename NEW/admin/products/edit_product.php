@@ -1,10 +1,10 @@
 <?php
+session_start();
+
 $host = "localhost";
 $user = "root";
 $password = "";
 $db = "system_db";
-
-session_start();
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");

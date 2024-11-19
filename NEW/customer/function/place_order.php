@@ -6,13 +6,11 @@ $user = "root";
 $password = "";
 $db = "system_db";
 
-// Check if the user is logged in
 if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../homepage.php");
+    header("Location: ../../index.php");
     exit();
 }
 
-// Get order details from the session
 $login_id = $_SESSION['login_id'];
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
 $quantities = $_SESSION['cart']['quantity'] ?? [];
@@ -47,8 +45,7 @@ try {
         $totalAmount += $price * $quantity;
     }
 
-    // Add a fixed delivery fee (assuming it's constant)
-    $deliveryFee = 150;
+    $deliveryFee = 100;
     $totalAmount += $deliveryFee;
 
     $order_source = 'online';

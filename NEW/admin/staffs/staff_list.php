@@ -124,13 +124,14 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rice Website | Staff List</title>
+    <link rel="icon" href="../../favicon.png" type="image/png">
     <link rel="stylesheet" href="../../styles/staff_list.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="account-info">
 
             <div class="dropdown notifications-dropdown">
