@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Nov 04, 2024 at 03:03 PM
--- Server version: 10.4.27-MariaDB
--- PHP Version: 8.2.0
+-- Host: sql311.infinityfree.com
+-- Generation Time: Nov 19, 2024 at 08:57 AM
+-- Server version: 10.6.19-MariaDB
+-- PHP Version: 7.2.22
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -18,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `system_db`
+-- Database: `if0_37718710_system_db`
 --
 
 -- --------------------------------------------------------
@@ -42,14 +43,7 @@ INSERT INTO `alternative_varieties` (`id`, `product_id`, `alternative_product_id
 (8, 1, 5),
 (9, 2, 3),
 (10, 2, 6),
-(11, 3, 2),
-(12, 3, 4),
-(13, 4, 6),
-(14, 4, 17),
-(15, 6, 4),
-(16, 6, 17),
-(17, 17, 6),
-(18, 17, 4);
+(11, 3, 2);
 
 -- --------------------------------------------------------
 
@@ -170,14 +164,11 @@ CREATE TABLE `login` (
 --
 
 INSERT INTO `login` (`id`, `username`, `password`, `usertype`, `first_name`, `last_name`) VALUES
-(1, 'admin', '1234', 'admin', 'Admin', 'Account'),
-(2, 'staff', '1234', 'staff', 'Staff', 'Acc'),
-(3, 'custo', '1234', 'customer', 'cus', 'acc'),
-(4, 'delivery', '235asd', 'staff', 'sfaf', 'asdasd'),
-(7, 'asd2134', '123', 'customer', 'asdad', 'asd'),
-(9, 'del', '1234', 'delivery', 'Delivery', 'Acc'),
-(11, 'cust', '1234', 'customer', '1', '1'),
-(12, 'asda', '123', 'customer', 'asdasd', 'asda');
+(13, 'cust', '$2y$10$G5Er0TZoljIYDSJfWGWrKuwB7qBsaprMjhlR8SdAF6mmsJKL7cgZm', 'customer', 'qfasf', 'asfaf'),
+(15, 'admin', '$2y$10$inI9f3qenc215e3gqjjxC.UiZAOX0EgqmDojP0YAf.faUCwZRzCU6', 'admin', 'Escalona', 'Delen'),
+(16, 'staff', '$2y$10$PALiQGEwfgLE4nONAEEyk.EaA85w8PKvBOAA8.6aqKX9ig/cWU9AG', 'staff', 'Staff', 'Acc'),
+(17, 'del', '$2y$10$mH7Ov4mnJrtvp4TBcIV/D.87mKtq7M3YRr8EWIy1VIMviM5XWcxMW', 'delivery', 'Delivery', 'Acc'),
+(18, 'Feya', '$2y$10$dYWme9Zi4zseV/NymXhxgu4yGxoZSgaD6ziKu8duHb6MA3wp/WyXe', 'customer', 'Alfea', 'Sanchez');
 
 -- --------------------------------------------------------
 
@@ -250,7 +241,39 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (67, 2, '2024-10-18 22:30:45', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
 (68, 2, '2024-10-21 21:43:11', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
 (69, 2, '2024-10-23 00:00:00', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
-(70, 2, '2024-10-24 22:30:47', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL);
+(70, 2, '2024-10-24 22:30:47', '1240.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(71, 18, '2024-11-18 07:23:06', '12500.00', 'online', 'wholesale', 'Delivery Complete', NULL, '2024-11-18 10:54:54', '2024-11-18 10:55:00', '2024-11-18 10:55:05'),
+(72, 13, '2024-11-18 21:06:49', '11620.00', 'online', 'wholesale', 'Being Packed', NULL, '2024-11-19 00:32:44', NULL, NULL),
+(73, 16, '2024-11-18 21:38:49', '120.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(75, 16, '2024-11-18 22:04:41', '74.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(77, 16, '2024-11-18 22:07:30', '1150.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(80, 16, '2024-11-18 22:12:31', '1050.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(81, 16, '2024-11-18 22:30:34', '40.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(83, 16, '2024-11-18 23:13:37', '56.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(87, 16, '2024-11-18 23:20:27', '1250.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(91, 16, '2024-11-18 23:26:33', '1130.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(92, 16, '2024-11-18 23:33:05', '1250.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(93, 16, '2024-11-18 23:34:23', '34.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(94, 16, '2024-11-18 23:34:51', '1050.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(95, 16, '2024-11-18 23:37:04', '112.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(96, 16, '2024-11-18 23:39:51', '1250.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(97, 16, '2024-11-18 23:40:13', '34.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(98, 16, '2024-11-18 23:52:41', '102.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(99, 16, '2024-11-18 23:53:20', '1150.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(100, 16, '2024-11-18 23:59:49', '1250.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(101, 16, '2024-11-19 00:04:54', '1110.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(102, 16, '2024-11-19 00:25:50', '1150.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(103, 16, '2024-11-19 00:32:53', '1250.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(104, 16, '2024-11-19 00:33:45', '56.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(105, 16, '2024-11-19 01:02:05', '56.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(106, 16, '2024-11-19 01:05:28', '120.00', 'in-store', 'retail', 'Paid', NULL, NULL, NULL, NULL),
+(107, 16, '2024-11-19 03:27:01', '1150.00', 'in-store', 'wholesale', 'Paid', NULL, NULL, NULL, NULL),
+(108, 16, '2024-11-19 03:29:42', '120.00', 'in-store', 'retail', 'Paid', '2024-11-19 03:29:42', NULL, NULL, NULL),
+(109, 16, '2024-11-19 03:41:23', '34.00', 'in-store', 'retail', 'Paid', '2024-11-19 03:41:23', NULL, NULL, NULL),
+(110, 16, '2024-11-19 03:44:14', '56.00', 'in-store', 'retail', 'Paid', '2024-11-19 03:44:14', NULL, NULL, NULL),
+(111, 16, '2024-11-19 03:49:16', '34.00', 'in-store', 'retail', 'Paid', '2024-11-19 03:49:16', NULL, NULL, NULL),
+(112, 16, '2024-11-19 03:49:28', '34.00', 'in-store', 'retail', 'Paid', '2024-11-19 03:49:28', NULL, NULL, NULL),
+(113, 16, '2024-11-19 20:03:03', '55.00', 'in-store', 'retail', 'Paid', '2024-11-19 20:03:03', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -330,7 +353,42 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `prod_id`, `quantity`) V
 (60, 64, 2, 1),
 (61, 65, 2, 1),
 (62, 66, 5, 1),
-(63, 68, 1, 1);
+(63, 68, 1, 1),
+(64, 71, 1, 10),
+(65, 72, 1, 2),
+(66, 72, 3, 2),
+(67, 72, 2, 3),
+(68, 72, 6, 3),
+(69, 74, 5, 2),
+(70, 76, 3, 1),
+(71, 76, 1, 1),
+(72, 78, 3, 1),
+(73, 80, 5, 1),
+(74, 82, 3, 1),
+(75, 84, 2, 1),
+(76, 88, 1, 1),
+(77, 91, 2, 1),
+(78, 92, 1, 1),
+(79, 93, 1, 1),
+(80, 94, 5, 1),
+(81, 95, 2, 2),
+(82, 96, 1, 1),
+(83, 97, 1, 1),
+(84, 98, 1, 2),
+(85, 99, 3, 1),
+(86, 100, 1, 1),
+(87, 101, 6, 1),
+(88, 102, 3, 1),
+(89, 103, 1, 1),
+(90, 104, 2, 1),
+(91, 105, 2, 1),
+(92, 106, 3, 3),
+(93, 107, 3, 1),
+(94, 108, 5, 2),
+(95, 109, 1, 1),
+(96, 110, 2, 1),
+(97, 111, 1, 1),
+(98, 113, 6, 1);
 
 -- --------------------------------------------------------
 
@@ -353,13 +411,11 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`prod_id`, `prod_brand`, `prod_name`, `prod_price_wholesale`, `prod_price_retail`, `prod_image_path`, `prod_created_at`) VALUES
-(1, 'A. M. Delen', 'Malagkit Mindoro', '1240.00', '34.00', '../../images/sacks/f_b_jasmine.png', '2024-08-15 10:32:17'),
+(1, 'A. M. Delen', 'Malagkit Mindoro', '1250.00', '34.00', '../../images/sacks/f_b_jasmine.png', '2024-08-15 10:32:17'),
 (2, 'Farmers Best', 'C-4 Dinorado', '1130.00', '56.00', '../../images/sacks/f_b_c4_dinorado.png', '2024-08-15 10:32:17'),
 (3, 'Farmers Best', 'Dinorado', '1150.00', '40.00', '../../images/sacks/f_b_dinorado.png', '2024-08-15 10:32:17'),
-(4, 'Farmers Best', 'Jasmine', '1200.00', '65.00', '../../images/sacks/f_b_jasmine.png', '2024-08-15 10:32:17'),
 (5, 'N. H. Escalona', 'Malagkit Mindoro', '1050.00', '60.00', '../../images/sacks/n_h_malagkit.png', '2024-08-15 10:32:19'),
-(6, 'Farmers Best', 'Maharlika', '1110.00', '55.00', '../../images/sacks/f_b_maharlika.png', '2024-08-16 09:02:48'),
-(17, 'Farmers Best', 'Sinandomeng', '1200.00', '45.00', '../../images/sacks/f_b_sinandomeng.png', '2024-08-20 09:31:14');
+(6, 'Farmers Best', 'Maharlika', '1110.00', '55.00', '../../images/sacks/f_b_maharlika.png', '2024-08-16 09:02:48');
 
 -- --------------------------------------------------------
 
@@ -383,7 +439,9 @@ CREATE TABLE `profile` (
 --
 
 INSERT INTO `profile` (`username`, `email`, `phone`, `address`, `city`, `zip_code`, `latitude`, `longitude`) VALUES
-('custo', 'asdsad@gmail.com', '42143424363', 'Quezon, 리파, Batangas, Calabarzon, 7750, Philippines', 'Lipa', '4224', 13.8943, 121.133);
+('cust', 'asdsad@gmail.com', '09837474473', 'San Jose Bayan, Chief Justice Q. C. Makalintal Avenue, Poblacion II, Poblacion, Taysan, San Jose, Batangas, Calabarzon, 4227, Philippines', 'San Jose', '4227', NULL, NULL),
+('custo', 'asdsad@gmail.com', '42143424363', 'San Jose, Batangas, Calabarzon, 4227, Philippines', 'San Jose', '4224', 13.8929, 121.132),
+('Feya', 'alfeasanchez7702@gmail.com', '09770821313', 'Calansayan Barangay Hall, Flamingo Street, Greenmeadows Residences (Phase 1), Calansayan, Dagatan, San Jose, Batangas, Calabarzon, 4227, Philippines', 'San Jose', '4227', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -407,7 +465,9 @@ CREATE TABLE `staff` (
 INSERT INTO `staff` (`staff_id`, `login_id`, `name`, `phone_number`, `email_address`, `usertype`) VALUES
 (1, 2, 'Staff Acc', '12475475687', 'ASDasd@gmail.com', 'staff'),
 (2, 4, 'sfaf asdasd', '24124124974', 'asda@gmail.com', 'delivery'),
-(5, 9, 'ASDASD ', '09837474473', 'mmercado@gmail.com', 'delivery');
+(5, 9, 'ASDASD ', '09837474473', 'mmercado@gmail.com', 'delivery'),
+(7, 16, 'Staff Acc', '09877654432', 'staff@gmail.com', 'staff'),
+(8, 17, 'Delivery Acc', '09836451831', 'del@gmail.com', 'delivery');
 
 -- --------------------------------------------------------
 
@@ -428,13 +488,11 @@ CREATE TABLE `stocks` (
 --
 
 INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`, `branch_id`) VALUES
-(1, 1, 46, '2024-10-26 15:18:04', 1),
-(2, 2, 9, '2024-10-26 15:18:12', 2),
-(6, 3, 0, '2024-10-26 15:18:07', 2),
-(10, 5, 22, '2024-10-26 15:18:14', 3),
-(12, 4, 5, '2024-10-26 15:18:09', 3),
-(13, 6, 30, '2024-10-26 15:18:16', 1),
-(45, 17, 33, '2024-10-26 15:32:52', 1);
+(1, 1, 31, '2024-11-19 12:02:43', 1),
+(2, 2, 4, '2024-11-19 12:02:51', 2),
+(6, 3, 14, '2024-11-19 11:27:01', 2),
+(10, 5, 16, '2024-11-19 11:29:42', 3),
+(13, 6, 27, '2024-11-19 12:03:03', 1);
 
 --
 -- Indexes for dumped tables
@@ -530,7 +588,7 @@ ALTER TABLE `alternative_varieties`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=122;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=168;
 
 --
 -- AUTO_INCREMENT for table `delivery_fees`
@@ -542,37 +600,37 @@ ALTER TABLE `delivery_fees`
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=114;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `stocks`
 --
 ALTER TABLE `stocks`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- Constraints for dumped tables
@@ -582,8 +640,8 @@ ALTER TABLE `stocks`
 -- Constraints for table `alternative_varieties`
 --
 ALTER TABLE `alternative_varieties`
-  ADD CONSTRAINT `alternative_varieties_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`prod_id`),
-  ADD CONSTRAINT `alternative_varieties_ibfk_2` FOREIGN KEY (`alternative_product_id`) REFERENCES `products` (`prod_id`);
+  ADD CONSTRAINT `alternative_varieties_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`prod_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `alternative_varieties_ibfk_2` FOREIGN KEY (`alternative_product_id`) REFERENCES `products` (`prod_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `cart`
@@ -599,29 +657,10 @@ ALTER TABLE `orders`
   ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`login_id`) REFERENCES `login` (`id`);
 
 --
--- Constraints for table `order_items`
---
-ALTER TABLE `order_items`
-  ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`order_id`),
-  ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`prod_id`) REFERENCES `products` (`prod_id`);
-
---
 -- Constraints for table `profile`
 --
 ALTER TABLE `profile`
   ADD CONSTRAINT `profile_ibfk_1` FOREIGN KEY (`username`) REFERENCES `login` (`username`);
-
---
--- Constraints for table `staff`
---
-ALTER TABLE `staff`
-  ADD CONSTRAINT `staff_ibfk_1` FOREIGN KEY (`login_id`) REFERENCES `login` (`id`);
-
---
--- Constraints for table `stocks`
---
-ALTER TABLE `stocks`
-  ADD CONSTRAINT `stocks_ibfk_1` FOREIGN KEY (`prod_id`) REFERENCES `products` (`prod_id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
