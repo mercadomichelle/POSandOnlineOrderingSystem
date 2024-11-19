@@ -201,7 +201,7 @@ $data->close();
 
     <div id="loadingScreen" class="loading-screen" style="display: none;">
         <div class="spinner"></div>
-        <p>Processing your request...</p>
+        <p>Loading...</p>
     </div>
 
     <div class="error-modal" id="errorModal" style="display:none;">
