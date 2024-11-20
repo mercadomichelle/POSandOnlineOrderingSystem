@@ -1,18 +1,9 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 date_default_timezone_set('Asia/Manila');
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
 
 // Check if the user is logged in
 if (!isset($_SESSION['login_id'])) {

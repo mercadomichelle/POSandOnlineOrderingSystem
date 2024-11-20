@@ -1,18 +1,14 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
-$mysqli = new mysqli($host, $user, $password, $db);
 
-if ($mysqli->connect_error) {
-    $_SESSION['errorMessage'] = "Connection failed: " . $mysqli->connect_error;
-    header("Location: staff_stocks.php");
-    exit();
-}
+// if ($mysqli->connect_error) {
+//     $_SESSION['errorMessage'] = "Connection failed: " . $mysqli->connect_error;
+//     header("Location: staff_stocks.php");
+//     exit();
+// }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $prod_id = $_POST['prod_id'];

@@ -1,20 +1,11 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
 session_start();
+
+include('../../connection.php');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
-}
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $product = null;

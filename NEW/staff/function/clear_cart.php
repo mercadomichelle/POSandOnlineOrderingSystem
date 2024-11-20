@@ -1,20 +1,11 @@
 <?php
 session_start();
 
-// Database connection
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 if (!isset($_SESSION['login_id'])) {
     header("Location: ../login.php");
     exit();
-}
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $login_id = $_SESSION['login_id'];

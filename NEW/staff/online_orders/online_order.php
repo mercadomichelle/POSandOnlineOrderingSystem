@@ -1,22 +1,13 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 date_default_timezone_set('Asia/Manila');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
-}
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $username = $_SESSION["username"];

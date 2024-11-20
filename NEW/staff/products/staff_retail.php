@@ -1,20 +1,11 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
-}
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $username = $_SESSION["username"];
@@ -140,8 +131,8 @@ $mysqli->close();
     <main>
         <div class="products">
             <div class="product-controls">
-                <button class="filter-button-current" id="wholesaleBtn"><img src="../../images/wholesale-icon.png" alt="Wholesale">WHOLESALE</button>
-                <button class="filter-button" id="retailBtn"><img src="../../images/retail-icon.png" alt="Retail">RETAIL</button>
+                <button class="filter-button" id="wholesaleBtn"><img src="../../images/wholesale-icon.png" alt="Wholesale">WHOLESALE</button>
+                <button class="filter-button-current" id="retailBtn"><img src="../../images/retail-icon.png" alt="Retail">RETAIL</button>
                 <div class="search-container">
                     <div class="search-wrapper">
                         <input type="text" placeholder="Search..." id="searchInput">
@@ -206,7 +197,7 @@ $mysqli->close();
                     <div class="modal-content">
                         <span class="close" onclick="closeEditModal()">&times;</span>
                         <h2>Edit Product</h2>
-                        <form method="post" action="edit_product.php" enctype="multipart/form-data">
+                        <form method="post" action="staff_edit_product.php" enctype="multipart/form-data">
                             <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
                             <input type="hidden" name="source_page" value="retail">
                             <label for="prod_brand">Product Brand:</label>
@@ -232,7 +223,7 @@ $mysqli->close();
                         <div id="messageContent">
                             <div class="alert error">
                                 <p>Are you sure you want to delete this product?</p>
-                                <form id="deleteProductForm" method="post" action="delete_product.php">
+                                <form id="deleteProductForm" method="post" action="staff_delete_product.php">
                                     <input type="hidden" name="prod_id" id="delete_prod_id">
                                     <input type="hidden" name="source_page" value="retail">
                                     <button type="submit" class="confirm-delete-btn">Yes, Delete</button>

@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+include('../connection.php');
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if 'prod_id' and 'quantity' are set in the POST data
     if (isset($_POST['prod_id']) && isset($_POST['quantity'])) {
