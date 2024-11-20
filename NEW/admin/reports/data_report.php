@@ -1,14 +1,7 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-$mysqli = new mysqli($host, $user, $password, $db);
+session_start();
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
+include('../../connection.php');
 
 // Get type (wholesale, retail, online) and timeframe (daily, weekly, etc.)
 $type = isset($_GET['type']) ? $_GET['type'] : '';

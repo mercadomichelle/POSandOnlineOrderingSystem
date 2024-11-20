@@ -3,13 +3,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$mysqliSystem = new mysqli($host, $user, $password, "system_db");
-if ($mysqliSystem->connect_error) {
-    die("Connection failed: " . $mysqliSystem->connect_error);
-}
+session_start();
+
+include('../../connection.php');
 
 $branchStocks = [];
 $riceVarieties = [];

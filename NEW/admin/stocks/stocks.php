@@ -1,21 +1,11 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
+include('../../connection.php');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
-}
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
 }
 
 $username = $_SESSION["username"];
@@ -254,24 +244,37 @@ $mysqli->close();
                 document.getElementById('loadingScreen').style.display = 'flex';
             };
 
+
+            const okButton = document.getElementById('okButton');
+            if (okButton) {
+                okButton.addEventListener('click', function() {
+                    document.getElementById('messageModal').style.display = 'none';
+                });
+            }
+
+            const closeButton = document.querySelector('.message-close');
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    document.getElementById('messageModal').style.display = 'none';
+                });
+            }
         });
 
-        // Function to open Add Stock Modal
-        function openAddStockModal(productId) {
-            document.getElementById('add_stock_prod_id').value = productId;
-            document.getElementById('addStockModal').style.display = 'block';
-        }
+            // Function to open Add Stock Modal
+            function openAddStockModal(productId) {
+                document.getElementById('add_stock_prod_id').value = productId;
+                document.getElementById('addStockModal').style.display = 'block';
+            }
 
-        // Function to close the Add Stock Modal
-        function closeAddStockModal() {
-            document.getElementById('addStockModal').style.display = 'none';
-        }
+            // Function to close the Add Stock Modal
+            function closeAddStockModal() {
+                document.getElementById('addStockModal').style.display = 'none';
+            }
 
-        // Function to close the Message Modal
-        function closeMessageModal() {
-            document.getElementById('messageModal').style.display = 'none';
-        }
-
+            // Function to close the Message Modal
+            function closeMessageModal() {
+                document.getElementById('messageModal').style.display = 'none';
+            }
     </script>
 </body>
 

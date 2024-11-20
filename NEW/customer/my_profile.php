@@ -1,10 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../connection.php');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../index.php");
@@ -12,12 +9,6 @@ if (!isset($_SESSION["username"])) {
 }
 
 $username = $_SESSION["username"];
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
 
 $sql = "SELECT first_name, last_name, username FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);

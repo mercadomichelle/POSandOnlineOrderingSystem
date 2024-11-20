@@ -1,11 +1,7 @@
 <?php
-
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 if (!isset($_SESSION["username"])) {
     header("Location: ../../index.php");

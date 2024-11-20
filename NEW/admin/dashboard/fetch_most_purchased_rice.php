@@ -1,14 +1,7 @@
 <?php
-// Database connection
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-$mysqli = new mysqli($host, $user, $password, $db);
+session_start();
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../../connection.php');
 
 // Assume timeframe is passed from AJAX
 $timeframe = $_GET['timeframe'];

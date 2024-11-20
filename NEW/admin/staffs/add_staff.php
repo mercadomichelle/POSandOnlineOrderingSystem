@@ -1,18 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    $_SESSION['errorMessage'] = "Database connection failed: " . $mysqli->connect_error;
-    header("Location: staff_list.php");
-    exit();
-}
+include('../../connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = trim($_POST['first_name']);

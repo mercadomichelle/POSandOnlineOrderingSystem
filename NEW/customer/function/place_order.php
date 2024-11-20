@@ -1,10 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('../../connection.php');
 
 if (!isset($_SESSION['login_id'])) {
     header("Location: ../../index.php");
@@ -14,12 +11,6 @@ if (!isset($_SESSION['login_id'])) {
 $login_id = $_SESSION['login_id'];
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
 $quantities = $_SESSION['cart']['quantity'] ?? [];
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
 
 // Begin transaction
 $mysqli->begin_transaction();

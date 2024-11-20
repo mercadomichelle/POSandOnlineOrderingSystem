@@ -1,13 +1,7 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-$mysqli = new mysqli($host, $user, $password, $db);
+session_start();
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../../connection.php');
 
 $type = isset($_GET['type']) ? $_GET['type'] : '';
 $timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : '';

@@ -1,16 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../connection.php');
 
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
@@ -155,8 +146,6 @@ while ($row = $result->fetch_assoc()) {
         'price' => $row['prod_price']
     ];
 }
-
-$total = $subTotal + 150; // Fixed delivery fee
 
 $cartIsEmpty = empty($cart);
 
@@ -324,13 +313,9 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <?php endforeach; ?>
 
                             <!-- Orders summary section -->
-                            <div class="total-row fee">
-                                <span class="subtotal-label">Sub Total:</span>
-                                <span class="subtotal-amount">₱<?php echo number_format($subTotal, 2); ?></span>
-                            </div>
                             <div class="total-row total">
                                 <span class="total-label">TOTAL:</span>
-                                <span class="total-amount">₱<?php echo number_format($total, 2); ?></span>
+                                <span class="total-amount">₱<?php echo number_format($subTotal, 2); ?></span>
                             </div>
                             <div class="minimum-order">Minimum order quantity to checkout: 10 sacks</div>
                             <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>

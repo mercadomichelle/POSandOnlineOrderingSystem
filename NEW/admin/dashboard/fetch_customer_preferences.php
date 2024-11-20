@@ -1,14 +1,7 @@
 <?php
-// Database connection
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-$mysqli = new mysqli($host, $user, $password, $db);
+session_start();
 
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../../connection.php');
 
 // Get the month parameter from the request (default to January if not provided)
 $month = isset($_GET['month']) ? (int)$_GET['month'] : 1;

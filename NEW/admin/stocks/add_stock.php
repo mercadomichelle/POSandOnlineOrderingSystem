@@ -1,18 +1,7 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    $_SESSION['errorMessage'] = "Connection failed: " . $mysqli->connect_error;
-    header("Location: stocks.php");
-    exit();
-}
+include('../../connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $prod_id = $_POST['prod_id'];

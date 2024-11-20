@@ -1,16 +1,7 @@
 <?php
 session_start(); 
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../../connection.php');
 
 // Validate and sanitize input
 $prod_id = isset($_POST['prod_id']) ? (int)$_POST['prod_id'] : 0;

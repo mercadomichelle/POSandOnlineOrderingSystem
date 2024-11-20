@@ -1,16 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['login_id'])) {
-    header("Location: ../../index.php");
-    exit();
-}
-
-$mysqli = new mysqli($host, $user, $password, $db);
-
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
+include('../../connection.php');
 
 $login_id = $_SESSION['login_id'];
 
