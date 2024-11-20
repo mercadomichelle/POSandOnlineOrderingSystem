@@ -3,17 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
-
-$data = new mysqli($host, $user, $password, $db);
-
-if ($data->connect_error) {
-    die("Connection failed: " . $data->connect_error);
-}
-
+include('connection.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = trim($_POST["username"]);
@@ -23,33 +13,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $last_name = trim($_POST["lname"]);
     $usertype = 'customer';
 
-    // Check if username already exists
-    $check_user = $data->prepare("SELECT * FROM login WHERE username=?");
-    $check_user->bind_param("s", $username);
-    $check_user->execute();
-    $result = $check_user->get_result();
+    // Password validation regex patterns
+    $password_requirements = [
+        'uppercase' => '/[A-Z]/',  // at least one uppercase letter
+        'lowercase' => '/[a-z]/',  // at least one lowercase letter
+        'special' => '/[!@#$%^&*(),.?":{}|<>]/',  // at least one special character
+        'number' => '/[0-9]/',  // at least one number
+        'eightmin' => '/.{8,}/',  // minimum 8 characters
+    ];
 
-    if ($result->num_rows > 0) {
-        $_SESSION["message"] = "Username already taken";
+    // Check if password and confirm password match
+    if ($password !== $confirm_password) {
+        $_SESSION["message"] = "Passwords do not match. Please try again.";
     } else {
-        // Insert user into database (with hashed password)
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        $stmt = $data->prepare("INSERT INTO login (username, password, usertype, first_name, last_name) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $username, $hashed_password, $usertype, $first_name, $last_name);
-
-        if ($stmt->execute()) {
-            $_SESSION["message"] = "Registration successful!";
-        } else {
-            $_SESSION["message"] = "Error: Please try again. " . $stmt->error;
+        // Check password against requirements
+        $password_valid = true;
+        foreach ($password_requirements as $key => $regex) {
+            if (!preg_match($regex, $password)) {
+                $password_valid = false;
+                $_SESSION["message"] = "Password must contain at least one " . ucfirst($key) . ".";
+                break;
+            }
         }
 
-        $stmt->close();
+        // If password doesn't meet requirements, don't proceed
+        if (!$password_valid) {
+            header("Location: login.php");  // Redirect to registration page
+            exit();
+        }
+
+        // Check if username already exists
+        $check_user = $mysqli->prepare("SELECT * FROM login WHERE username=?");
+        $check_user->bind_param("s", $username);
+        $check_user->execute();
+        $result = $check_user->get_result();
+
+        if ($result->num_rows > 0) {
+            $_SESSION["message"] = "Username already taken";
+        } else {
+            // Insert user into database (with hashed password)
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            $stmt = $mysqli->prepare("INSERT INTO login (username, password, usertype, first_name, last_name) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssss", $username, $hashed_password, $usertype, $first_name, $last_name);
+
+            if ($stmt->execute()) {
+                $_SESSION["message"] = "Registration successful!";
+            } else {
+                $_SESSION["message"] = "Error: Please try again. " . $stmt->error;
+            }
+
+            $stmt->close();
+        }
+
+        $check_user->close();
     }
 
-    $check_user->close();
+    $mysqli->close();
+    header("Location: ../login.php");  
+    exit();
 }
-
-$data->close();
-header("Location: ../login.php");
-exit();
 ?>

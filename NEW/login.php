@@ -1,23 +1,10 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include("connection.php"); 
 
-try {
-    $data = new mysqli($host, $user, $password, $db);
-    if ($data->connect_error) {
-        throw new Exception("Connection failed: " . $data->connect_error);
-    }
-} catch (Exception $e) {
-    error_log("Database connection error: " . $e->getMessage());
-    die("Error connecting to the database. Please check the logs for more details.");
-}
-
-$errorMessage = "";
 $formSubmitted = false;
+$errorMessage = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $formSubmitted = true;
@@ -25,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST["password"]);
 
     $sql = "SELECT * FROM login WHERE username=?";
-    $stmt = $data->prepare($sql);
+    $stmt = $mysqli->prepare($sql); 
     if ($stmt) {
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -40,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["username"] = $username;
                 error_log("Password verified, user type: " . $row["usertype"]);
 
+                // Redirect based on user type
                 if ($row["usertype"] == "admin") {
                     header("Location: admin/admin.php");
                     exit();
@@ -67,12 +55,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->close();
     } else {
         $errorMessage = "<strong> ERROR: </strong> <br> Failed to prepare statement.";
-        error_log("Failed to prepare SQL statement: " . $data->error);
+        error_log("Failed to prepare SQL statement: " . $mysqli->error);
     }
 }
 
-$data->close();
+$mysqli->close();
 ?>
+
 
 
 <!DOCTYPE html>
@@ -321,8 +310,6 @@ $data->close();
                 <?php unset($_SESSION["message"]); ?>
             <?php endif; ?>
 
-
-            // Add this to show loading screen on form submit for login
             const loginFormElement = document.querySelector('form[action="#"]');
             loginFormElement.addEventListener('submit', (event) => {
                 event.preventDefault(); // Prevent immediate form submission
@@ -332,7 +319,6 @@ $data->close();
                 loginFormElement.submit(); // Submit form after showing loading screen
             });
 
-            // Add this to show loading screen on form submit for registration
             const registrationForm = document.querySelector('form[action="register.php"]');
             registrationForm.addEventListener('submit', (event) => {
                 event.preventDefault(); // Prevent immediate form submission
@@ -344,121 +330,123 @@ $data->close();
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const registerPasswordField = document.getElementById('registerPasswordField');
-            const confirmPasswordField = document.getElementById('confirmPasswordField');
-            const passwordRequirements = document.querySelector('.password-requirements');
-            const requirements = {
-                uppercase: /[A-Z]/,
-                lowercase: /[a-z]/,
-                special: /[!@#$%^&*(),.?":{}|<>]/,
-                number: /[0-9]/,
-                eightmin: /.{8,}/,
-            };
+    const registerPasswordField = document.getElementById('registerPasswordField');
+    const confirmPasswordField = document.getElementById('confirmPasswordField');
+    const passwordRequirements = document.querySelector('.password-requirements');
+    const requirements = {
+        uppercase: /[A-Z]/,
+        lowercase: /[a-z]/,
+        special: /[!@#$%^&*(),.?":{}|<>]/,
+        number: /[0-9]/,
+        eightmin: /.{8,}/,
+    };
 
-            const updatePasswordRequirements = () => {
-                const value = registerPasswordField.value;
-                const requirementItems = document.querySelectorAll('.password-requirements li');
+    const updatePasswordRequirements = () => {
+        const value = registerPasswordField.value;
+        const requirementItems = document.querySelectorAll('.password-requirements li');
 
-                // Check uppercase
-                if (requirements.uppercase.test(value)) {
-                    requirementItems[0].classList.add('met');
-                    requirementItems[0].classList.remove('unmet');
-                } else {
-                    requirementItems[0].classList.add('unmet');
-                    requirementItems[0].classList.remove('met');
-                }
+        // Check uppercase
+        if (requirements.uppercase.test(value)) {
+            requirementItems[0].classList.add('met');
+            requirementItems[0].classList.remove('unmet');
+        } else {
+            requirementItems[0].classList.add('unmet');
+            requirementItems[0].classList.remove('met');
+        }
 
-                // Check lowercase
-                if (requirements.lowercase.test(value)) {
-                    requirementItems[1].classList.add('met');
-                    requirementItems[1].classList.remove('unmet');
-                } else {
-                    requirementItems[1].classList.add('unmet');
-                    requirementItems[1].classList.remove('met');
-                }
+        // Check lowercase
+        if (requirements.lowercase.test(value)) {
+            requirementItems[1].classList.add('met');
+            requirementItems[1].classList.remove('unmet');
+        } else {
+            requirementItems[1].classList.add('unmet');
+            requirementItems[1].classList.remove('met');
+        }
 
-                // Check special character
-                if (requirements.special.test(value)) {
-                    requirementItems[2].classList.add('met');
-                    requirementItems[2].classList.remove('unmet');
-                } else {
-                    requirementItems[2].classList.add('unmet');
-                    requirementItems[2].classList.remove('met');
-                }
+        // Check special character
+        if (requirements.special.test(value)) {
+            requirementItems[2].classList.add('met');
+            requirementItems[2].classList.remove('unmet');
+        } else {
+            requirementItems[2].classList.add('unmet');
+            requirementItems[2].classList.remove('met');
+        }
 
-                // Check number
-                if (requirements.number.test(value)) {
-                    requirementItems[3].classList.add('met');
-                    requirementItems[3].classList.remove('unmet');
-                } else {
-                    requirementItems[3].classList.add('unmet');
-                    requirementItems[3].classList.remove('met');
-                }
+        // Check number
+        if (requirements.number.test(value)) {
+            requirementItems[3].classList.add('met');
+            requirementItems[3].classList.remove('unmet');
+        } else {
+            requirementItems[3].classList.add('unmet');
+            requirementItems[3].classList.remove('met');
+        }
 
-                // Check minimum length
-                if (requirements.eightmin.test(value)) {
-                    requirementItems[4].classList.add('met');
-                    requirementItems[4].classList.remove('unmet');
-                } else {
-                    requirementItems[4].classList.add('unmet');
-                    requirementItems[4].classList.remove('met');
-                }
-            };
+        // Check minimum length
+        if (requirements.eightmin.test(value)) {
+            requirementItems[4].classList.add('met');
+            requirementItems[4].classList.remove('unmet');
+        } else {
+            requirementItems[4].classList.add('unmet');
+            requirementItems[4].classList.remove('met');
+        }
+    };
 
+    // Show password requirements when focusing on the password field
+    registerPasswordField.addEventListener('focus', () => {
+        passwordRequirements.style.display = 'block';
+    });
 
-            // Show password requirements when focusing on the password field
-            registerPasswordField.addEventListener('focus', () => {
-                passwordRequirements.style.display = 'block';
-            });
+    // Hide password requirements when losing focus (only if not typing)
+    registerPasswordField.addEventListener('blur', () => {
+        if (registerPasswordField.value === '') {
+            passwordRequirements.style.display = 'none';
+        }
+    });
 
-            // Hide password requirements when losing focus (only if not typing)
-            registerPasswordField.addEventListener('blur', () => {
-                if (registerPasswordField.value === '') {
-                    passwordRequirements.style.display = 'none';
-                }
-            });
+    registerPasswordField.addEventListener('input', updatePasswordRequirements);
 
+    confirmPasswordField.addEventListener('input', () => {
+        if (confirmPasswordField.value === registerPasswordField.value) {
+            confirmPasswordField.classList.remove('error');
+        } else {
+            confirmPasswordField.classList.add('error');
+        }
+    });
 
-            registerPasswordField.addEventListener('input', updatePasswordRequirements);
+    const registrationForm = document.querySelector('form[action="register.php"]');
+    registrationForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent immediate form submission
 
-            confirmPasswordField.addEventListener('input', () => {
-                if (confirmPasswordField.value === registerPasswordField.value) {
-                    confirmPasswordField.classList.remove('error');
-                } else {
-                    confirmPasswordField.classList.add('error');
-                }
-            });
+        showLoadingScreen(); // Show loading screen
 
-            const registrationForm = document.querySelector('form[action="register.php"]');
-            registrationForm.addEventListener('submit', (event) => {
-                const password = registerPasswordField.value;
-                const confirmPassword = confirmPasswordField.value;
-                let allMet = true;
+        const password = registerPasswordField.value;
+        const confirmPassword = confirmPasswordField.value;
+        let allMet = true;
 
-                Object.keys(requirements).forEach((key) => {
-                    if (!requirements[key].test(password)) {
-                        allMet = false;
-                    }
-                });
-
-                if (!allMet || password !== confirmPassword) {
-                    event.preventDefault();
-
-                    // Display a detailed error message in the error modal
-                    const errorModal = document.getElementById('errorModal');
-                    const errorMessage = errorModal.querySelector('p');
-
-                    if (!allMet) {
-                        errorMessage.innerHTML = "<strong>ERROR:</strong> <br> Please ensure your password meets all requirements.";
-                    } else if (password !== confirmPassword) {
-                        errorMessage.innerHTML = "<strong>ERROR:</strong> <br> Passwords do not match. Please try again.";
-                    }
-
-                    errorModal.style.display = 'block';
-                }
-
-            });
+        // Validate password requirements after loading screen
+        Object.keys(requirements).forEach((key) => {
+            if (!requirements[key].test(password)) {
+                allMet = false;
+            }
         });
+
+        if (!allMet) {
+            hideLoadingScreen(); // Hide loading screen when validation fails
+            event.preventDefault(); // Prevent form submission
+
+            // Display a detailed error message in the error modal
+            const errorModal = document.getElementById('errorModal');
+            const errorMessage = errorModal.querySelector('p');
+            errorMessage.innerHTML = "<strong>ERROR:</strong> <br> Please ensure your password meets all requirements.";
+
+            errorModal.style.display = 'block';
+        } else {
+            // If all requirements are met, submit the form
+            registrationForm.submit();
+        }
+    });
+});
+
     </script>
 
 </body>

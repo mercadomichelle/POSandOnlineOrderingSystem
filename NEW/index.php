@@ -1,18 +1,17 @@
 <?php
 session_start();
 
-$host = "localhost";
-$user = "root";
-$password = "";
-$db = "system_db";
+include('connection.php');
 
-$username = isset($_SESSION["username"]) ? $_SESSION["username"] : null;
+if (isset($_SESSION["username"])) {
+    $username = $_SESSION["username"];
+} else {
+    $username = null; 
+}
 
 if ($username) {
-    // Create a new database connection
     $mysqli = new mysqli($host, $user, $password, $db);
 
-    // Check connection
     if ($mysqli->connect_error) {
         die("Connection failed: " . $mysqli->connect_error);
     }
@@ -36,14 +35,10 @@ if ($username) {
     $stmt->close();
     $mysqli->close();
 } else {
-    // If user is not logged in, set a default name
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
 }
-
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
