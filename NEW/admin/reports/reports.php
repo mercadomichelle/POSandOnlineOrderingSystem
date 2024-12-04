@@ -2,15 +2,30 @@
 session_start();
 
 include('../../connection.php');
+include('../../notifications.php');
 
+// Redirect to login if user is not logged in
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
 }
-
+if (!isset($_SESSION['branch_id'])) {
+    $_SESSION['branch_id'] = 0; // Replace 0 with an appropriate default value
+}
+if (!isset($_SESSION['month'])) {
+    $_SESSION['month'] = date('n'); // Current month (1-12)
+}
+if (!isset($_SESSION['week'])) {
+    $_SESSION['week'] = 1; // Default to the first week
+}
+if (!isset($_SESSION['year'])) {
+    $_SESSION['year'] = date('Y'); // Current year
+}
 $username = $_SESSION["username"];
+$branch_id = $_SESSION["branch_id"];
 
-$sql = "SELECT first_name, last_name FROM login WHERE username = ?";
+// Fetch user details
+$sql = "SELECT first_name, last_name, branch_id FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -20,50 +35,20 @@ if ($result->num_rows === 1) {
     $userData = $result->fetch_assoc();
     $_SESSION["first_name"] = $userData['first_name'];
     $_SESSION["last_name"] = $userData['last_name'];
+    $_SESSION["branch_id"] = $userData['branch_id']; // Save branch_id to session
 } else {
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
+    $_SESSION["branch_id"] = null; // Default branch_id if not found
 }
 
-// STOCKS NOTIFICATIONS
-$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
-        FROM products p 
-        LEFT JOIN stocks s ON p.prod_id = s.prod_id
-        ORDER BY s.stock_quantity ASC";
-
-$result = $mysqli->query($sql);
-
-$stocks = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $row['stock_quantity'] = max(0, $row['stock_quantity']);
-        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
-        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
-        $stocks[] = $row;
-    }
-} else {
-    echo "No stocks found.";
-}
-
-$lowStockNotifications = [];
-$outOfStockNotifications = [];
-
-foreach ($stocks as $stock) {
-    if ($stock['is_low_stock']) {
-        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
-    } elseif ($stock['is_out_of_stock']) {
-        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
-    }
-}
-
-$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
-
+$currentMonth = date('m');
+$currentYear = date('Y');
+$currentWeek = date('W');
 
 $stmt->close();
 $mysqli->close();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -125,15 +110,48 @@ $mysqli->close();
 
     <main>
         <div class="dashboard">
+            <input type="hidden" id="branch_id" value="<?php echo $_SESSION['branch_id']; ?>" />
+
             <div class="upper">
                 <div class="card1">
                     <h3>Wholesales Report</h3>
                     <div class="sorting-container">
-                        <select id="timeframe">
-                            <option value="monthly">Monthly</option>
-                            <option value="weekly">Weekly</option>
+                        <select id="monthSelector">
+                            <option value="">Select Month</option>
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+
+                        <select id="weekSelector">
+                            <option value="">Select Week</option>
+                            <option value="1">Week 1</option>
+                            <option value="2">Week 2</option>
+                            <option value="3">Week 3</option>
+                            <option value="4">Week 4</option>
+                            <option value="5">Week 5</option>
+                        </select>
+
+                        <select id="yearSelector">
+                            <option value="">Select Year</option>
+                            <script>
+                                const currentYear = new Date().getFullYear();
+                                for (let year = currentYear - 4; year <= currentYear; year++) {
+                                    document.write(`<option value="${year}">${year}</option>`);
+                                }
+                            </script>
                         </select>
                     </div>
+
                     <canvas id="wholesaleChart"></canvas>
                 </div>
                 <div class="card2">
@@ -145,43 +163,31 @@ $mysqli->close();
                     <canvas id="onlineSalesChart"></canvas>
                 </div>
             </div>
+
             <div class="upper1">
                 <div class="card4">
                     <h3>Detailed Wholesales Report</h3>
                     <div class="btn1">
-                        <a href="data_report.php?type=wholesale&source=in-store&timeframe=daily" target="_blank"><button class="daily">Daily</button></a>
-                        <a href="data_report.php?type=wholesale&source=in-store&timeframe=weekly" target="_blank"><button class="monthly">Weekly</button></a>
-                    </div>
-                    <div class="btn2">
-                        <a href="data_report.php?type=wholesale&source=in-store&timeframe=monthly" target="_blank"><button class="daily">Monthly</button></a>
-                        <a href="data_report.php?type=wholesale&source=in-store&timeframe=yearly" target="_blank"><button class="monthly">Yearly</button></a>
+                        <a href="data_report.php?type=wholesale&source=in-store&branch_id=<?= $_SESSION['branch_id'] ?>" target="_blank">
+                            <button class="weekly">View Report</button></a>
                     </div>
                 </div>
 
                 <div class="card5">
                     <h3>Detailed Retail Sales Report</h3>
                     <div class="btn1">
-                        <a href="data_report.php?type=retail&source=in-store&timeframe=daily" target="_blank"><button class="daily">Daily</button></a>
-                        <a href="data_report.php?type=retail&source=in-store&timeframe=weekly" target="_blank"><button class="monthly">Weekly</button></a>
-                    </div>
-                    <div class="btn2">
-                        <a href="data_report.php?type=retail&source=in-store&timeframe=monthly" target="_blank"><button class="daily">Monthly</button></a>
-                        <a href="data_report.php?type=retail&source=in-store&timeframe=yearly" target="_blank"><button class="monthly">Yearly</button></a>
+                        <a href="data_report.php?type=retail&source=in-store&branch_id=<?= $_SESSION['branch_id'] ?>" target="_blank">
+                            <button class="weekly">View Report</button></a>
                     </div>
                 </div>
 
                 <div class="card6">
                     <h3>Detailed Online Sales Report</h3>
                     <div class="btn1">
-                        <a href="data_report.php?type=wholesale&source=online&timeframe=daily" target="_blank"><button class="daily">Daily</button></a>
-                        <a href="data_report.php?type=wholesale&source=online&timeframe=weekly" target="_blank"><button class="monthly">Weekly</button></a>
-                    </div>
-                    <div class="btn2">
-                        <a href="data_report.php?type=wholesale&source=online&timeframe=monthly" target="_blank"><button class="daily">Monthly</button></a>
-                        <a href="data_report.php?type=wholesale&source=online&timeframe=yearly" target="_blank"><button class="monthly">Yearly</button></a>
+                        <a href="data_report.php?type=wholesale&source=online&branch_id=<?= $_SESSION['branch_id'] ?>" target="_blank">
+                            <button class="weekly">View Report</button></a>
                     </div>
                 </div>
-
 
                 <div class="card7">
                     <h3>Sales Distribution by Channel</h3>
@@ -191,16 +197,121 @@ $mysqli->close();
         </div>
     </main>
 
-
     <script src="../../js/notif.js"></script>
-
+    <script src="../../js/weeks.js"></script>
     <script>
+        $(document).ready(function() {
+            const currentMonth = new Date().getMonth() + 1; // Get current month (1-12)
+            const currentYear = new Date().getFullYear(); // Get current year
+
+            // Set the default selected month and year
+            $('#monthSelector').val(currentMonth);
+            $('#yearSelector').val(currentYear);
+
+            fetchSalesDistribution();
+            fetchReports();
+
+            // Change data fetch based on dropdown selection
+            $('#timeframe').change(function() {
+                fetchReports(); // Fetch data based on the selected timeframe
+                fetchSalesDistribution();
+            });
+
+            // Capture changes in month, week, and year selectors
+            $('#monthSelector, #weekSelector, #yearSelector').change(function() {
+                fetchReports(); // Fetch data when any filter changes
+                fetchSalesDistribution();
+            });
+        });
+
+        // Updated fetchReports function to handle full month or week display
+        function fetchReports() {
+            var timeframe = $('#timeframe').val(); // Get the selected timeframe
+            var branch_id = $('#branch_id').val(); // Get branch_id from hidden field
+            var month = $('#monthSelector').val(); // Get selected month
+            var week = $('#weekSelector').val(); // Get selected week
+            var year = $('#yearSelector').val(); // Get selected year
+
+            var data = {
+                timeframe: timeframe,
+                branch_id: branch_id,
+                month: month,
+                week: week,
+                year: year
+            };
+
+            // Send AJAX request to fetch wholesale report
+            $.ajax({
+                url: 'fetch_wholesale_report.php',
+                type: 'GET',
+                data: data,
+                success: function(response) {
+                    var result = JSON.parse(response);
+                    console.log("Wholesale Report Data:", result);
+
+                    // Update the chart with the full range of days in the selected month or week
+                    wholesaleChart.data.labels = result.periods;
+                    wholesaleChart.data.datasets[0].data = result.total_sales;
+                    wholesaleChart.options.scales.x.title.text = (timeframe === 'monthly' ? 'Day' : (timeframe === 'weekly' ? 'Week' : 'Year'));
+                    wholesaleChart.update();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching reports:", error);
+                }
+            });
+
+            // Fetch retail reports
+            $.ajax({
+                url: 'fetch_retail_report.php',
+                type: 'GET',
+                data: data,
+                success: function(data) {
+                    var result = JSON.parse(data);
+                    retailSalesChart.data.labels = result.periods;
+                    retailSalesChart.data.datasets[0].data = result.total_sales;
+                    retailSalesChart.options.scales.x.title.text = (timeframe === 'monthly' ? 'Day' : (timeframe === 'weekly' ? 'Week' : 'Year'));
+                    retailSalesChart.update();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching retail reports:", error);
+                }
+            });
+
+            // Fetch online reports
+            $.ajax({
+                url: 'fetch_online_report.php',
+                type: 'GET',
+                data: data,
+                success: function(data) {
+                    var result = JSON.parse(data);
+                    onlineSalesChart.data.labels = result.periods;
+                    onlineSalesChart.data.datasets[0].data = result.total_sales;
+                    onlineSalesChart.options.scales.x.title.text = (timeframe === 'monthly' ? 'Day' : (timeframe === 'weekly' ? 'Week' : 'Year'));
+                    onlineSalesChart.update();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching online reports:", error);
+                }
+            });
+        }
+
         function fetchSalesDistribution() {
+            var branch_id = $('#branch_id').val(); // Get branch_id from hidden 
+            var month = $('#monthSelector').val(); // Get selected month
+            var week = $('#weekSelector').val(); // Get selected week
+            var year = $('#yearSelector').val(); // Get selected year
+
             $.ajax({
                 url: 'fetch_sales_distribution.php',
                 type: 'GET',
+                data: {
+                    branch_id: branch_id,
+                    month: month,
+                    week: week,
+                    year: year
+                },
                 success: function(data) {
-                    console.log("Data received:", data);
+                    console.log("Sales Distribution Data:", data);
 
                     var result = JSON.parse(data);
                     var labels = result.map(function(item) {
@@ -220,92 +331,15 @@ $mysqli->close();
                 }
             });
         }
-
-        $(document).ready(function() {
-            fetchSalesDistribution();
-
-            // Fetch the wholesale, retail, and online reports on page load
-            fetchReports();
-
-            // Change data fetch based on dropdown selection
-            $('#timeframe').change(function() {
-                fetchReports(); // Fetch data based on the selected timeframe
-            });
-        });
-
-        function fetchReports() {
-            var timeframe = $('#timeframe').val();
-
-            // Fetch wholesale reports
-            $.ajax({
-                url: 'fetch_wholesale_report.php',
-                type: 'GET',
-                data: {
-                    timeframe: timeframe
-                },
-                success: function(data) {
-                    var result = JSON.parse(data);
-                    wholesaleChart.data.labels = result.periods;
-                    wholesaleChart.data.datasets[0].data = result.total_sales;
-
-                    wholesaleChart.options.scales.x.title.text;
-                    wholesaleChart.update();
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching wholesale reports:", error);
-                }
-            });
-
-            // Fetch retail reports
-            $.ajax({
-                url: 'fetch_retail_report.php',
-                type: 'GET',
-                data: {
-                    timeframe: timeframe
-                },
-                success: function(data) {
-                    var result = JSON.parse(data);
-                    retailSalesChart.data.labels = result.periods;
-                    retailSalesChart.data.datasets[0].data = result.total_sales;
-
-                    retailSalesChart.options.scales.x.title.text = timeframe === 'monthly' ? 'Month' : 'Week';
-                    retailSalesChart.update();
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching retail reports:", error);
-                }
-            });
-
-            // Fetch online reports
-            $.ajax({
-                url: 'fetch_online_report.php',
-                type: 'GET',
-                data: {
-                    timeframe: timeframe
-                },
-                success: function(data) {
-                    var result = JSON.parse(data);
-                    onlineSalesChart.data.labels = result.periods;
-                    onlineSalesChart.data.datasets[0].data = result.total_sales;
-
-                    onlineSalesChart.options.scales.x.title.text = timeframe === 'monthly' ? 'Month' : 'Week';
-                    onlineSalesChart.update();
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching online reports:", error);
-                }
-            });
-        }
-
         // Create the purchase preferences chart (Pie Chart)
         var ctx4 = document.getElementById('salesDistributionChart').getContext('2d');
         var salesDistributionChart = new Chart(ctx4, {
             type: 'pie',
             data: {
-                labels: [],
+                labels: [], // Empty labels initially
                 datasets: [{
                     label: 'Number of Orders',
-                    data: [],
+                    data: [], // Empty data initially
                     backgroundColor: ['#FABE7A', '#FF6B6B', '#80CED7', '#7D74FF', '#FDE47F'],
                     borderColor: ['#F4A261', '#FF4D4D', '#66B2FF', '#6A4CFF', '#FCD034'],
                     borderWidth: 1
@@ -316,7 +350,7 @@ $mysqli->close();
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'right',
+                        position: 'bottom',
                         labels: {
                             font: {
                                 size: 10
@@ -345,7 +379,7 @@ $mysqli->close();
             data: {
                 labels: [],
                 datasets: [{
-                    label: '',
+                    label: 'Wholesale Sales',
                     data: [],
                     borderColor: '#80CED7',
                     backgroundColor: createGradient(ctx2),
@@ -358,14 +392,14 @@ $mysqli->close();
                 scales: {
                     x: {
                         title: {
-                            display: false
+                            display: false,
                         }
                     },
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Total Amt(PHP)'
+                            text: 'Total Amt (PHP)'
                         }
                     }
                 },
@@ -392,6 +426,16 @@ $mysqli->close();
                 }
             }
         });
+
+        // Fetch data and update chart when timeframe is changed
+        $(document).ready(function() {
+            fetchReports(); // Initial load
+
+            $('#timeframe').change(function() {
+                fetchReports(); // Fetch data again when the timeframe changes
+            });
+        });
+
 
         // Line chart for retail sales (Line Chart)
         var ctx3 = document.getElementById('retailSalesChart').getContext('2d');
