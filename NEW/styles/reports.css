@@ -32,6 +32,13 @@ body {
     overflow: hidden;
 }
 
+main {
+    padding: 0;
+    flex: 1;
+    margin: 60px 0 auto 220px;
+}
+
+
 header {
     position: fixed;
     left: 0;
@@ -46,8 +53,8 @@ header {
 }
 
 header .logo {
-    height: 35px;
-    margin: -10px 0 -12px 15px;
+    height: 50px;
+    margin: -10px 0 -18px 15px;
 }
 
 
@@ -103,10 +110,10 @@ header .account-info img {
 
 .sidebar {
     position: fixed;
-    top: 80px;
-    left: 20px;
+    top: 70px;
+    left: 10px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: calc(100% - 95px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -160,9 +167,7 @@ header .account-info img {
 
 .sidebar nav ul li a.current,
 .sidebar nav ul li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
 }
 
 .sidebar ul.reports {
@@ -212,17 +217,8 @@ header .account-info img {
 
 .sidebar ul.reports li a.current,
 .sidebar ul.reports li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
 }
-
-main {
-    flex: 1;
-    margin: 50px 0 auto 220px;
-    padding: 0;
-}
-
 
 img.notification-icon {
     margin-right: 10px;
@@ -278,17 +274,17 @@ p.notif {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px;
+    /* margin: 20px; */
     height: calc(90%);
-    width: calc(97%);
+    width: calc(99%);
     display: flex;
 }
 
 .upper, .upper1 {
     display: flex;
     flex-direction: column;
-    /* height: 84vh; */
-    width: 60vw;
+    height: 98vh;
+    /* width: 60vw; */
 }
 
 .card1 h3, .card2 h3, .card3 h3,
@@ -310,8 +306,6 @@ p.notif {
     padding: 14px;
     margin: 15px 5px 5px 15px;
     text-align: left;
-    width: 55vw;
-    height: calc(27%);
 }
 
 .card2 {
@@ -321,8 +315,6 @@ p.notif {
     padding: 14px;
     margin: 5px 5px 5px 15px;
     text-align: left;
-    width: 55vw;
-    height: calc(27%);
 }
 
 .card3 {
@@ -332,8 +324,11 @@ p.notif {
     padding: 14px;
     margin: 5px 5px 15px 15px;
     text-align: left;
-    width: 55vw;
-    height: calc(28%);
+}
+
+.card1, .card2, .card3{
+    width: 56vw;
+    height: calc(23%);
 }
 
 .bottom {
@@ -382,11 +377,16 @@ p.notif {
     margin: 5px 10px 15px 5px;
     text-align: left;
     width: 20vw;
-    height: 38%;
+    height: 40%;
+}
+
+.card4, .card5, .card6 {
+    width: 20vw;
+    height: 8vh;
 }
 
 .card4 h3, .card5 h3, .card6 h3 {
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
 .btn1, .btn2 {
@@ -400,7 +400,7 @@ p.notif {
     border: 1px solid;
     padding: 4px;
     margin: 4px;
-    width: 130px;
+    width: 235px;
     height: 26px;
     cursor: pointer;
 }
@@ -419,9 +419,10 @@ p.notif {
 /* } */
 
 canvas#salesDistributionChart {
-    height: 115% !important;
-    margin: -20px 0;
+    height: 97% !important;
+    margin: 0;
 }
+
 
 .sorting-container {
     display: flex;
@@ -439,6 +440,11 @@ canvas#salesDistributionChart {
     border-radius: 5px;
     border: 1px solid #ccc;
 }
+
+select#monthSelector, select#weekSelector, select#yearSelector {
+    margin-right: 8px;
+}
+
 
 
 @media (max-width: 320px) {

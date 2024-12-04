@@ -95,11 +95,11 @@ header .logo {
     width: 100%;
     max-width: 380px;
     max-height: fit-content;
-    overflow: auto;
+    /* overflow: auto; */
 }
 
 .login-toggle {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     border: 1px solid;
     padding: 6px;
     background-color: #F8EDDD;
@@ -140,7 +140,7 @@ header .logo {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: 300px;
     max-width: 400px;
     margin: 0 auto;
 }
@@ -176,33 +176,6 @@ header .logo {
     width: 100%;
 }
 
-.form-options {
-    display: flex;
-    align-items: center;
-    margin-bottom: 30px;
-}
-
-.remember-checkbox {
-    width: 15px;
-    height: 15px;
-    margin-right: 5px;
-    margin-top: -4px;
-    background: #FFFFFF;
-}
-
-.remember-text {
-    font-size: 11px;
-    color: #000000;
-    margin-right: 70px;
-}
-
-.forgot-password {
-    font-size: 11px;
-    color: #000000;
-    margin-left: 50px;
-    text-decoration: none;
-}
-
 .form-submit {
     display: flex;
     justify-content: center;
@@ -210,7 +183,15 @@ header .logo {
     margin-top: 3px;
 }
 
+.submit-button-log {
+    margin-top: 30px;
+}
+
 .submit-button {
+    margin-bottom: 10px;
+}
+
+.submit-button, .submit-button-log {
     border-radius: 33px;
     background: #9E896A;
     color: #FFFFFF;
@@ -218,8 +199,8 @@ header .logo {
     padding: 10px 75px;
     font-size: 16px;
     font-weight: lighter;
+    margin: 10px;
     font-family: 'Poppins', sans-serif;
-    margin-top: 10px;
 }
 
 .submit-button:hover {
@@ -344,24 +325,62 @@ header .logo {
     cursor: pointer;
     color: #000; 
 }
+.password-container {
+    position: relative; /* Container relative positioning */
+}
 
 .password-requirements {
     display: none;
-    margin-top: 5px;
-    font-size: 0.7em;
+    position: absolute;
+    left: 105%; /* Position tooltip completely to the right of the input */
+    top: 20px;
+    width: 230px;
+    font-size: 0.8em;
     color: #424141;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
+/* Create the arrow pointer using a pseudo-element */
+.password-requirements::before {
+    content: '';
+    position: absolute;
+    top: 10px; /* Adjust to align the arrow with the input field */
+    right: 100%; /* Position the arrow at the left edge of the tooltip */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 8px 10px 8px 0; /* Top, Right, Bottom, Left */
+    border-color: transparent #ccc transparent transparent; /* Match border color */
+}
+
+.password-requirements::after {
+    content: '';
+    position: absolute;
+    top: 10px; /* Same top value as ::before for alignment */
+    right: 100%; /* Position at the same point */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 7px 9px 7px 0; /* Slightly smaller than ::before */
+    border-color: transparent #f9f9f9 transparent transparent; /* Match background color */
+}
+
 .password-requirements p {
-    margin: auto auto -8px auto;
+    margin: 0 0 10px 0;
     font-weight: bold;
+    text-align: left;
 }
 
 .password-requirements ul {
     list-style: none;
     padding: 0;
-    margin: 10px;
+    margin: 0;
 }
 
 .password-requirements li {
@@ -370,16 +389,58 @@ header .logo {
 
 .password-requirements li.met {
     color: green;
+    font-weight: bold;
 }
 
 .password-requirements li.unmet {
     color: red;
+    font-weight: bold;
 }
 
-.error {
-    border: 1px solid red;
+.password-requirements li {
+    margin: 5px 0;
+    position: relative; /* For positioning the check sign */
+    padding-left: 25px; /* Add space for the check/unmet icon */
 }
 
+.password-requirements li::before {
+    content: ''; /* Default: No icon shown */
+    position: absolute;
+    left: 0; /* Position the icon at the start of the line */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: transparent;
+    display: inline-block;
+}
+
+.password-requirements li.met::before {
+    content: '✔'; /* Check symbol */
+    color: green; /* Green color for success */
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.password-requirements li.unmet::before {
+    content: '✘'; /* Cross symbol */
+    color: red; /* Red color for unmet */
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.password-match-message {
+    color: green;
+    font-size: 0.9em;
+    margin: 5px 0 0 5px;
+    font-weight: 600;
+    display: none; /* Hide initially */
+}
+
+.password-match-message.error {
+    color: red; /* Red if passwords don't match */
+}
 
 .loading-screen {
     position: fixed;
@@ -474,14 +535,12 @@ header .logo {
 
     .forgot-password {
         font-size: 10px;
-        color: #000000;
         margin-left: 10px;
         text-decoration: none;
     }
 
     .remember-text {
         font-size: 10px;
-        color: #000000;
         /* margin-right: 15px; */
     }
 

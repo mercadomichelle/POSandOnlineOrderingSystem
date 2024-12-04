@@ -32,9 +32,13 @@ if (isset($_SESSION['username'])) {
 
 // Fetch products
 $sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale AS prod_price, 
-        products.prod_image_path, stocks.stock_quantity 
+        products.prod_image_path, COALESCE(SUM(stocks.stock_quantity), 0) AS stock_quantity 
         FROM products 
-        JOIN stocks ON products.prod_id = stocks.prod_id";
+        JOIN stocks ON products.prod_id = stocks.prod_id
+        GROUP BY 
+            products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale, products.prod_image_path
+        ORDER BY 
+            prod_name ASC";
 $result = $mysqli->query($sql);
 
 $products = [];
@@ -239,12 +243,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <p><?php echo htmlspecialchars($product['prod_name']); ?></p>
                             <h3>₱ <?php echo number_format($product['prod_price'], 2); ?> / sack</h3>
                             <div class="stock-info">Current Stocks: <?php echo $display_stock; ?></div>
-
                             <?php if (isset($_SESSION["username"])): ?>
                                 <form class="product-actions" method="POST" action="function/add_to_cart.php">
                                     <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
                                     <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
-                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
+                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" data-previous-value="1" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
                                     <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
                                     <button class="add-to-cart-btn" type="submit" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>Add</button>
                                 </form>
@@ -253,11 +256,12 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                 <form class="product-actions" method="POST" action="function/add_to_cart.php">
                                     <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
                                     <button class="qty-btn" type="button" onclick="updateQuantity(this, -1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>-</button>
-                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
+                                    <input type="number" class="qty-input" value="1" min="1" max="<?php echo $display_stock; ?>" name="quantity" data-max="<?php echo $display_stock; ?>" data-previous-value="1" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>
                                     <button class="qty-btn" type="button" onclick="updateQuantity(this, 1)" <?php echo $display_stock == 0 ? 'disabled' : ''; ?>>+</button>
                                     <button class="add-to-cart-btn" onclick="redirectToHomepage(event)">Add</button>
                                 </form>
                             <?php endif; ?>
+
                         </div>
                     <?php endforeach; ?>
 
@@ -317,8 +321,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                 <span class="total-label">TOTAL:</span>
                                 <span class="total-amount">₱<?php echo number_format($subTotal, 2); ?></span>
                             </div>
-                            <div class="minimum-order">Minimum order quantity to checkout: 10 sacks</div>
-                            <button class="checkout-btn" onclick="document.getElementById('checkoutForm').submit()">Proceed to checkout</button>
+                            <div class="minimum-order" id="minimumOrderMessage">Minimum order quantity to checkout: 8 sacks</div>
+                            <button class="checkout-btn" id="checkoutBtn" onclick="document.getElementById('checkoutForm').submit()" disabled>Proceed to checkout</button>
                         <?php endif; ?>
                         </div>
                 </div>
@@ -368,8 +372,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             </div>
 
     </main>
-
     <script>
+        // Function to update navigation links based on screen width
         function updateNavLinks() {
             const ordersLink = document.getElementById('orders-link');
             const aboutLink = document.getElementById('about-link');
@@ -386,52 +390,46 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
         window.addEventListener('resize', updateNavLinks);
         window.addEventListener('DOMContentLoaded', updateNavLinks);
 
+        // Cart toggle behavior on mobile screens
         document.addEventListener('DOMContentLoaded', function() {
-            var cartSummary = document.querySelector('.cart-summary');
-            var toggleButton = document.querySelector('.toggle-cart');
+            const cartSummary = document.querySelector('.cart-summary');
+            const toggleButton = document.querySelector('.toggle-cart');
 
-            // Check the screen width and minimize the cart on load if in mobile mode
+            // Initial state for mobile view
             if (window.innerWidth <= 768) {
                 cartSummary.classList.add('minimized');
-                toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for mobile
+                toggleButton.innerHTML = '⏶'; // Expand icon for mobile
             }
 
-            // Toggle cart function to handle minimizing and expanding
+            // Toggle cart functionality
             function toggleCart() {
-                // Toggle the minimized class on click
                 cartSummary.classList.toggle('minimized');
-
-                // Update the button icon based on the current state
-                if (cartSummary.classList.contains('minimized')) {
-                    toggleButton.innerHTML = '⏶'; // Show "Expand" icon
-                } else {
-                    toggleButton.innerHTML = '⏷'; // Show "Collapse" icon
-                }
+                toggleButton.innerHTML = cartSummary.classList.contains('minimized') ? '⏶' : '⏷';
             }
 
-            // Attach the toggle function to the button click event
             toggleButton.addEventListener('click', toggleCart);
 
-            // Ensure cart expands on larger screens if resized
+            // Ensure cart expands on larger screens and minimizes on smaller screens
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 768) {
                     cartSummary.classList.remove('minimized');
-                    toggleButton.innerHTML = '⏷'; // Set to "Collapse" icon on desktop
+                    toggleButton.innerHTML = '⏷'; // Collapse icon for desktop
                 } else if (!cartSummary.classList.contains('minimized')) {
                     cartSummary.classList.add('minimized');
-                    toggleButton.innerHTML = '⏶'; // Set to "Expand" icon on mobile
+                    toggleButton.innerHTML = '⏶'; // Expand icon for mobile
                 }
             });
         });
 
-
+        // Redirect non-logged-in users to the login page
         function redirectToHomepage(event) {
             event.preventDefault();
             window.location.href = '../login.php';
         }
 
+        // Show loading screen during form submissions
         document.addEventListener('DOMContentLoaded', function() {
-            var loadingScreen = document.getElementById("loadingScreen");
+            const loadingScreen = document.getElementById("loadingScreen");
 
             document.querySelectorAll('form').forEach(form => {
                 form.addEventListener('submit', function() {
@@ -442,17 +440,61 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
         document.addEventListener('DOMContentLoaded', function() {
             const checkoutButton = document.querySelector('.checkout-btn');
+            const cartItemsContainer = document.getElementById('cart-items'); // Assuming this contains your cart items
             const loadingScreen = document.getElementById('loadingScreen');
+            const minimumOrderMessage = document.getElementById('minimumOrderMessage');
+            let totalQuantity = 0; // Initialize total quantity
 
+            // Function to update the checkout button state
+            function updateCheckoutButton() {
+                if (totalQuantity >= 8) {
+                    checkoutButton.disabled = false; // Enable button if quantity is 8 or more
+                    minimumOrderMessage.style.color = 'green'; // Green message
+                } else {
+                    checkoutButton.disabled = true; // Disable button if quantity is less than 8
+                    minimumOrderMessage.style.color = '#E53935'; // Red message
+                }
+            }
+
+            // Event listener for quantity changes in the cart
+            cartItemsContainer.addEventListener('input', function(event) {
+                if (event.target.classList.contains('qty-input')) {
+                    updateCartTotalQuantity(event.target); // Update the total quantity when input changes
+                }
+            });
+
+            // Function to update the total quantity
+            function updateCartTotalQuantity(inputElement) {
+                const quantity = parseInt(inputElement.value);
+                const previousQuantity = parseInt(inputElement.dataset.previousValue || 0); // Store the previous value in a data attribute
+
+                // Update the total quantity by adding the difference
+                totalQuantity += (quantity - previousQuantity);
+                inputElement.dataset.previousValue = quantity; // Update the previous value for next time
+
+                updateCheckoutButton(); // Update the checkout button state
+            }
+
+            // Initialize the total quantity when the page loads
+            document.querySelectorAll('.cart-item').forEach(cartItem => {
+                const quantity = parseInt(cartItem.querySelector('.qty-input').value);
+                totalQuantity += quantity; // Add the initial quantity to the global total
+            });
+
+            // Update the checkout button state on page load
+            updateCheckoutButton();
+
+            // Checkout button click event
             if (checkoutButton) {
                 checkoutButton.addEventListener('click', function(event) {
                     loadingScreen.style.display = 'flex';
-
                     document.getElementById('checkoutForm').submit();
                 });
             }
         });
 
+
+        // Recalculate cart total on quantity change
         function recalculateTotal() {
             const cartItemsContainer = document.getElementById('cart-items');
             const subtotalElement = document.querySelector('.subtotal-amount');
@@ -470,6 +512,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             totalElement.textContent = `₱${(subtotal + deliveryFee).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
         }
 
+        // Update cart quantity via buttons
         function updateQuantity(button, change) {
             const input = button.parentNode.querySelector('.qty-input');
             if (!input) {
@@ -478,9 +521,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             }
 
             let currentQuantity = parseInt(input.value);
-            const maxQuantity = parseInt(input.getAttribute('data-max'));
+            const maxQuantity = parseInt(input.getAttribute('data-max') || 9999);
 
-            // Calculate new quantity
             currentQuantity += change;
 
             if (currentQuantity < 1) {
@@ -490,10 +532,10 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             }
 
             input.value = currentQuantity;
+            input.setAttribute('data-previous-value', currentQuantity);
 
             const cartItem = button.closest('.cart-item');
             const prodId = cartItem.getAttribute('data-prod-id');
-            const priceType = cartItem.getAttribute('data-price-type'); // If price_type is needed
 
             if (!prodId || isNaN(currentQuantity)) {
                 console.error('Invalid product ID or quantity');
@@ -509,7 +551,20 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                     try {
                         const response = JSON.parse(xhr.responseText);
                         if (response.success) {
-                            console.log('Quantity updated successfully');
+                            const itemQuantitySpan = cartItem.querySelector('.item-quantity');
+                            if (itemQuantitySpan) {
+                                itemQuantitySpan.textContent = `${currentQuantity}x`;
+                            }
+
+                            const itemPriceElement = cartItem.querySelector('.item-price-per-unit');
+                            const itemTotalPriceElement = cartItem.querySelector('.item-total-price');
+                            if (itemPriceElement && itemTotalPriceElement) {
+                                const pricePerUnit = parseFloat(itemPriceElement.textContent.replace('₱', '').replace(/,/g, ''));
+                                const totalPrice = currentQuantity * pricePerUnit;
+                                itemTotalPriceElement.textContent = `₱${totalPrice.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+                            }
+
+                            recalculateTotal();
                         } else {
                             console.error(response.error || 'Unknown error occurred');
                         }
@@ -521,17 +576,50 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 }
             };
 
-
             xhr.onerror = function() {
                 console.error('Request failed');
             };
 
-            // Send the data to the server
             const postData = `prod_id=${encodeURIComponent(prodId)}&quantity=${encodeURIComponent(currentQuantity)}`;
             xhr.send(postData);
         }
 
+        // Track cart quantity and update message
+        document.addEventListener('DOMContentLoaded', function() {
+            const minimumOrderMessage = document.getElementById('minimumOrderMessage');
+            let totalQuantity = 0;
 
+            function updateMinimumOrderMessage() {
+                if (totalQuantity >= 8) {
+                    minimumOrderMessage.style.color = 'green';
+                } else {
+                    minimumOrderMessage.style.color = '#E53935';
+                }
+            }
+
+            function updateCartTotalQuantity(inputElement) {
+                const quantity = parseInt(inputElement.value);
+                const previousQuantity = parseInt(inputElement.dataset.previousValue || 0);
+                totalQuantity += (quantity - previousQuantity);
+                inputElement.dataset.previousValue = quantity;
+                updateMinimumOrderMessage();
+            }
+
+            document.getElementById('cart-items').addEventListener('input', function(event) {
+                if (event.target.classList.contains('qty-input')) {
+                    updateCartTotalQuantity(event.target);
+                }
+            });
+
+            document.querySelectorAll('.cart-item').forEach(cartItem => {
+                const quantity = parseInt(cartItem.querySelector('.qty-input').value);
+                totalQuantity += quantity;
+            });
+
+            updateMinimumOrderMessage();
+        });
+
+        // Proceed to checkout based on quantity
         function checkout() {
             const cartItemsContainer = document.getElementById('cart-items');
             let totalQuantity = 0;
@@ -541,18 +629,15 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 totalQuantity += quantity;
             });
 
-            // Check if total quantity is less than 10
-            if (totalQuantity < 10) {
-                // Show custom modal instead of alert
+            if (totalQuantity < 8) {
                 showCheckoutAlertModal();
-                return; // Stop the function here if the quantity is less than 10
+                return;
             }
 
-            // Redirect to the checkout page
             window.location.href = "staff_checkout.php";
         }
 
-
+        // Modal for checkout alert
         function showCheckoutAlertModal() {
             const modal = document.getElementById('checkoutAlertModal');
             modal.style.display = 'flex';
@@ -563,19 +648,15 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             modal.style.display = 'none';
         }
 
-        // Close the modal when the user clicks on the close button
         document.querySelector('.checkout-close').addEventListener('click', closeCheckoutAlertModal);
 
-
-        // DELETE MODAL
+        // Handle item removal modal
         document.addEventListener('DOMContentLoaded', () => {
             const deleteModal = document.getElementById('deleteModal');
             const closeBtn = document.querySelector('.message-close');
             const cancelBtn = document.querySelector('.cancel-delete-btn');
-            const deleteForm = document.getElementById('deleteItemForm');
             const deleteProdIdInput = document.getElementById('delete_prod_id');
 
-            // When the user clicks on the remove button, open the modal
             document.querySelectorAll('.remove-item').forEach(button => {
                 button.addEventListener('click', function(event) {
                     event.preventDefault();
@@ -585,29 +666,19 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 });
             });
 
-            // When the user clicks on <span> (x), close the modal
-            closeBtn.addEventListener('click', function() {
-                deleteModal.style.display = 'none';
-            });
-
-            // When the user clicks on the cancel button, close the modal
-            cancelBtn.addEventListener('click', function() {
-                deleteModal.style.display = 'none';
-            });
+            closeBtn.addEventListener('click', () => deleteModal.style.display = 'none');
+            cancelBtn.addEventListener('click', () => deleteModal.style.display = 'none');
         });
 
-        function confirmDeletion() {
-            return confirm("Are you sure you want to remove this item from your cart?");
-        }
-
+        // Show delete confirmation modal
         function showDeleteModal(prodId) {
             const deleteModal = document.getElementById('deleteModal');
             const deleteProdIdInput = document.getElementById('delete_prod_id');
-
-            deleteProdIdInput.value = prodId; // Set the hidden input value
-            deleteModal.style.display = 'block'; // Show the modal
+            deleteProdIdInput.value = prodId;
+            deleteModal.style.display = 'block';
         }
 
+        // Product search functionality
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
             const productCards = document.querySelectorAll('.product-card');
@@ -635,14 +706,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 noProductFound.style.display = anyCardVisible ? 'none' : 'block';
             });
         });
-
-        function closeCheckoutAlertModal() {
-            const modal = document.getElementById('checkoutAlertModal');
-            modal.style.display = 'none';
-        }
-
-        document.querySelector('.checkout-close').addEventListener('click', closeCheckoutAlertModal);
     </script>
+
 </body>
 
 </html>

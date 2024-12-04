@@ -19,9 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Calculate total quantity
         $totalQuantity = array_sum($quantities);
 
-        // Ensure the total quantity is at least 10
-        if ($totalQuantity < 10) {
-            $_SESSION['error_message'] = "You must have at least 10 items in your cart to proceed to checkout.";
+        // Ensure the total quantity is at least 8
+        if ($totalQuantity < 8) {
+            $_SESSION['error_message'] = "You must have at least 8 items in your cart to proceed to checkout.";
             header("Location: cust_products.php");
             exit();
         }

@@ -25,7 +25,7 @@ html, body {
 }
 
 html, body, main, .product-grid {
-    height: 100%; /* Ensure all ancestors have height set */
+    height: 100%;
 }
 
 body {
@@ -35,6 +35,13 @@ body {
     margin: 0;
     padding: 10px;
     overflow: hidden
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 60px 0 auto 210px;
 }
 
 header {
@@ -107,10 +114,10 @@ header .account-info img {
 
 .sidebar {
     position: fixed;
-    top: 80px;
-    left: 20px;
+    top: 70px;
+    left: 10px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: calc(100% - 95px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -165,9 +172,7 @@ header .account-info img {
 
 .sidebar nav ul li a.current,
 .sidebar nav ul li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
 }
 
 .sidebar ul.reports {
@@ -217,16 +222,7 @@ header .account-info img {
 
 .sidebar ul.reports li a.current,
 .sidebar ul.reports li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
-}
-
-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin: 70px 10px auto 230px;
 }
 
 
@@ -286,10 +282,10 @@ p.notif {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 8px;
-    width: 70%;
+    width: 72%;
 }
 
-.filter-button {
+.filter-button-current  {
     background-color: #C09A62;
     border: 1px solid #000000;
     border-radius: 20px;
@@ -302,10 +298,9 @@ p.notif {
     align-items: center;
     justify-content: center;
     margin-right: 10px;    
-    cursor: pointer;
 }
 
-.filter-button-current {
+.filter-button{
     background-color: #FDE9A2;
     border: 1px solid black;
     border-radius: 20px;
@@ -318,6 +313,7 @@ p.notif {
     align-items: center;
     justify-content: center;
     margin-right: 10px;
+    cursor: pointer;
 }
 
 .filter-button img, .filter-button-current img {
@@ -331,7 +327,7 @@ p.notif {
     flex-grow: 1;
     display: flex;
     justify-content: flex-start;
-    margin-left: 215px;
+    margin-left: 165px;
 }
 
 .search-wrapper {
@@ -468,6 +464,10 @@ p.notif {
     box-sizing: border-box;
 }
 
+form.qty-form {
+    width: max-content;
+}
+
 .product-actions button:hover {
     background-color: #ebce72;
 }
@@ -521,7 +521,7 @@ p.notif {
     border: #b5afa7c7 1px solid;
     top: 75px;
     right: 14px;
-    width: 287px;
+    width: 265px;
     background-color: #FFFAE8;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -833,6 +833,11 @@ div#cart-items {
     display: none; /* Default: hidden */
 }
 
+span.branch-name {
+    font-weight: 600;
+    margin: 5px 12px;
+    position: absolute;
+}
 
 .loading-screen {
     display: none; 

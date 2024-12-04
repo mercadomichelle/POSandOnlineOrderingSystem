@@ -37,6 +37,13 @@ body {
     overflow: hidden
 }
 
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 60px 0 auto 210px;
+}
+
 header {
     position: fixed;
     left: 0;
@@ -106,10 +113,10 @@ header .account-info img {
 
 .sidebar {
     position: fixed;
-    top: 80px;
-    left: 20px;
+    top: 70px;
+    left: 10px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: calc(100% - 95px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -164,9 +171,7 @@ header .account-info img {
 
 .sidebar nav ul li a.current,
 .sidebar nav ul li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
 }
 
 .sidebar ul.reports {
@@ -216,16 +221,7 @@ header .account-info img {
 
 .sidebar ul.reports li a.current,
 .sidebar ul.reports li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
-}
-
-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin: 70px 10px auto 230px;
 }
 
 img.notification-icon {
@@ -276,7 +272,7 @@ div#notificationDropdown {
 
 p {
     padding: 0 15px 10px;
-    border-bottom: 1px solid #ddd;
+    /* border-bottom: 1px solid #ddd; */
 }
 
 .card {
@@ -289,7 +285,7 @@ p {
     /* z-index: 1; */
     flex-grow: 1;
     /* width: 97%; */
-    max-height: calc(90vh - 68px);
+    max-height: calc(90vh - 52px);
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1; 
@@ -490,6 +486,11 @@ p {
 
 .save-btn {
     display: flex;
+}
+
+p.delete {
+    padding: 0;
+    margin: 10px;
 }
 
 .save-btn:hover,

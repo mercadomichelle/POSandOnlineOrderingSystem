@@ -37,6 +37,13 @@ body {
     overflow: hidden
 }
 
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 55px 0 auto 210px;
+}
+
 header {
     position: fixed;
     left: 0;
@@ -107,10 +114,10 @@ header .account-info img {
 
 .sidebar {
     position: fixed;
-    top: 80px;
-    left: 20px;
+    top: 70px;
+    left: 10px;
     width: 200px;
-    height: calc(100% - 115px);
+    height: calc(100% - 95px);
     background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding-top: 20px;
@@ -165,9 +172,7 @@ header .account-info img {
 
 .sidebar nav ul li a.current,
 .sidebar nav ul li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
 }
 
 .sidebar ul.reports {
@@ -217,16 +222,7 @@ header .account-info img {
 
 .sidebar ul.reports li a.current,
 .sidebar ul.reports li a:hover {
-    color: #E1BE42;
     background-color: #FDE9A2; 
-    -webkit-text-stroke: 1px #000;
-}
-
-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin: 68px 10px auto 230px;
 }
 
 
@@ -317,7 +313,7 @@ p.notif {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 5px;
 }
 
 .search-container {
@@ -368,7 +364,7 @@ p.notif {
     flex-direction: column;
     /* width: 97%; */
     height: 102.5%;
-    max-height: calc(90vh - 120px);
+    max-height: calc(90vh - 95px);
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: #888 #f1f1f1; 
@@ -597,10 +593,22 @@ input[type="number"] {
     border: none;
     border-radius: 30px;
     cursor: pointer;
-    margin-top: 5px;
+    margin-top: 15px;
     margin-bottom: -5px;
 }
 
+.branch-selector {
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+span.branch-name {
+    font-weight: 600;
+    margin: 5px 12px;
+    position: absolute;
+}
 
 .stock-notification {
     font-size: 0.9em;
@@ -620,6 +628,12 @@ input[type="number"] {
 
 .in-stock {
     background-color: darkgreen;
+}
+
+span.branch-name {
+    font-weight: 600;
+    margin: 5px 12px;
+    position: absolute;
 }
 
 .loading-screen {
@@ -781,7 +795,7 @@ input[type="number"] {
     .stock-controls {
         margin-left: 0px;
         margin-right: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .stock-grid {
@@ -943,7 +957,7 @@ input[type="number"] {
     .stock-controls {
         margin-left: 0px;
         margin-right: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .stock-grid {
@@ -1210,10 +1224,3 @@ input[type="number"] {
     }
 }
 
-
-@media (min-width: 1441px) {
-
-    .card {
-        max-height: calc(80% - 120px);
-    }
-}

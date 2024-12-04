@@ -40,7 +40,8 @@ $sql = "SELECT orders.order_id, orders.order_date,
         FROM orders
         INNER JOIN order_items ON orders.order_id = order_items.order_id
         INNER JOIN products ON order_items.prod_id = products.prod_id
-        WHERE orders.login_id = ?";
+        WHERE orders.login_id = ?
+";
 
 if ($order_status !== 'all') {
     $sql .= " AND orders.order_status = ?";
@@ -48,19 +49,13 @@ if ($order_status !== 'all') {
 
 $sql .= " AND orders.order_status != 'Cancelled'
           GROUP BY orders.order_id, orders.order_date, orders.total_amount, orders.order_status
-          ORDER BY 
-            CASE 
-                WHEN orders.order_status = 'Pending' THEN 1
-                WHEN orders.order_status = 'Being Packed' THEN 2
-                WHEN orders.order_status = 'For Delivery' THEN 3
-                WHEN orders.order_status = 'Delivery Complete' THEN 4
-                ELSE 5
-            END ASC";
+                    ORDER BY orders.order_date DESC";  // Sort by most recent order date
+
 
 // Prepare the statement and bind parameters
 if ($order_status !== 'all') {
     $stmt = $mysqli->prepare($sql);
-    $stmt->bind_param("is", $login_id, $order_status); 
+    $stmt->bind_param("is", $login_id, $order_status);
 } else {
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("i", $login_id); // Only bind the login_id if status is "all"
@@ -73,20 +68,23 @@ $result = $stmt->get_result();
 if ($result) {
     $orders = $result->fetch_all(MYSQLI_ASSOC);
 
-    // Fetch details for each order as you already did
-    foreach ($orders as &$order) {
-        $sqlOrderDetails = "SELECT order_items.quantity, products.prod_name, products.prod_image_path, products.prod_brand, products.prod_price_wholesale 
-                            FROM order_items 
-                            INNER JOIN products ON order_items.prod_id = products.prod_id 
-                            WHERE order_items.order_id = ?";
-        $stmtOrderDetails = $mysqli->prepare($sqlOrderDetails);
-        $stmtOrderDetails->bind_param("i", $order['order_id']);
-        $stmtOrderDetails->execute();
-        $resultOrderDetails = $stmtOrderDetails->get_result();
-        $orderDetails = $resultOrderDetails->fetch_all(MYSQLI_ASSOC);
-        $order['details'] = $orderDetails;
-        $stmtOrderDetails->close();
-    }
+// Fetch details for each order
+foreach ($orders as &$order) { // Loop by reference
+    // Fetch details of individual order items
+    $sqlOrderDetails = "SELECT order_items.quantity, products.prod_name, products.prod_image_path, products.prod_brand, products.prod_price_wholesale 
+                        FROM order_items 
+                        INNER JOIN products ON order_items.prod_id = products.prod_id 
+                        WHERE order_items.order_id = ?";
+    $stmtOrderDetails = $mysqli->prepare($sqlOrderDetails);
+    $stmtOrderDetails->bind_param("i", $order['order_id']);
+    $stmtOrderDetails->execute();
+    $resultOrderDetails = $stmtOrderDetails->get_result();
+    $orderDetails = $resultOrderDetails->fetch_all(MYSQLI_ASSOC);
+    $order['details'] = $orderDetails; // Modify the original $orders array
+    $stmtOrderDetails->close();
+}
+unset($order); // Break reference to avoid accidental modifications
+
 } else {
     $orders = [];
 }
@@ -191,20 +189,15 @@ $mysqli->close();
                                                                     <img src="../../images/default-image.png" alt="Default Image">
                                                                 <?php endif; ?>
                                                             </td>
-
                                                             <td class="product-details">
                                                                 <div class="prod-name"><?php echo htmlspecialchars($firstItem['prod_name']); ?></div>
                                                                 <div class="prod-brand"><?php echo htmlspecialchars($firstItem['prod_brand']); ?></div>
                                                             </td>
-
-
                                                             <td class="product-price">
                                                                 <div class="total-price">₱ <?php echo number_format($firstItem['quantity'] * $firstItem['prod_price_wholesale'], 2); ?></div>
                                                                 <div class="prod-quantity">Qty: <?php echo htmlspecialchars($firstItem['quantity']); ?></div>
                                                             </td>
                                                         </tr>
-
-
                                                         <?php
                                                         $remainingItems = count($order['details']) - 1;
                                                         if ($remainingItems > 0): ?>
@@ -213,13 +206,9 @@ $mysqli->close();
                                                                     <div class="more-items">+ <?php echo $remainingItems; ?> more item<?php echo ($remainingItems > 1) ? 's' : ''; ?></div>
                                                                 </td>
                                                             </tr>
-
                                                         <?php endif; ?>
-
                                                     <?php endif; ?>
                                                 </tbody>
-
-
                                             </table>
 
                                             <div class="order-detail">
@@ -236,7 +225,6 @@ $mysqli->close();
                                                     <span class="arrow">&#x2192;</span>
                                                 </a>
                                             </div>
-
                                         </div>
                                     </div>
                                 </a>

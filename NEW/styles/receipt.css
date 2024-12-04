@@ -270,6 +270,14 @@ p.footer-note1 {
     cursor: pointer;
 }
 
+
+span.branch-name {
+    font-weight: 600;
+    margin: 5px 12px;
+    position: absolute;
+}
+
+
 @media print {
     body * {
         visibility: hidden;

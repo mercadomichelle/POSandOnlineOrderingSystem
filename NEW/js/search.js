@@ -23,7 +23,6 @@ const noProductFound = document.getElementById('noProductFound');
                 card.style.display = 'none';
             }
         });
-
         noProductFound.style.display = anyCardVisible ? 'none' : 'block';
     });
 

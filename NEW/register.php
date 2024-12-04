@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $mysqli->close();
-    header("Location: ../login.php");  
+    header("Location: login.php");  
     exit();
 }
 ?>

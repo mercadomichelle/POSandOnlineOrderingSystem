@@ -65,24 +65,23 @@ if ($username) {
                     <a href="customer/about_us.php" id="about-link">ABOUT US</a>
                 <?php endif; ?>
             </nav>
-
         </div>
+        
         <div class="account-info">
             <?php if (isset($_SESSION["username"])): ?>
-                <!-- Show user name and logout option if logged in -->
                 <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
                 <div class="dropdown">
-                    <img src="../images/account-icon.png" alt="Account" class="account-icon">
+                    <img src="images/account-icon.png" alt="Account" class="account-icon">
                     <div class="dropdown-content">
                         <a href="my_profile.php">My Profile</a>
-                        <a href="../logout.php">Logout</a>
+                        <a href="logout.php">Logout</a>
                     </div>
                 </div>
             <?php else: ?>
                 <!-- Show login button if not logged in -->
                 <div class="login-btn">
-                    <a class="user-name" href="../login.php">Login</a>
-                    <img src="../images/account-icon.png" alt="Account" class="account-icon">
+                    <a class="user-name" href="login.php">Login</a>
+                    <img src="images/account-icon.png" alt="Account" class="account-icon">
                 </div>
             <?php endif; ?>
         </div>
@@ -93,13 +92,13 @@ if ($username) {
             <div class="highlight-text">
                 <h1><span class="highlights">Always</span> <span class="highlight-white">brings you the</span> <span class="highlights">Best!</span></h1>
                 <p>Explore the finest grains from diverse corners of the globe, making every meal a delicious adventure with our exceptional rice selection.</p>
-                <a href="../customer/cust_products.php">
+                <a href="customer/cust_products.php">
                     <button class="browse-btn">BROWSE NOW!</button>
                 </a>
             </div>
 
             <div class="highlight-image">
-                <img src="../images/rice-bag.png" alt="Rice Bag">
+                <img src="images/rice-bag.png" alt="Rice Bag">
             </div>
         </section>
     </main>
@@ -108,7 +107,7 @@ if ($username) {
         <div class="contact-info">
             <!-- Email Icon with Custom Modal -->
             <div class="contact-item">
-                <img src="../images/message-icon.png" alt="Message Icon" onclick="openEmailModal()">
+                <img src="images/message-icon.png" alt="Message Icon" onclick="openEmailModal()">
                 <div class="contact-text">
                     <p>Email Us</p>
                     <p class="contact">escalona-delen@email.com</p>
@@ -117,7 +116,7 @@ if ($username) {
             <div class="divider"></div>
             <!-- Phone Icon with Custom Modal -->
             <div class="contact-item">
-                <img src="../images/contact-icon.png" alt="Contact Icon" onclick="openPhoneModal()">
+                <img src="images/contact-icon.png" alt="Contact Icon" onclick="openPhoneModal()">
                 <div class="contact-text">
                     <p>Contact Us</p>
                     <p class="contact">(63) 912-345-6789</p>
@@ -126,7 +125,7 @@ if ($username) {
             <div class="divider"></div>
             <!-- Map Icon -->
             <div class="contact-item">
-                <img src="../images/visit-icon.png" alt="Visit Icon" onclick="openMapModal()">
+                <img src="images/visit-icon.png" alt="Visit Icon" onclick="openMapModal()">
                 <div class="contact-text">
                     <p>Visit Us</p>
                     <p class="contact">Pastor Road, Cuta, Batangas City<br>Main Branch</p>

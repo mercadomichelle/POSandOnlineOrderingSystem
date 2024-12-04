@@ -60,7 +60,7 @@ if ($result->num_rows === 1) {
             // Insert the new product into the cart with the price type as wholesale
             $sql = "INSERT INTO cart (login_id, prod_id, quantity, price, price_type, user_type) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("iiidsi", $login_id, $prod_id, $quantity, $price, $price_type, $user_type);
+            $stmt->bind_param("iiidss", $login_id, $prod_id, $quantity, $price, $price_type, $user_type);
             $stmt->execute();
         } else {
             echo "Product not found for ID: $prod_id";

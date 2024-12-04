@@ -1,15 +1,19 @@
 <?php
 session_start();
-
 include('../../connection.php');
+include('../../notifications.php');
 
+// Ensure the user is logged in
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
 }
 
 $username = $_SESSION["username"];
-$sql = "SELECT first_name, last_name FROM login WHERE username = ?";
+$branch_id = $_SESSION['branch_id'];
+
+// Fetch user data and branch_id
+$sql = "SELECT first_name, last_name, branch_id FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,43 +23,38 @@ if ($result->num_rows === 1) {
     $userData = $result->fetch_assoc();
     $_SESSION["first_name"] = $userData['first_name'];
     $_SESSION["last_name"] = $userData['last_name'];
+    $_SESSION["branch_id"] = $userData['branch_id'];  // Store branch_id in session
 } else {
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
+    $_SESSION["branch_id"] = null;
 }
 
 
-$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
-        FROM products p 
-        LEFT JOIN stocks s ON p.prod_id = s.prod_id
-        ORDER BY s.stock_quantity ASC";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $prod_id = $_POST['prod_id'];
+    $quantity = $_POST['stock_quantity'];
 
-$result = $mysqli->query($sql);
+    // Insert new stock record directly for the user's branch
+    $sql = "INSERT INTO stocks (prod_id, branch_id, stock_quantity) VALUES (?, ?, ?)";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("iii", $prod_id, $branch_id, $quantity);  // Use session's branch_id here
+    $stmt->execute();
 
-$stocks = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $row['stock_quantity'] = max(0, $row['stock_quantity']);
-        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
-        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
-        $stocks[] = $row;
+    if ($stmt->affected_rows > 0) {
+        $_SESSION['successMessage'] = "Stock added successfully!";
+    } else {
+        $_SESSION['errorMessage'] = "Error: Unable to add stock.";
     }
-} else {
-    echo "No stocks found.";
+
+    $stmt->close();
+    $mysqli->close();
+
+    // Redirect to stocks page without passing branch_id in the URL
+    header("Location: staff_stocks.php");
+    exit();
 }
 
-$lowStockNotifications = [];
-$outOfStockNotifications = [];
-
-foreach ($stocks as $stock) {
-    if ($stock['is_low_stock']) {
-        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
-    } elseif ($stock['is_out_of_stock']) {
-        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
-    }
-}
-
-$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
 
 $successMessage = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : null;
 $errorMessage = isset($_SESSION['errorMessage']) ? $_SESSION['errorMessage'] : null;
@@ -80,7 +79,11 @@ $mysqli->close();
 
 <body>
     <header>
-        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
+        <div>
+            <img src="../../favicon.png" alt="Logo" class="logo">
+            <span class="branch-name"><?php echo htmlspecialchars(string: $_SESSION["branch_name"] . " Branch"); ?></span>
+        </div>
+
         <div class="account-info">
             <div class="dropdown notifications-dropdown">
                 <img src="../../images/notif-icon.png" alt="Notifications" class="notification-icon">
@@ -129,6 +132,7 @@ $mysqli->close();
                 </div>
             </div>
 
+            
             <div class="card">
                 <div class="stock-grid">
                     <?php foreach ($stocks as $stock): ?>
@@ -136,9 +140,9 @@ $mysqli->close();
                             <img src="<?php echo $stock['prod_image_path']; ?>" alt="<?php echo htmlspecialchars($stock['prod_name']); ?>">
                             <h4><?php echo htmlspecialchars($stock['prod_brand']); ?></h4>
                             <p><?php echo htmlspecialchars($stock['prod_name']); ?></p>
-                            <?php if ($stock['is_out_of_stock']): ?>
+                            <?php if ($stock['stock_quantity'] == 0): ?>
                                 <div class="stock-notification out-of-stock">OUT OF STOCK</div>
-                            <?php elseif ($stock['is_low_stock']): ?>
+                            <?php elseif ($stock['stock_quantity'] < 10): ?>
                                 <div class="stock-notification low-stock">LOW STOCK</div>
                             <?php else: ?>
                                 <div class="stock-notification in-stock">IN STOCK</div>
@@ -152,7 +156,6 @@ $mysqli->close();
                                     Add Stock
                                 </button>
                             </div>
-
                         </div>
                     <?php endforeach; ?>
                 </div>

@@ -89,7 +89,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 <body>
     <header>
-        <div class="logo">RICE</div>
+        <div><img src="../../favicon.png" alt="Logo" class="logo"></div>
         <div class="nav-wrapper">
             <nav>
                 <a href="../../customer/customer.php">HOME</a>
@@ -189,12 +189,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-
-                    <div>
-                        <input type="checkbox" name="request_invoice" id="request_invoice">
-                        <label for="request_invoice">Request Invoice</label>
                     </div>
 
                 </div>

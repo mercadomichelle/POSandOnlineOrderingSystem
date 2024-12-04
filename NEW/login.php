@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include("connection.php"); 
+include("connection.php");
 
 $formSubmitted = false;
 $errorMessage = "";
@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST["password"]);
 
     $sql = "SELECT * FROM login WHERE username=?";
-    $stmt = $mysqli->prepare($sql); 
+    $stmt = $mysqli->prepare($sql);
     if ($stmt) {
         $stmt->bind_param("s", $username);
         $stmt->execute();
@@ -59,7 +59,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$mysqli->close();
+if ($mysqli) {
+    $mysqli->close();
+}
 ?>
 
 
@@ -72,7 +74,7 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <link rel="icon" href="favicon.png" type="image/png">
-    <link rel="stylesheet" href="../styles/login.css">
+    <link rel="stylesheet" href="styles/login.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -80,8 +82,9 @@ $mysqli->close();
 
 <body>
     <header>
-        <div onclick="location.href='index.php';" style="cursor:pointer;">            
-        <img src="../../favicon.png" alt="Logo" class="logo"></div>
+        <div onclick="location.href='index.php';" style="cursor:pointer;">
+            <img src="favicon.png" alt="Logo" class="logo">
+        </div>
     </header>
 
     <div class="login-container">
@@ -104,33 +107,13 @@ $mysqli->close();
                             <span id="loginPasswordToggle" class="password-toggle"><i class="fa fa-eye"></i></span>
                         </div>
                     </div>
-                    <div class="form-options">
-                        <label class="remember-checkbox">
-                            <input type="checkbox">
-                        </label>
-                        <span class="remember-text">Remember me</span>
-                        <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot Password?</a>
-                    </div>
+
                 </div>
                 <div class="form-submit">
-                    <button type="submit" class="submit-button">Login</button>
+                    <button type="submit" class="submit-button-log">Login</button>
                 </div>
             </form>
         </div>
-
-        <!-- FORGOT PASS DIALOG -->
-        <!-- <div id="forgotPasswordModal" class="modal" style="display: none;">
-            <div class="modal-content">
-                <span class="close" id="closeForgotPasswordModal">&times;</span>
-                <h2>Reset Password</h2>
-                <form id="forgotPasswordForm" action="forgot_password.php" method="POST">
-                    <label for="email">Enter your email address:</label>
-                    <input type="email" name="email" id="resetEmail" required>
-                    <button type="submit">Send Reset Link</button>
-                </form>
-                <p id="resetMessage"></p>
-            </div>
-        </div> -->
 
         <div id="registerForm" class="register-form" style="display:none;">
             <h3 class="welcome-message">Register to Escalona-Delen <br> Rice Dealer Website!</h3>
@@ -138,6 +121,7 @@ $mysqli->close();
                 <button id="loginBtn2" class="login-button">Login</button>
                 <button id="registerBtn2" class="register-button active">Register</button>
             </div>
+
             <form action="register.php" method="POST">
                 <div class="form-fields">
                     <div class="form-group-wrapper">
@@ -153,32 +137,42 @@ $mysqli->close();
                     <div class="form-group">
                         <label class="form-label">Username</label>
                         <input type="text" name="username" class="form-input" placeholder="Enter your username" required>
+                        <span id="usernameMessage" style="color: red; display: none;">Username is already taken</span>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" style="position: relative;">
                         <label class="form-label">Password</label>
-                        <div class="password-container">
-                            <input type="password" name="password" class="form-input" id="registerPasswordField" placeholder="Enter your password" required>
-                            <span id="registerPasswordToggle" class="password-toggle"><i class="fa fa-eye"></i></span>
-                        </div>
 
-                        <div class="password-requirements" style="display: none;">
-                            <p>Password must include:</p>
+                        <div class="password-container">
+                            <input
+                                type="password"
+                                name="password"
+                                class="form-input"
+                                id="registerPasswordField"
+                                placeholder="Enter your password"
+                                required />
+                            <span id="registerPasswordToggle" class="password-toggle">
+                                <i class="fa fa-eye"></i>
+                            </span>
+                        </div>
+                        <div class="password-requirements">
+                            <p>Password must contain:</p>
                             <ul>
-                                <li class="uppercase">An uppercase letter</li>
-                                <li class="lowercase">A lowercase letter</li>
-                                <li class="special">A special character</li>
-                                <li class="number">A number</li>
-                                <li class="eightmin">At least 8 characters</li>
+                                <li class="uppercase unmet">At least 1 upper case letter</li>
+                                <li class="lowercase unmet">At least 1 lower case letter</li>
+                                <li class="special unmet">At least 1 special character</li>
+                                <li class="number unmet">At least 1 number</li>
+                                <li class="eightmin unmet">Minimum of 8 characters</li>
                             </ul>
                         </div>
-
                     </div>
+
                     <div class="form-group">
                         <label class="form-label">Confirm Password</label>
                         <div class="password-container">
                             <input type="password" name="confirm_password" class="form-input" id="confirmPasswordField" placeholder="Confirm your password" required>
                             <span id="confirmPasswordToggle" class="password-toggle"><i class="fa fa-eye"></i></span>
                         </div>
+                        <span id="passwordMatchMessage" class="password-match-message" style="display: none;"></span>
                     </div>
                 </div>
                 <div class="form-submit">
@@ -330,123 +324,125 @@ $mysqli->close();
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-    const registerPasswordField = document.getElementById('registerPasswordField');
-    const confirmPasswordField = document.getElementById('confirmPasswordField');
-    const passwordRequirements = document.querySelector('.password-requirements');
-    const requirements = {
-        uppercase: /[A-Z]/,
-        lowercase: /[a-z]/,
-        special: /[!@#$%^&*(),.?":{}|<>]/,
-        number: /[0-9]/,
-        eightmin: /.{8,}/,
-    };
+            const registerPasswordField = document.getElementById('registerPasswordField');
+            const confirmPasswordField = document.getElementById('confirmPasswordField');
+            const passwordMatchMessage = document.getElementById('passwordMatchMessage');
+            const passwordRequirements = document.querySelector('.password-requirements');
+            const registerButton = document.querySelector('.submit-button'); // Assuming this is your register button
+            const requirements = {
+                uppercase: /[A-Z]/,
+                lowercase: /[a-z]/,
+                special: /[!@#$%^&*(),.?":{}|<>]/,
+                number: /[0-9]/,
+                eightmin: /.{8,}/,
+            };
 
-    const updatePasswordRequirements = () => {
-        const value = registerPasswordField.value;
-        const requirementItems = document.querySelectorAll('.password-requirements li');
+            // Function to update password requirements
+            const updatePasswordRequirements = () => {
+                const value = registerPasswordField.value;
+                const requirementItems = document.querySelectorAll('.password-requirements li');
 
-        // Check uppercase
-        if (requirements.uppercase.test(value)) {
-            requirementItems[0].classList.add('met');
-            requirementItems[0].classList.remove('unmet');
-        } else {
-            requirementItems[0].classList.add('unmet');
-            requirementItems[0].classList.remove('met');
-        }
+                Object.keys(requirements).forEach((key, index) => {
+                    if (requirements[key].test(value)) {
+                        requirementItems[index].classList.add('met');
+                        requirementItems[index].classList.remove('unmet');
+                    } else {
+                        requirementItems[index].classList.add('unmet');
+                        requirementItems[index].classList.remove('met');
+                    }
+                });
+            };
 
-        // Check lowercase
-        if (requirements.lowercase.test(value)) {
-            requirementItems[1].classList.add('met');
-            requirementItems[1].classList.remove('unmet');
-        } else {
-            requirementItems[1].classList.add('unmet');
-            requirementItems[1].classList.remove('met');
-        }
+            // Show password requirements when focusing on the Password field
+            registerPasswordField.addEventListener('focus', () => {
+                passwordRequirements.style.display = 'block';
+            });
 
-        // Check special character
-        if (requirements.special.test(value)) {
-            requirementItems[2].classList.add('met');
-            requirementItems[2].classList.remove('unmet');
-        } else {
-            requirementItems[2].classList.add('unmet');
-            requirementItems[2].classList.remove('met');
-        }
+            // Hide password requirements when clicking outside password fields (except Confirm Password and Register Password)
+            document.addEventListener('click', (event) => {
+                if (
+                    event.target !== registerPasswordField &&
+                    event.target !== confirmPasswordField &&
+                    !passwordRequirements.contains(event.target)
+                ) {
+                    passwordRequirements.style.display = 'none';
+                }
+            });
 
-        // Check number
-        if (requirements.number.test(value)) {
-            requirementItems[3].classList.add('met');
-            requirementItems[3].classList.remove('unmet');
-        } else {
-            requirementItems[3].classList.add('unmet');
-            requirementItems[3].classList.remove('met');
-        }
+            // Update password requirements as user types in the Password field
+            registerPasswordField.addEventListener('input', updatePasswordRequirements);
 
-        // Check minimum length
-        if (requirements.eightmin.test(value)) {
-            requirementItems[4].classList.add('met');
-            requirementItems[4].classList.remove('unmet');
-        } else {
-            requirementItems[4].classList.add('unmet');
-            requirementItems[4].classList.remove('met');
-        }
-    };
+            // Function to check if passwords meet the requirements and match
+            const checkPasswordMatch = () => {
+                const passwordValue = registerPasswordField.value;
+                const confirmPasswordValue = confirmPasswordField.value;
 
-    // Show password requirements when focusing on the password field
-    registerPasswordField.addEventListener('focus', () => {
-        passwordRequirements.style.display = 'block';
-    });
+                // Check if password meets all requirements and confirm passwords match
+                const isPasswordValid = passwordValue.length >= 8 &&
+                    requirements.uppercase.test(passwordValue) &&
+                    requirements.lowercase.test(passwordValue) &&
+                    requirements.special.test(passwordValue) &&
+                    requirements.number.test(passwordValue);
 
-    // Hide password requirements when losing focus (only if not typing)
-    registerPasswordField.addEventListener('blur', () => {
-        if (registerPasswordField.value === '') {
-            passwordRequirements.style.display = 'none';
-        }
-    });
+                if (isPasswordValid) {
+                    if (passwordValue === confirmPasswordValue) {
+                        passwordMatchMessage.textContent = 'Password Match';
+                        passwordMatchMessage.style.display = 'inline';
+                        passwordMatchMessage.classList.remove('error');
+                        registerButton.disabled = false; // Enable the button when passwords match and are valid
+                    } else {
+                        passwordMatchMessage.textContent = 'Passwords do not match';
+                        passwordMatchMessage.style.display = 'inline';
+                        passwordMatchMessage.classList.add('error');
+                        registerButton.disabled = true; // Disable the button if passwords don't match
+                    }
+                } else {
+                    passwordMatchMessage.style.display = 'none'; // Hide the message if password doesn't meet requirements
+                    registerButton.disabled = true; // Disable the button if password is invalid
+                }
+            };
 
-    registerPasswordField.addEventListener('input', updatePasswordRequirements);
+            // Ensure that the message shows even when the user clicks outside or focuses on other fields
+            confirmPasswordField.addEventListener('input', checkPasswordMatch);
 
-    confirmPasswordField.addEventListener('input', () => {
-        if (confirmPasswordField.value === registerPasswordField.value) {
-            confirmPasswordField.classList.remove('error');
-        } else {
-            confirmPasswordField.classList.add('error');
-        }
-    });
+            // Always show the password match message while typing in the Confirm Password field
+            confirmPasswordField.addEventListener('focus', () => {
+                if (registerPasswordField.value && confirmPasswordField.value) {
+                    checkPasswordMatch(); // Recheck on focus to update message if necessary
+                }
+            });
 
-    const registrationForm = document.querySelector('form[action="register.php"]');
-    registrationForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent immediate form submission
+            // Optionally hide the message when the Confirm Password field loses focus
+            confirmPasswordField.addEventListener('blur', () => {
+                checkPasswordMatch(); // Ensure message remains visible on blur
+            });
 
-        showLoadingScreen(); // Show loading screen
+            registerButton.disabled = true;
 
-        const password = registerPasswordField.value;
-        const confirmPassword = confirmPasswordField.value;
-        let allMet = true;
-
-        // Validate password requirements after loading screen
-        Object.keys(requirements).forEach((key) => {
-            if (!requirements[key].test(password)) {
-                allMet = false;
-            }
         });
 
-        if (!allMet) {
-            hideLoadingScreen(); // Hide loading screen when validation fails
-            event.preventDefault(); // Prevent form submission
+        document.querySelector('input[name="username"]').addEventListener('input', function() {
+            let username = this.value;
 
-            // Display a detailed error message in the error modal
-            const errorModal = document.getElementById('errorModal');
-            const errorMessage = errorModal.querySelector('p');
-            errorMessage.innerHTML = "<strong>ERROR:</strong> <br> Please ensure your password meets all requirements.";
+            // Show message only if the username is not empty
+            const usernameMessage = document.getElementById('usernameMessage');
 
-            errorModal.style.display = 'block';
-        } else {
-            // If all requirements are met, submit the form
-            registrationForm.submit();
-        }
-    });
-});
-
+            if (username.length > 0) {
+                // Make an AJAX call to check if username exists
+                fetch('check_username.php?username=' + username)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.exists) {
+                            usernameMessage.style.display = 'inline'; // Show message if username exists
+                        } else {
+                            usernameMessage.style.display = 'none'; // Hide message if username is available
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                usernameMessage.style.display = 'none'; // Hide message if username is empty
+            }
+        });
     </script>
 
 </body>

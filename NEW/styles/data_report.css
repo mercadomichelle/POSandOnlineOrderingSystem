@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+
+h2 {
+    color: #e1be42e3;
+    text-align: center;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #78797b;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+a:hover {
+    background-color: #333;
+}
+
+.sorting-container select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#monthSelector, #weekSelector, #yearSelector {
+    margin-right: 8px;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #e1be42e3;
+    color: white;
+    text-align: center;
+}
+
+td {
+    background-color: #f8f9fa;
+}
+
+td:nth-child(even) {
+    background-color: #e9ecef;
+}
+
+tr:hover td {
+    background-color: #f1f1f1;
+}
+
+.amount-column {
+    text-align: center;
+}
+
+.order-date-column {
+    text-align: center;
+}

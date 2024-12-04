@@ -1,4 +1,8 @@
 <?php
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Pragma: no-cache');
+header('Expires: 0');
+
 session_start();
 
 include('../../connection.php');
@@ -80,10 +84,12 @@ try {
 
     // Clear cart session data
     unset($_SESSION['cart']);
-
+    
     // Redirect to a success page with a message
     $_SESSION['success_message'] = "Your order has been placed successfully!";
-    header("Location: ../cust_products.php");
+    header("Location: summary.php");
+    session_write_close();  // Ensure the session is written and closed
+
     exit();
 } catch (Exception $e) {
     // Rollback transaction on error

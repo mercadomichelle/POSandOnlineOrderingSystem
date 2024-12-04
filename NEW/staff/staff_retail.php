@@ -1,17 +1,22 @@
 <?php
 session_start();
-
 include('../connection.php');
+include('../notifications.php');
 
+// Ensure the user is logged in
 if (!isset($_SESSION["username"])) {
     header("Location: ../login.php");
     exit();
 }
 
 $username = $_SESSION["username"];
+$branch_id = $_SESSION['branch_id'];
 
-// Fetch user details
-$sql = "SELECT id, first_name, last_name FROM login WHERE username = ?";
+// Fetch user data, including branch_id and branch_name
+$sql = "SELECT login.first_name, login.last_name, login.branch_id, branches.branch_name 
+        FROM login 
+        JOIN branches ON login.branch_id = branches.branch_id
+        WHERE login.username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,20 +24,29 @@ $result = $stmt->get_result();
 
 if ($result->num_rows === 1) {
     $userData = $result->fetch_assoc();
-    $_SESSION["login_id"] = $userData['id'];
     $_SESSION["first_name"] = $userData['first_name'];
     $_SESSION["last_name"] = $userData['last_name'];
+    $_SESSION["branch_id"] = $userData['branch_id'];
+    $_SESSION["branch_name"] = $userData['branch_name']; // Store branch name in session
 } else {
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
+    $_SESSION["branch_id"] = null;
+    $_SESSION["branch_name"] = "Unknown"; // Set default branch name if not found
 }
+
 
 // Fetch products
 $sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, 
                products.prod_price_wholesale, products.prod_price_retail, 
-               products.prod_image_path, stocks.stock_quantity 
+               products.prod_image_path, COALESCE(SUM(stocks.stock_quantity), 0) AS stock_quantity
         FROM products 
-        JOIN stocks ON products.prod_id = stocks.prod_id";
+        JOIN stocks ON products.prod_id = stocks.prod_id
+        GROUP BY 
+            products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale, 
+            products.prod_price_retail, products.prod_image_path
+        ORDER BY 
+            prod_name ASC";
 $result = $mysqli->query($sql);
 
 $_SESSION['prod_price'] = 'retail';
@@ -121,40 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
     exit();
 }
 
-// STOCKS NOTIFICATIONS
-$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
-        FROM products p 
-        LEFT JOIN stocks s ON p.prod_id = s.prod_id
-        ORDER BY s.stock_quantity ASC";
-
-$result = $mysqli->query($sql);
-
-$stocks = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $row['stock_quantity'] = max(0, $row['stock_quantity']);
-        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
-        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
-        $stocks[] = $row;
-    }
-} else {
-    echo "No stocks found.";
-}
-
-$lowStockNotifications = [];
-$outOfStockNotifications = [];
-
-foreach ($stocks as $stock) {
-    if ($stock['is_low_stock']) {
-        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
-    } elseif ($stock['is_out_of_stock']) {
-        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
-    }
-}
-
-$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
-
 // Fetch cart items
 $login_id = $_SESSION['login_id'];
 
@@ -221,9 +201,12 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
 <body>
     <header>
-        <div><img src="../favicon.png" alt="Logo" class="logo"></div>
-        <div class="account-info">
+        <div>
+            <img src="../favicon.png" alt="Logo" class="logo">
+            <span class="branch-name"><?php echo htmlspecialchars(string: $_SESSION["branch_name"] . " Branch"); ?></span>
+        </div>
 
+        <div class="account-info">
             <div class="dropdown notifications-dropdown">
                 <img src="../images/notif-icon.png" alt="Notifications" class="notification-icon">
                 <div class="dropdown-content" id="notificationDropdown">
@@ -292,19 +275,21 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             <img src="<?php echo htmlspecialchars($product['prod_image_path']); ?>" alt="<?php echo htmlspecialchars($product['prod_name']); ?>">
                             <h4><?php echo htmlspecialchars($product['prod_brand']); ?></h4>
                             <p><?php echo htmlspecialchars($product['prod_name']); ?></p>
-                            <h3>
-                                ₱
+                                                            <input type="hidden" name="source" value="retail">
+<h3>
+    ₱
                                 <?php
                                 if (isset($_POST['price_type']) && $_POST['price_type'] === 'wholesale') {
                                     $price = $product['prod_price_wholesale'];
                                 } else {
                                     $price = $product['prod_price_retail'];
                                 }
+
                                 echo number_format($price, 2);
                                 ?>
-                                / sack
+                                / kilo
                             </h3>
-                            
+
                             <form class="product-actions" method="POST" action="function/add_to_cart.php">
                                 <input type="hidden" name="source" value="retail">
                                 <input type="hidden" name="prod_id" value="<?php echo htmlspecialchars($product['prod_id']); ?>">
@@ -347,7 +332,8 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                                             <?php echo htmlspecialchars($item['name']); ?>
                                         </span>
                                         <span class="item-price-per-unit">
-                                            ₱<?php echo number_format($item['price'], 2); ?> / sack
+                                            ₱<?php echo number_format($item['price'], 2); ?>
+                                            <?php echo ($item['price_type'] === 'wholesale') ? '/ sack' : '/ kilo'; ?>
                                         </span>
                                     </div>
                                     <div class="cart-item-controls">
@@ -434,34 +420,34 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 });
 
                 document.addEventListener('DOMContentLoaded', function() {
-    var cartSummary = document.querySelector('.cart-summary');
-    var toggleButton = document.querySelector('.toggle-cart');
+                    var cartSummary = document.querySelector('.cart-summary');
+                    var toggleButton = document.querySelector('.toggle-cart');
 
-    // Minimize cart if in mobile mode
-    if (window.innerWidth <= 640) {
-        cartSummary.classList.add('minimized');
-        toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for minimized cart
-    }
+                    // Minimize cart if in mobile mode
+                    if (window.innerWidth <= 999) {
+                        cartSummary.classList.add('minimized');
+                        toggleButton.innerHTML = '⏶'; // Set icon to "Expand" for minimized cart
+                    }
 
-    // Toggle cart function to handle minimizing and expanding
-    function toggleCart() {
-        cartSummary.classList.toggle('minimized');
-        toggleButton.innerHTML = cartSummary.classList.contains('minimized') ? '⏶' : '⏷';
-    }
+                    // Toggle cart function to handle minimizing and expanding
+                    function toggleCart() {
+                        cartSummary.classList.toggle('minimized');
+                        toggleButton.innerHTML = cartSummary.classList.contains('minimized') ? '⏶' : '⏷';
+                    }
 
-    // Attach the toggle function to the button
-    toggleButton.addEventListener('click', toggleCart);
+                    // Attach the toggle function to the button
+                    toggleButton.addEventListener('click', toggleCart);
 
-    // Ensure cart expands on larger screens if resized
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 640) {
-            cartSummary.classList.remove('minimized');
-            toggleButton.style.display = 'none'; // Hide toggle button on desktop
-        } else {
-            toggleButton.style.display = 'inline'; // Show toggle button on mobile
-        }
-    });
-});
+                    // Ensure cart expands on larger screens if resized
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth > 999) {
+                            cartSummary.classList.remove('minimized');
+                            toggleButton.style.display = 'none'; // Hide toggle button on desktop
+                        } else {
+                            toggleButton.style.display = 'inline'; // Show toggle button on mobile
+                        }
+                    });
+                });
 
                 document.addEventListener('DOMContentLoaded', function() {
                     const checkoutButton = document.querySelector('.checkout-btn');
@@ -669,8 +655,6 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                         }
                     });
                 });
-
-
 
                 // Handle the wholesale button click
                 document.getElementById('wholesaleBtn').onclick = function() {

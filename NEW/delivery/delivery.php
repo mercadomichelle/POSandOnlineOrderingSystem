@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 session_start();
 
 include('../connection.php');
@@ -112,8 +115,14 @@ $mysqli->close();
                                         <span class="badge"><?php echo htmlspecialchars($order['order_status']); ?></span>
                                     </td>
                                     <td class="actions">
-                                      
-                                        <a class="btn-view" href="address_details.php?order_id=<?php echo htmlspecialchars($order['order_id']); ?>&address=<?php echo urlencode($order['address']); ?>&city=<?php echo urlencode($order['city']); ?>&zip_code=<?php echo urlencode($order['zip_code']); ?>&latitude=<?php echo urlencode($order['latitude']); ?>&longitude=<?php echo urlencode($order['longitude']); ?>">View Address</a>
+                                        <a class="btn-view" href="address_details.php?order_id=<?php echo htmlspecialchars($order['order_id']); ?>
+                                            &address=<?php echo urlencode($order['address'] ?? 'N/A'); ?>
+                                            &city=<?php echo urlencode($order['city'] ?? 'N/A'); ?>
+                                            &zip_code=<?php echo urlencode($order['zip_code'] ?? 'N/A'); ?>
+                                            &latitude=<?php echo urlencode($order['latitude'] ?? '0'); ?>
+                                            &longitude=<?php echo urlencode($order['longitude'] ?? '0'); ?>">
+                                            View Address
+                                        </a>                                   
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

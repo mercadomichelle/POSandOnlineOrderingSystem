@@ -86,7 +86,7 @@ while ($row = $result->fetch_assoc()) {
     ];
 }
 
-$deliveryFee = 150.00; // Set your delivery fee here
+$deliveryFee = 100.00;
 
 // Calculate total using both subtotals
 $total = $orderSubTotal + $cartSubTotal + $deliveryFee;
@@ -153,9 +153,7 @@ $mysqli->close();
                         <em>Date not available</em>
                     <?php endif; ?>
                 </p>
-
             </div>
-
 
             <div class="cart">
                 <div class="summary">
@@ -184,6 +182,12 @@ $mysqli->close();
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+
+                    <div class="delivery-fee">
+                        <span>Delivery Fee</span>
+                        <span>₱ <?php echo number_format($deliveryFee, 2); ?></span>
+                    </div>
+
                     <div class="total">
                         <span>TOTAL</span>
                         <span>₱ <?php echo number_format($total, 2); ?></span>
@@ -196,49 +200,51 @@ $mysqli->close();
                     <h5><img src="../../images/order-status-icon.png" alt="Status" class="status-icon" style="width: 35px; height: 35px; margin: 5px;">ORDER STATUS</h5>
 
                     <div class="order-timeline">
-                        <div class="order-timeline-item">
-                            <div class="order-timeline-date">
-                                <?php echo !empty($orderTimestamps['status_packed_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_packed_at']))) : 'Pending'; ?>
-                            </div>
-                            <div class="order-timeline-circle <?php echo !empty($orderTimestamps['status_packed_at']) ? 'packed' : ''; ?>"></div>
-                            <div class="order-timeline-icon">
-                                <img src="../../images/processed-icon.png" alt="Processed" class="icon">
-                            </div>
-                            <div class="order-timeline-status">Order has been processed</div>
-                        </div>
+                    <div class="order-timeline-item">
+    <div class="order-timeline-date <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">
+        <?php echo !empty($orderTimestamps['status_packed_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_packed_at']))) : 'Pending'; ?>
+    </div>
+    <div class="order-timeline-circle <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>"></div>
+    <div class="order-timeline-icon">
+        <img src="../../images/processed-icon.png" alt="Processed" class="<?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">
+    </div>
+    <div class="order-timeline-status <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">Order has been processed</div>
+</div>
 
-                        <div class="order-timeline-item">
-                            <div class="order-timeline-date">
-                                <?php echo !empty($orderTimestamps['status_packed_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_packed_at']))) : 'Pending'; ?>
-                            </div>
-                            <div class="order-timeline-circle <?php echo !empty($orderTimestamps['status_packed_at']) ? 'packed' : ''; ?>"></div>
-                            <div class="order-timeline-icon">
-                                <img src="../../images/packed-icon.png" alt="Packed" class="icon">
-                            </div>
-                            <div class="order-timeline-status">Order has been packed</div>
-                        </div>
+<div class="order-timeline-item">
+    <div class="order-timeline-date <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">
+        <?php echo !empty($orderTimestamps['status_packed_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_packed_at']))) : 'Pending'; ?>
+    </div>
+    <div class="order-timeline-circle <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>"></div>
+    <div class="order-timeline-icon">
+        <img src="../../images/packed-icon.png" alt="Packed" class="<?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">
+    </div>
+    <div class="order-timeline-status <?php echo empty($orderTimestamps['status_packed_at']) ? 'pending' : 'not-pending'; ?>">Order has been packed</div>
+</div>
 
-                        <div class="order-timeline-item">
-                            <div class="order-timeline-date">
-                                <?php echo !empty($orderTimestamps['status_shipped_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_shipped_at']))) : 'Pending'; ?>
-                            </div>
-                            <div class="order-timeline-circle <?php echo !empty($orderTimestamps['status_shipped_at']) ? 'shipped' : ''; ?>"></div>
-                            <div class="order-timeline-icon">
-                                <img src="../../images/shipped-icon.png" alt="Shipped" class="icon">
-                            </div>
-                            <div class="order-timeline-status">Order has been shipped</div>
-                        </div>
+<div class="order-timeline-item">
+    <div class="order-timeline-date <?php echo empty($orderTimestamps['status_shipped_at']) ? 'pending' : 'not-pending'; ?>">
+        <?php echo !empty($orderTimestamps['status_shipped_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_shipped_at']))) : 'Pending'; ?>
+    </div>
+    <div class="order-timeline-circle <?php echo empty($orderTimestamps['status_shipped_at']) ? 'pending' : 'not-pending'; ?>"></div>
+    <div class="order-timeline-icon">
+        <img src="../../images/shipped-icon.png" alt="Shipped" class="<?php echo empty($orderTimestamps['status_shipped_at']) ? 'pending' : 'not-pending'; ?>">
+    </div>
+    <div class="order-timeline-status <?php echo empty($orderTimestamps['status_shipped_at']) ? 'pending' : 'not-pending'; ?>">Order has been shipped</div>
+</div>
 
-                        <div class="order-timeline-item">
-                            <div class="order-timeline-date">
-                                <?php echo !empty($orderTimestamps['status_delivered_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_delivered_at']))) : 'Pending'; ?>
-                            </div>
-                            <div class="order-timeline-circle <?php echo !empty($orderTimestamps['status_delivered_at']) ? 'delivered' : ''; ?>"></div>
-                            <div class="order-timeline-icon">
-                                <img src="../../images/delivered-icon.png" alt="Delivered" class="icon">
-                            </div>
-                            <div class="order-timeline-status">Order delivered</div>
-                        </div>
+<div class="order-timeline-item">
+    <div class="order-timeline-date <?php echo empty($orderTimestamps['status_delivered_at']) ? 'pending' : 'not-pending'; ?>">
+        <?php echo !empty($orderTimestamps['status_delivered_at']) ? htmlspecialchars(date('M j, Y g:i A', strtotime($orderTimestamps['status_delivered_at']))) : 'Pending'; ?>
+    </div>
+    <div class="order-timeline-circle <?php echo empty($orderTimestamps['status_delivered_at']) ? 'pending' : 'not-pending'; ?>"></div>
+    <div class="order-timeline-icon">
+        <img src="../../images/delivered-icon.png" alt="Delivered" class="<?php echo empty($orderTimestamps['status_delivered_at']) ? 'pending' : 'not-pending'; ?>">
+    </div>
+    <div class="order-timeline-status <?php echo empty($orderTimestamps['status_delivered_at']) ? 'pending' : 'not-pending'; ?>">Order delivered</div>
+</div>
+
+
 
                     </div>
                 </div>
@@ -285,87 +291,85 @@ $mysqli->close();
         </div>
 
     </main>
-</body>
 
-</html>
-<script>
-    function updateNavLinks() {
-        const ordersLink = document.getElementById('orders-link');
-        const aboutLink = document.getElementById('about-link');
+    <script>
+        function updateNavLinks() {
+            const ordersLink = document.getElementById('orders-link');
+            const aboutLink = document.getElementById('about-link');
 
-        if (window.innerWidth <= 649) {
-            ordersLink.textContent = 'ORDERS';
-            aboutLink.textContent = 'ABOUT';
-        } else {
-            ordersLink.textContent = 'MY ORDERS';
-            aboutLink.textContent = 'ABOUT US';
-        }
-    }
-
-    function showModal(message) {
-        console.log("Showing modal with message:", message); // Debugging output
-
-        const modal = document.getElementById('messageModal');
-        const modalMessage = document.getElementById('modalMessage');
-        modalMessage.textContent = message;
-        modal.style.display = 'flex';
-    }
-
-    function hideModal() {
-        const modal = document.getElementById('messageModal');
-        modal.style.display = 'none';
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const orderReceivedForm = document.getElementById('orderReceivedForm');
-        const orderReceivedBtn = document.getElementById('orderReceivedBtn');
-
-        console.log('Form:', orderReceivedForm); // Debugging output
-        console.log('Button:', orderReceivedBtn); // Debugging output
-
-        if (orderReceivedForm && orderReceivedBtn) {
-            orderReceivedForm.addEventListener('submit', function(event) {
-                orderReceivedBtn.disabled = true;
-                orderReceivedBtn.textContent = "Processing...";
-            });
-        } else {
-            console.error('Form or button not found');
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const orderReceivedBtn = document.getElementById('orderReceivedBtn');
-        const statusShippedAt = <?php echo json_encode(!empty($orderTimestamps['status_shipped_at'])); ?>;
-        const statusDeliveredAt = <?php echo json_encode(!empty($orderTimestamps['status_delivered_at'])); ?>;
-
-        // Disable the button if status_shipped_at is empty or status_delivered_at is not empty
-        if (!statusShippedAt || statusDeliveredAt) {
-            if (orderReceivedBtn) {
-                orderReceivedBtn.disabled = true;
-                orderReceivedBtn.textContent = "Order Received"; // Optional: Update text if needed
+            if (window.innerWidth <= 649) {
+                ordersLink.textContent = 'ORDERS';
+                aboutLink.textContent = 'ABOUT';
+            } else {
+                ordersLink.textContent = 'MY ORDERS';
+                aboutLink.textContent = 'ABOUT US';
             }
         }
-    });
 
-    window.addEventListener('resize', updateNavLinks);
-    window.addEventListener('DOMContentLoaded', updateNavLinks);
+        function showModal(message) {
+            console.log("Showing modal with message:", message); // Debugging output
 
-    document.getElementById('closeModal').addEventListener('click', hideModal);
-    document.getElementById('okButton').addEventListener('click', hideModal);
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            hideModal();
+            const modal = document.getElementById('messageModal');
+            const modalMessage = document.getElementById('modalMessage');
+            modalMessage.textContent = message;
+            modal.style.display = 'flex';
         }
-    });
 
-    <?php if (!empty($successMessage) || !empty($errorMessage)): ?>
-        showModal("<?php echo htmlspecialchars($successMessage . $errorMessage); ?>");
-    <?php endif; ?>
+        function hideModal() {
+            const modal = document.getElementById('messageModal');
+            modal.style.display = 'none';
+        }
 
-    document.querySelector('form').addEventListener('submit', function() {
-        document.getElementById('loadingScreen').style.display = 'flex';
-    });
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderReceivedForm = document.getElementById('orderReceivedForm');
+            const orderReceivedBtn = document.getElementById('orderReceivedBtn');
+
+            console.log('Form:', orderReceivedForm); // Debugging output
+            console.log('Button:', orderReceivedBtn); // Debugging output
+
+            if (orderReceivedForm && orderReceivedBtn) {
+                orderReceivedForm.addEventListener('submit', function(event) {
+                    orderReceivedBtn.disabled = true;
+                    orderReceivedBtn.textContent = "Processing...";
+                });
+            } else {
+                console.error('Form or button not found');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const orderReceivedBtn = document.getElementById('orderReceivedBtn');
+            const statusShippedAt = <?php echo json_encode(!empty($orderTimestamps['status_shipped_at'])); ?>;
+            const statusDeliveredAt = <?php echo json_encode(!empty($orderTimestamps['status_delivered_at'])); ?>;
+
+            // Disable the button if status_shipped_at is empty or status_delivered_at is not empty
+            if (!statusShippedAt || statusDeliveredAt) {
+                if (orderReceivedBtn) {
+                    orderReceivedBtn.disabled = true;
+                    orderReceivedBtn.textContent = "Order Received"; // Optional: Update text if needed
+                }
+            }
+        });
+
+        window.addEventListener('resize', updateNavLinks);
+        window.addEventListener('DOMContentLoaded', updateNavLinks);
+
+        document.getElementById('closeModal').addEventListener('click', hideModal);
+        document.getElementById('okButton').addEventListener('click', hideModal);
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                hideModal();
+            }
+        });
+
+        <?php if (!empty($successMessage) || !empty($errorMessage)): ?>
+            showModal("<?php echo htmlspecialchars($successMessage . $errorMessage); ?>");
+        <?php endif; ?>
+
+        document.querySelector('form').addEventListener('submit', function() {
+            document.getElementById('loadingScreen').style.display = 'flex';
+        });
+    </script>
 </body>
 
 </html>

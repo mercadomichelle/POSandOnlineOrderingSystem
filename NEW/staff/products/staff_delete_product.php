@@ -16,42 +16,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mysqli->begin_transaction();
 
     try {
-        // Delete related rows in the alternative_varieties table
+        // Start transaction
+        $mysqli->begin_transaction();
+    
+        // Delete related rows in the `order_items` table
+        $sql = "DELETE FROM order_items WHERE prod_id = ?";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("i", $prod_id);
+        $stmt->execute();
+        $stmt->close();
+    
+        // Delete related rows in the `alternative_varieties` table
         $sql = "DELETE FROM alternative_varieties WHERE product_id = ?";
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("i", $prod_id);
         $stmt->execute();
         $stmt->close();
-
-        // Delete related rows in the stocks table
+    
+        // Delete related rows in the `stocks` table
         $sql = "DELETE FROM stocks WHERE prod_id = ?";
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("i", $prod_id);
         $stmt->execute();
         $stmt->close();
-
-        // Delete the product from the products table
+    
+        // Delete the product from the `products` table
         $sql = "DELETE FROM products WHERE prod_id = ?";
         $stmt = $mysqli->prepare($sql);
         $stmt->bind_param("i", $prod_id);
         $stmt->execute();
         $stmt->close();
-
+    
         // Commit the transaction
         $mysqli->commit();
-
-        $_SESSION["successMessage"] = "Product and related stocks have been deleted successfully.";
-
-        // Close the connection
-        $mysqli->close();
-        
+    
+        $_SESSION["successMessage"] = "Product have been deleted successfully.";
     } catch (Exception $e) {
         // Rollback the transaction if something goes wrong
         $mysqli->rollback();
-        // Set error message
         $_SESSION["errorMessage"] = "Error deleting product: " . $e->getMessage();
     }
-
+    
     // Redirect based on the source page
     if ($source_page === 'retail') {
         header("Location: staff_retail.php");

@@ -33,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Store the entered payment amount in the session
     $_SESSION['payment_received'] = $enteredAmount;
-
+    
     $host = "localhost";
-    $user = "root";
-    $password = "";
-    $db = "system_db";
+    $user = "u883064514_admin";
+    $password = "~Ew5V+?ZYYVX";
+    $db = "u883064514_system_db";
 
     $mysqli = new mysqli($host, $user, $password, $db);
 
@@ -63,8 +63,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $order_type = $_SESSION['order_type'] ?? null;
 
         if (!$order_type) {
-            $_SESSION['error_message'] = "Order type not set.";
-            header("Location: confirm_order.php");
+            $_SESSION['error_message'] = "Please try again.";
+            header("Location: ../staff.php");
             exit();
         }
 
@@ -89,10 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         for ($i = 0; $i < count($prod_ids); $i++) {
             $prod_id = $prod_ids[$i];
             $quantity = $quantities[$i];
+            $branch_id = 1; 
 
-            $sql = "INSERT INTO order_items (order_id, prod_id, quantity) VALUES (?, ?, ?)";
+            $sql = "INSERT INTO order_items (order_id, prod_id, quantity, branch_id) VALUES (?, ?, ?, ?)";
             $stmt = $mysqli->prepare($sql);
-            $stmt->bind_param("iii", $order_id, $prod_id, $quantity);
+            $stmt->bind_param("iiii", $order_id, $prod_id, $quantity, $branch_id);
             $stmt->execute();
 
             // Reduce stock quantity

@@ -291,6 +291,16 @@ h4 {
     height: auto;
 }
 
+
+.delivery-fee {
+    padding: 15px 0;
+    display: flex;
+    width: 80%;
+    max-width: 800px;
+    border-bottom: 1px dashed #B5AEAE;
+    justify-content: space-between;
+}
+
 .total {
     font-size: 20px;
     font-weight: bold;
@@ -305,8 +315,10 @@ h4 {
 .total span {
     text-align: center;
 }
+
 .order-item {
     border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
 }
 
 .product-image img {
@@ -430,7 +442,7 @@ h4 {
     flex: 2;
     font-size: 15px;
     font-weight: normal;
-    color: #333;
+    color: #ffc135;
 }
 
 .icon {
@@ -457,11 +469,49 @@ h4 {
 .order-timeline-circle.packed,
 .order-timeline-circle.shipped,
 .order-timeline-circle.delivered {
-    background-color: #FFDEAC;
+    background-color: #ffc135;
 }
 
 .order-timeline-circle.delivered {
     background-color: #977644;
+}
+
+.order-timeline-date.pending {
+    color: gray;
+}
+
+.order-timeline-date.not-pending {
+    color: #d79700;
+    font-weight: 700;
+}
+
+.order-timeline-status.pending {
+    color: gray;
+}
+
+.order-timeline-status.not-pending {
+    color: #000000;
+    font-weight: 700;
+}
+
+.order-timeline-circle.pending {
+    background-color: #ccc;  /* Gray circle for pending */
+}
+
+.order-timeline-circle.not-pending {
+    background-color: #ffb300;  /* Darker circle for non-pending */
+}
+
+.order-timeline-icon img.pending {
+    filter: grayscale(100%) brightness(80%); /* Grayscale for pending icons */
+}
+
+.order-timeline-icon img.not-pending {
+    filter: none; /* Apply no filter for non-pending icons */
+}
+
+.order-timeline-icon img {
+    transition: filter 0.3s ease; /* Smooth transition for color change */
 }
 
 .confirm-btn {
