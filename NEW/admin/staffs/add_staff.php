@@ -1,7 +1,15 @@
 <?php
 session_start();
-
 include('../../connection.php');
+
+// Get the logged-in user's branch ID from the session
+if (isset($_SESSION['branch_id'])) {
+    $branch_id = $_SESSION['branch_id'];
+} else {
+    $_SESSION['errorMessage'] = "Branch ID not found.";
+    header("Location: staff_list.php");
+    exit();
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $first_name = trim($_POST['first_name']);
@@ -60,19 +68,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // Hash the password
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-        // Insert into login table
-        $stmt = $mysqli->prepare("INSERT INTO login (first_name, last_name, username, password, usertype) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssss", $first_name, $last_name, $username, $hashed_password, $usertype);
+        // Insert into login table with the logged-in user's branch_id
+        $stmt = $mysqli->prepare("INSERT INTO login (first_name, last_name, username, password, usertype, branch_id) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssssi", $first_name, $last_name, $username, $hashed_password, $usertype, $branch_id);
 
         if ($stmt->execute()) {
             $login_id = $stmt->insert_id;
             $full_name = $first_name . ' ' . $last_name;
 
-            // Insert into staff table
+            // Insert into staff table (no branch_id needed in this table)
             $stmt2 = $mysqli->prepare("INSERT INTO staff (login_id, name, phone_number, email_address, usertype) VALUES (?, ?, ?, ?, ?)");
             $stmt2->bind_param("issss", $login_id, $full_name, $phone, $email, $usertype);
 
             if ($stmt2->execute()) {
+                // Calculate total pages for pagination (assuming 10 items per page)
                 $limit = 10;
                 $result_count = $mysqli->query("SELECT COUNT(*) AS count FROM staff");
                 $total_items = $result_count->fetch_assoc()['count'];

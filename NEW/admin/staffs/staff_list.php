@@ -2,11 +2,12 @@
 session_start();
 
 include('../../connection.php');
+include('../../notifications.php');
 
-// Retrieve and set first_name and last_name in session
+// Retrieve and set first_name, last_name, and branch_id in session
 if (isset($_SESSION["username"])) {
     $username = $_SESSION["username"];
-    $sql = "SELECT first_name, last_name FROM login WHERE username = ?";
+    $sql = "SELECT first_name, last_name, branch_id FROM login WHERE username = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -16,9 +17,11 @@ if (isset($_SESSION["username"])) {
         $userData = $result->fetch_assoc();
         $_SESSION["first_name"] = $userData['first_name'];
         $_SESSION["last_name"] = $userData['last_name'];
+        $_SESSION["branch_id"] = $userData['branch_id'];  // Store branch ID in session
     } else {
         $_SESSION["first_name"] = "Guest";
         $_SESSION["last_name"] = "";
+        $_SESSION["branch_id"] = null;  // No branch for guest
     }
 
     $stmt->close();
@@ -32,14 +35,20 @@ $offset = ($page - 1) * $limit;
 
 $offset = max(0, $offset);
 
+$branch_id = $_SESSION["branch_id"]; // Retrieve the branch ID from session
+
+// Modify SQL query to filter staff by branch ID
 $sql = "SELECT login.id, login.first_name, login.last_name, login.username, staff.staff_id, staff.phone_number, staff.email_address, staff.usertype 
         FROM login 
         JOIN staff 
         ON login.id = staff.login_id 
+        WHERE login.branch_id = ? 
         LIMIT $offset, $limit";
 
-
-$result = $mysqli->query($sql);
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $branch_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if (!$result) {
     die("Query failed: " . $mysqli->error);
@@ -47,8 +56,16 @@ if (!$result) {
 
 $staffData = $result->fetch_all(MYSQLI_ASSOC);
 
-$sqlCount = "SELECT COUNT(*) as total FROM login JOIN staff ON login.id = staff.login_id";
-$resultCount = $mysqli->query($sqlCount);
+// Count total staff records for pagination
+$sqlCount = "SELECT COUNT(*) as total 
+             FROM login 
+             JOIN staff 
+             ON login.id = staff.login_id 
+             WHERE login.branch_id = ?";
+$stmtCount = $mysqli->prepare($sqlCount);
+$stmtCount->bind_param("i", $branch_id);
+$stmtCount->execute();
+$resultCount = $stmtCount->get_result();
 $rowCount = $resultCount->fetch_assoc();
 $totalRecords = $rowCount['total'];
 $totalPages = ceil($totalRecords / $limit);
@@ -60,41 +77,6 @@ $endPage = min($totalPages, $startPage + $maxPagesToShow - 1);
 if ($endPage - $startPage + 1 < $maxPagesToShow) {
     $startPage = max(1, $endPage - $maxPagesToShow + 1);
 }
-
-// STOCKS NOTIFICATIONS
-$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
-        FROM products p 
-        LEFT JOIN stocks s ON p.prod_id = s.prod_id
-        ORDER BY s.stock_quantity ASC";
-
-$result = $mysqli->query($sql);
-
-$stocks = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $row['stock_quantity'] = max(0, $row['stock_quantity']);
-        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
-        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
-        $stocks[] = $row;
-    }
-} else {
-    echo "No stocks found.";
-}
-
-$lowStockNotifications = [];
-$outOfStockNotifications = [];
-
-foreach ($stocks as $stock) {
-    if ($stock['is_low_stock']) {
-        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
-    } elseif ($stock['is_out_of_stock']) {
-        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
-    }
-}
-
-$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
-
 
 $successMessage = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : null;
 $errorMessage = isset($_SESSION['errorMessage']) ? $_SESSION['errorMessage'] : null;
@@ -193,7 +175,7 @@ $mysqli->close();
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div class='no-staff'>No staff found.</div>
+                    <div class='no-staff'>No staff found for your branch.</div>
                 <?php endif; ?>
             </div>
 
@@ -330,7 +312,7 @@ $mysqli->close();
                 <span class="message-close">&times;</span>
                 <div id="messageContent">
                     <div class="alert error">
-                        <p>Are you sure you want to delete this staff?</p>
+                        <p class="delete">Are you sure you want to delete this staff?</p>
                         <form id="deleteStaffForm" method="post" action="delete_staff.php">
                             <input type="hidden" name="staff_id" id="delete_staff_id">
                             <input type="hidden" name="page" id="delete_page">

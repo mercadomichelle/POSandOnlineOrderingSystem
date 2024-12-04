@@ -3,10 +3,14 @@ session_start();
 
 include('../../connection.php');
 
+// Ensure the logged-in user is authenticated and has a valid session
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
 }
+
+// Get logged-in user's branch ID from the session
+$branch_id = $_SESSION['branch_id'];
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $staff_id = $_POST['staff_id'];
@@ -28,7 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['formData'] = $_POST;
         header("Location: staff_list.php?page=$page&edit_id=$staff_id");
         exit();
-
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -37,8 +40,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: staff_list.php?page=$page&edit_id=$staff_id");
         exit();
     }
-    
-    $current_sql = "SELECT login.first_name, login.last_name, login.username, staff.phone_number, staff.email_address, staff.usertype
+
+    // Fetch current staff and branch details
+    $current_sql = "SELECT login.first_name, login.last_name, login.username, staff.phone_number, staff.email_address, staff.usertype, login.branch_id
                     FROM login 
                     JOIN staff ON login.id = staff.login_id 
                     WHERE staff.staff_id = ?";
@@ -47,19 +51,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $current_stmt->execute();
     $current_result = $current_stmt->get_result();
     $current_data = $current_result->fetch_assoc();
+    $current_stmt->close();
 
-    if ($current_data['first_name'] == $first_name &&
+    // Check if the logged-in user can edit this staff member based on branch
+    if ($current_data['branch_id'] != $branch_id) {
+        $_SESSION['errorMessage'] = "You cannot edit staff from another branch.";
+        $_SESSION['formData'] = $_POST;
+        header("Location: staff_list.php?page=$page&edit_id=$staff_id");
+        exit();
+    }
+
+    // Check if there are no changes before proceeding
+    if (
+        $current_data['first_name'] == $first_name &&
         $current_data['last_name'] == $last_name &&
         $current_data['username'] == $username &&
         $current_data['phone_number'] == $phone &&
         $current_data['email_address'] == $email &&
-        $current_data['usertype'] == $usertype) {
+        $current_data['usertype'] == $usertype
+    ) {
         $_SESSION["errorMessage"] = "No changes have been made.";
         $_SESSION['formData'] = $_POST;
         header("Location: staff_list.php?page=$page&edit_id=$staff_id");
         exit();
     }
 
+    // Check if the username already exists
     $check_sql = "SELECT * FROM login WHERE username = ? AND id != (SELECT login_id FROM staff WHERE staff_id = ?)";
     $check_stmt = $mysqli->prepare($check_sql);
     $check_stmt->bind_param("si", $username, $staff_id);
@@ -72,33 +89,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         header("Location: staff_list.php?page=$page&edit_id=$staff_id");
         exit();
     } else {
+        // Proceed with the update
         $update_sql = "UPDATE login 
-                JOIN staff ON login.id = staff.login_id 
-                SET login.first_name = ?, 
-                    login.last_name = ?, 
-                    login.username = ?, 
-                    staff.name = CONCAT(?, ' '), 
-                    staff.phone_number = ?, 
-                    staff.email_address = ?, 
-                    login.usertype = ?,
-                    staff.usertype = ?  
-                WHERE staff.staff_id = ?";
+        JOIN staff ON login.id = staff.login_id 
+        SET login.first_name = ?, 
+            login.last_name = ?, 
+            login.username = ?, 
+            staff.name = CONCAT(?, ' ', ?), 
+            staff.phone_number = ?, 
+            staff.email_address = ?, 
+            login.usertype = ?,
+            staff.usertype = ?  
+        WHERE staff.staff_id = ?";
 
         $update_stmt = $mysqli->prepare($update_sql);
 
         if ($update_stmt) {
-            $update_stmt->bind_param("ssssssssi", 
-            $first_name, 
-            $last_name, 
-            $username, 
-            $first_name, 
-            $phone, 
-            $email, 
-            $usertype, 
-            $usertype, 
-            $staff_id
-        );
-        
+            $update_stmt->bind_param(
+                "sssssssssi",
+                $first_name,
+                $last_name,
+                $username,
+                $first_name,
+                $last_name,  // Second parameter for last name
+                $phone,
+                $email,
+                $usertype,
+                $usertype,
+                $staff_id
+            );
+
             if ($update_stmt->execute()) {
                 $_SESSION["successMessage"] = "Staff information updated successfully.";
             } else {
@@ -117,4 +137,3 @@ $mysqli->close();
 
 header("Location: staff_list.php?page=$page");
 exit();
-?>

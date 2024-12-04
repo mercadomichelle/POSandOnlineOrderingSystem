@@ -1,119 +1,144 @@
 <?php
-session_start();
+// fetch_sales_revenue.php 
 
+session_start();
 include('../../connection.php');
 
-// Get the timeframe from the request
-$timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'weekly';
+// Assuming branch_id is stored in the session upon login
+$branch_id = isset($_SESSION['branch_id']) ? $_SESSION['branch_id'] : null;
+if (!$branch_id) {
+    // If branch_id is not set in session, exit or redirect the user
+    echo json_encode(['error' => 'Branch ID not found.']);
+    exit();
+}
 
-// Function to generate all dates between a start and end date
-function generateDateRange($startDate, $endDate, $interval = 'P1D', $format = 'Y-m-d')
-{
-    $period = new DatePeriod(
-        new DateTime($startDate),
-        new DateInterval($interval),
-        (new DateTime($endDate))->modify('+1 day')
-    );
+// Get filters from the request
+$month = isset($_GET['month']) ? $_GET['month'] : '';
+$week = isset($_GET['week']) ? $_GET['week'] : '';
+$year = isset($_GET['year']) ? $_GET['year'] : '';
+$timeframe_condition = '';
 
-    $dates = [];
-    foreach ($period as $date) {
-        $dates[] = $date->format($format);
+// Apply year filter
+if ($year) {
+    $timeframe_condition .= "AND YEAR(order_date) = $year ";
+}
+
+// Apply month filter
+if ($month) {
+    $timeframe_condition .= "AND MONTH(order_date) = $month ";
+}
+
+// Apply week filter (based on calendar weeks)
+if ($week && $month && $year) {
+    $total_days = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+    $first_day_of_month = strtotime("$year-$month-01");
+    $first_weekday = date('w', $first_day_of_month); // 0 (Sunday) to 6 (Saturday)
+
+    $weeks = [];
+    $current_start_date = $first_day_of_month;
+    $current_end_date = strtotime("+" . (6 - $first_weekday) . " days", $current_start_date); // First week's end
+
+    while ($current_start_date <= strtotime("$year-$month-$total_days")) {
+        $weeks[] = [
+            'start' => $current_start_date,
+            'end' => min($current_end_date, strtotime("$year-$month-$total_days"))
+        ];
+
+        $current_start_date = strtotime("+1 day", $current_end_date);
+        $current_end_date = strtotime("+6 days", $current_start_date);
     }
 
-    return $dates;
+    // Get the selected week's date range
+    if (isset($weeks[$week - 1])) {
+        $start_date = $weeks[$week - 1]['start'];
+        $end_date = $weeks[$week - 1]['end'];
+        $timeframe_condition .= "AND order_date BETWEEN '" . date('Y-m-d', $start_date) . "' AND '" . date('Y-m-d', $end_date) . "' ";
+    }
 }
 
-// Define the start and end date
-if ($timeframe === 'monthly') {
-    $startDate = date('Y-m-01', strtotime('-11 months'));
-    $endDate = date('Y-m-t'); // End of the current month
-    $interval = 'P1M'; // Monthly interval
-    $format = 'Y-m'; // Format for month
+// SQL query to fetch sales data by order source and type, including branch filter
+$sql = "SELECT ";
+if ($month) {
+    $sql .= "DATE_FORMAT(order_date, '%b %d') AS period, "; // Format like 'Month Day'
+} elseif ($week && $month) {
+    $sql .= "DATE(order_date) AS period, ";
+} elseif ($year) {
+    $sql .= "DATE_FORMAT(order_date, '%b %Y') AS period, "; // Format like 'Jan 2024'
 } else {
-    $startDate = date('Y-m-d', strtotime('-6 days')); // 6 days ago
-    $endDate = date('Y-m-d'); // Current date
-    $interval = 'P1D'; // Daily interval
-    $format = 'Y-m-d'; // Format for day
+    $sql .= "YEAR(order_date) AS period, ";
 }
-
-// Generate all dates (weekly or monthly)
-$allDates = generateDateRange($startDate, $endDate, $interval, $format);
-
-// SQL query for fetching sales revenue based on timeframe
-if ($timeframe === 'monthly') {
-    $sql = "
-        SELECT 
-            DISTINCT DATE_FORMAT(order_date, '%Y-%m') AS period,
-            order_type,
-            SUM(total_amount) AS total_sales
-        FROM 
-            orders
-        WHERE 
-            order_date >= '$startDate'
-            AND order_date <= '$endDate'
-        GROUP BY 
-            period, order_type
-        ORDER BY 
-            period ASC
-    ";
-} else {
-    $sql = "
-    SELECT 
-        DATE(order_date) AS period,
+$sql .= "
+        order_source,
         order_type,
         SUM(total_amount) AS total_sales
     FROM 
-        orders
+        orders o
+    JOIN order_items oi ON o.order_id = oi.order_id
     WHERE 
-        order_date >= CURDATE() - INTERVAL 6 DAY 
-        AND order_date <= '$endDate 23:59:59' 
-    GROUP BY 
-        DATE(order_date), order_type
-    ORDER BY 
-        DATE(order_date) ASC
-";
+        1=1 
+        $timeframe_condition
+        AND oi.branch_id = $branch_id
+    GROUP BY ";
+
+if ($month) {
+    $sql .= "DAY(order_date), order_source, order_type"; // Group by day, source, and type
+} elseif ($week && $month) {
+    $sql .= "DATE(order_date), order_source, order_type"; // Group by date, source, and type
+} elseif ($year) {
+    $sql .= "YEAR(order_date), MONTH(order_date), order_source, order_type"; // Group by year, month, source, and type
+} else {
+    $sql .= "YEAR(order_date), order_source, order_type"; // Group by year, source, and type
 }
 
+$sql .= " ORDER BY YEAR(order_date) ASC, MONTH(order_date) ASC, period ASC"; // Ensure chronological order
 
+
+// Execute query
 $result = $mysqli->query($sql);
 
-// Initialize arrays to hold sales data for each type
-$data = ['periods' => [], 'retail_sales' => [], 'wholesale_sales' => []];
+$data = [
+    'periods' => [],
+    'in_store_retail' => [],
+    'in_store_wholesale' => [],
+    'online_wholesale' => []
+];
 $salesByDate = [];
 
 // Process the results
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $period = $row['period'];
+        $orderSource = $row['order_source'];
         $orderType = $row['order_type'];
-        
+
         // Initialize sales for each period if not already done
         if (!isset($salesByDate[$period])) {
-            $salesByDate[$period] = ['retail' => 0, 'wholesale' => 0];
+            $salesByDate[$period] = [
+                'in_store_retail' => 0,
+                'in_store_wholesale' => 0,
+                'online_wholesale' => 0
+            ];
         }
 
-        // Sum the sales for the respective order type
-        if ($orderType === 'retail') {
-            $salesByDate[$period]['retail'] += $row['total_sales'];
-        } elseif ($orderType === 'wholesale') {
-            $salesByDate[$period]['wholesale'] += $row['total_sales'];
+        // Sum the sales for the respective combination
+        if ($orderSource === 'in-store' && $orderType === 'retail') {
+            $salesByDate[$period]['in_store_retail'] += $row['total_sales'];
+        } elseif ($orderSource === 'in-store' && $orderType === 'wholesale') {
+            $salesByDate[$period]['in_store_wholesale'] += $row['total_sales'];
+        } elseif ($orderSource === 'online' && $orderType === 'wholesale') {
+            $salesByDate[$period]['online_wholesale'] += $row['total_sales'];
         }
     }
 }
 
 // Populate the data array
-foreach ($allDates as $date) {
-    if ($timeframe === 'monthly') {
-        $data['periods'][] = date('M Y', strtotime($date)); // Format as 'Mon YYYY'
-    } else {
-        $data['periods'][] = date('D, M d', strtotime($date)); // Weekly format
-    }
-    
-    // Set sales for each type or 0 if not present
-    $data['retail_sales'][] = isset($salesByDate[$date]['retail']) ? $salesByDate[$date]['retail'] : 0; 
-    $data['wholesale_sales'][] = isset($salesByDate[$date]['wholesale']) ? $salesByDate[$date]['wholesale'] : 0; 
+foreach ($salesByDate as $period => $sales) {
+    $data['periods'][] = $period;
+    $data['in_store_retail'][] = $sales['in_store_retail'];
+    $data['in_store_wholesale'][] = $sales['in_store_wholesale'];
+    $data['online_wholesale'][] = $sales['online_wholesale'];
 }
 
+// Return data as JSON
 echo json_encode($data);
-
 $mysqli->close();

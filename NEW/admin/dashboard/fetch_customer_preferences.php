@@ -1,13 +1,17 @@
 <?php
-session_start();
+// fetch_customer_preferences.php
 
+session_start();
 include('../../connection.php');
 
-// Get the month parameter from the request (default to January if not provided)
-$month = isset($_GET['month']) ? (int)$_GET['month'] : 1;
+// Get the month, week, year, and branch parameters from the request
+$month = isset($_GET['month']) ? (int)$_GET['month'] : date('m'); // Default to current month
+$year = isset($_GET['year']) ? (int)$_GET['year'] : date('Y'); // Default to current year
+$branch_id = isset($_GET['branch_id']) ? (int)$_GET['branch_id'] : $_SESSION["branch_id"]; // Get branch_id from the request or session
 
-// Query to fetch daily sales and rice variety data for the given month
-$sql = "
+// SQL query to fetch daily sales and rice variety data for the given month, year, and branch
+$sql =
+    "
     SELECT 
         p1.prod_name AS rice_variety,
         p2.prod_name AS alternative_variety,
@@ -24,15 +28,16 @@ $sql = "
     LEFT JOIN 
         products p2 ON av.alternative_product_id = p2.prod_id
     WHERE 
-        MONTH(o.order_date) = ?
+        MONTH(o.order_date) = ? 
+        AND YEAR(o.order_date) = ? 
+        AND oi.branch_id = ?
     GROUP BY 
-        order_day, rice_variety, alternative_variety
-    ORDER BY 
-        order_day;
+        DATE(o.order_date), p1.prod_name, p2.prod_name
 ";
 
+// Prepare and execute the query
 $stmt = $mysqli->prepare($sql);
-$stmt->bind_param("i", $month);
+$stmt->bind_param("iii", $month, $year, $branch_id); // Bind month, year, and branch_id parameters
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -69,42 +74,40 @@ while ($row = $result->fetch_assoc()) {
 
 // Identify top three rice varieties based on overall popularity
 arsort($overall_variety_totals); // Sort to find the most popular
-$top_varieties = array_keys(array_slice($overall_variety_totals, 0, 3, true)); // Get the top 3 popular varieties
+$top_varieties = array_keys(array_slice($overall_variety_totals, 0, 5, true)); // Get the top 3 popular varieties
 
 // Calculate percentages for each rice variety per day
-$response = []; // Initialize the final response array
+$response = []; // Initialize the final response array  
 
 foreach ($rice_variety_totals as $day => $varieties) {
-    $rice_percentages = []; // Reset for each day
-    $alternatives = []; // Array to hold alternative varieties for this day
+    $rice_percentages = []; // Reset for each day  
+    $alternatives = []; // Array to hold alternative varieties for this day  
+    $totalForDay = $daily_totals[$day]; // Total quantity for the day  
 
+    // First, calculate percentages for each top rice variety  
+    foreach ($top_varieties as $variety) {
+        $quantity = $varieties[$variety] ?? 0; // Use null coalescing operator  
+        $percent = ($quantity / $totalForDay) * 100;
+        $rice_percentages[$variety] = $percent;
+    }
+
+    $alternativeQuantity = 0;
     foreach ($varieties as $variety => $quantity) {
-        // Include only top varieties
-        if (in_array($variety, $top_varieties)) {
-            $percent = ($quantity / $daily_totals[$day]) * 100;
-            $rice_percentages[$variety] = $percent;
+        if (!in_array($variety, $top_varieties)) {
+            $alternativeQuantity += $quantity;
+            $alternatives[] = $variety; // Add to alternatives array
         }
     }
 
-    // Process alternatives for each top variety
-    foreach ($varieties as $variety => $quantity) {
-        if (in_array($variety, $top_varieties) && !empty($alternative)) {
-            $alternativePercent = ($quantity / $daily_totals[$day]) * 100;
-            $rice_percentages["Alternative Rice"] = $alternativePercent;
-            $alternatives[] = $alternative; // Track the alternative variety name
-        }
-    }
+    $alternativePercent = ($alternativeQuantity / $totalForDay) * 100;
+    $rice_percentages["Alternative Rice"] = $alternativePercent;
 
-    // Only include days where we have data for the top varieties
-    if (!empty($rice_percentages)) {
-        $response[] = [
-            'day' => $day, // Add the day
-            'percentages' => $rice_percentages, // Include percentages for top varieties and alternatives
-            'alternatives' => $alternatives // Add alternatives as an array
-        ];
-    }
+    $response[] = [
+        'day' => $day,
+        'percentages' => $rice_percentages,
+        'alternatives' => $alternatives
+    ];
 }
-
 
 // Return the data as JSON
 header('Content-Type: application/json');
@@ -112,5 +115,3 @@ echo json_encode($response, JSON_PRETTY_PRINT); // Pretty print for readability
 
 // Close the connection
 $mysqli->close();
-
-?>

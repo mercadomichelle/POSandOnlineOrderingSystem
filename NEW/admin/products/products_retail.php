@@ -2,14 +2,19 @@
 session_start();
 
 include('../../connection.php');
+include('../../notifications.php');
 
+// Ensure the user is logged in
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
     exit();
 }
 
 $username = $_SESSION["username"];
-$sql = "SELECT first_name, last_name FROM login WHERE username = ?";
+$branch_id = $_SESSION['branch_id'];
+
+// Fetch user data and branch_id
+$sql = "SELECT first_name, last_name, branch_id FROM login WHERE username = ?";
 $stmt = $mysqli->prepare($sql);
 $stmt->bind_param("s", $username);
 $stmt->execute();
@@ -19,10 +24,13 @@ if ($result->num_rows === 1) {
     $userData = $result->fetch_assoc();
     $_SESSION["first_name"] = $userData['first_name'];
     $_SESSION["last_name"] = $userData['last_name'];
+    $_SESSION["branch_id"] = $userData['branch_id']; 
 } else {
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
+    $_SESSION["branch_id"] = null;
 }
+
 
 $sql = "SELECT prod_id, prod_brand, prod_name, prod_price_retail AS prod_price, prod_image_path FROM products";
 $result = $mysqli->query($sql);
@@ -33,41 +41,6 @@ if ($result->num_rows > 0) {
         $products[] = $row;
     }
 }
-
-// STOCKS NOTIFICATIONS
-$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, s.stock_quantity 
-        FROM products p 
-        LEFT JOIN stocks s ON p.prod_id = s.prod_id
-        ORDER BY s.stock_quantity ASC";
-
-$result = $mysqli->query($sql);
-
-$stocks = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $row['stock_quantity'] = max(0, $row['stock_quantity']);
-        $row['is_low_stock'] = $row['stock_quantity'] > 0 && $row['stock_quantity'] < 10;
-        $row['is_out_of_stock'] = $row['stock_quantity'] == 0;
-        $stocks[] = $row;
-    }
-} else {
-    echo "No stocks found.";
-}
-
-$lowStockNotifications = [];
-$outOfStockNotifications = [];
-
-foreach ($stocks as $stock) {
-    if ($stock['is_low_stock']) {
-        $lowStockNotifications[] = 'Low stock: ' . htmlspecialchars($stock['prod_name']);
-    } elseif ($stock['is_out_of_stock']) {
-        $outOfStockNotifications[] = 'Out of stock: ' . htmlspecialchars($stock['prod_name']);
-    }
-}
-
-$notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
-
 
 $successMessage = isset($_SESSION['successMessage']) ? $_SESSION['successMessage'] : null;
 $errorMessage = isset($_SESSION['errorMessage']) ? $_SESSION['errorMessage'] : null;
