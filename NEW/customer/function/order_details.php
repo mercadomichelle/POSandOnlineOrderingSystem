@@ -32,7 +32,8 @@ if ($result->num_rows === 1) {
 $order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
 
 // Fetch the order details with items
-$sql = "SELECT orders.order_id, orders.order_date, orders.total_amount, order_items.prod_id, order_items.quantity, products.prod_name, products.prod_price_wholesale, products.prod_brand, products.prod_image_path
+$sql = "SELECT orders.order_id, orders.order_date, orders.total_amount, order_items.prod_id, order_items.quantity, 
+        order_items.branch_id, products.prod_name, products.prod_price_wholesale, products.prod_brand, products.prod_image_path
         FROM orders
         INNER JOIN order_items ON orders.order_id = order_items.order_id
         INNER JOIN products ON order_items.prod_id = products.prod_id
@@ -43,16 +44,32 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $orderSubTotal = 0;
+$branchNames = [];  // Array to hold branch names for each product (if different products are from different branches)
 if ($result->num_rows > 0) {
     $orderDetails = $result->fetch_all(MYSQLI_ASSOC);
 
     foreach ($orderDetails as $item) {
-        $orderSubTotal += $item['prod_price_wholesale'] * $item['quantity']; // Calculate order subtotal
+        // Calculate order subtotal
+        $orderSubTotal += $item['prod_price_wholesale'] * $item['quantity'];
+
+        // Fetch the branch name associated with the branch_id from the order_items
+        $branch_id = $item['branch_id'];
+        $sqlBranch = "SELECT branch_name FROM branches WHERE branch_id = ?";
+        $stmtBranch = $mysqli->prepare($sqlBranch);
+        $stmtBranch->bind_param("i", $branch_id);
+        $stmtBranch->execute();
+        $resultBranch = $stmtBranch->get_result();
+        
+        if ($resultBranch->num_rows === 1) {
+            $branchData = $resultBranch->fetch_assoc();
+            $branchNames[$item['prod_id']] = $branchData['branch_name'];  // Store branch name keyed by product id
+        }
     }
 } else {
     $orderDetails = [];
     $orderSubTotal = 0; // Default subtotal if no items found
 }
+
 
 // Fetch the status timestamps
 $sql = "SELECT order_id, order_date, total_amount, status_processed_at, status_packed_at, status_shipped_at, status_delivered_at, order_status
@@ -145,8 +162,9 @@ $mysqli->close();
 
             <div class="summary-header">
                 <h4><img src="../../images/order-details-icon.png" alt="Cart" class="cart-icon">ORDER DETAILS</h4>
+                <p><strong> Branch: </strong><?php echo isset($branchNames[$item['prod_id']]) ? htmlspecialchars($branchNames[$item['prod_id']]) : 'Unknown'; ?></p>  <!-- Display branch -->
                 <p class="order-date">
-                    Order Date:
+                <strong> Order Date: </strong>
                     <?php if (!empty($orderDetails)): ?>
                         <?php echo htmlspecialchars(date('F j, Y', strtotime($orderDetails[0]['order_date']))); ?>
                     <?php else: ?>
@@ -184,7 +202,7 @@ $mysqli->close();
                     </table>
 
                     <div class="delivery-fee">
-                        <span>Delivery Fee</span>
+                        <span><strong>Delivery Fee</strong></span>
                         <span>₱ <?php echo number_format($deliveryFee, 2); ?></span>
                     </div>
 

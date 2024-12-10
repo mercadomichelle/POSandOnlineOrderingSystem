@@ -61,6 +61,24 @@ if ($addressResult->num_rows === 1) {
 
 $stmt2->close(); // Close the second statement
 
+// Fetch branch details based on the selected branch ID
+$branchName = "No branch selected";
+if ($_SESSION['selected_branch']) {
+    $selectedBranch = $_SESSION['selected_branch'];
+    $sql = "SELECT branch_name FROM branches WHERE branch_id = ?";
+    $stmtBranch = $mysqli->prepare($sql);
+    $stmtBranch->bind_param("i", $selectedBranch);
+    $stmtBranch->execute();
+    $resultBranch = $stmtBranch->get_result();
+
+    if ($resultBranch->num_rows === 1) {
+        $branchData = $resultBranch->fetch_assoc();
+        $branchName = $branchData['branch_name'];
+    }
+    $stmtBranch->close();
+}
+
+
 // Set delivery fee to a fixed value
 $deliveryFee = 100; // Default fee
 
@@ -177,6 +195,7 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
 
                 <div class="delivery-details">
                     <h5><img src="../../images/delivery-icon.png" alt="Delivery" class="delivery-icon">DELIVERY DETAILS</h5>
+
                     <div class="delivery-address">
                         <h6>Select Delivery Details:</h6>
                         <div class="custom-dropdown">
@@ -190,8 +209,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                             </div>
                         </div>
                     </div>
-
+                        <div class="selected-branch">
+                            <h6>Selected Branch: <strong><?php echo htmlspecialchars($branchName); ?></strong></h6>
+                        </div>
                 </div>
+
             </div>
 
             <form action="place_order.php" method="post" class="button">

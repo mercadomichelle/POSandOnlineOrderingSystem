@@ -15,12 +15,20 @@ if (!isset($_SESSION['login_id'])) {
 $login_id = $_SESSION['login_id'];
 $prod_ids = $_SESSION['cart']['prod_id'] ?? [];
 $quantities = $_SESSION['cart']['quantity'] ?? [];
+$branch_id = $_SESSION['selected_branch'] ?? null;  // Get branch ID from session
+
+if (!$branch_id) {
+    $_SESSION['error_message'] = "Please select a branch before placing an order.";
+    header("Location: ../cust_products.php");  // Redirect to product page if branch not selected
+    exit();
+}
 
 // Begin transaction
 $mysqli->begin_transaction();
 
 try {
     $totalAmount = 0;
+
 
     // Calculate total amount
     for ($i = 0; $i < count($prod_ids); $i++) {
@@ -43,15 +51,13 @@ try {
     $deliveryFee = 100;
     $totalAmount += $deliveryFee;
 
-    $order_source = 'online';
-
     // Insert the order into the orders table
     $sql = "INSERT INTO orders (login_id, order_date, total_amount, order_source) VALUES (?, NOW(), ?, ?)";
     $stmt = $mysqli->prepare($sql);
     $order_source = 'online';
     $stmt->bind_param("ids", $login_id, $totalAmount, $order_source);
     $stmt->execute();
-    
+
     // Get the generated order_id
     $order_id = $stmt->insert_id;
 
@@ -60,16 +66,20 @@ try {
         $prod_id = $prod_ids[$i];
         $quantity = $quantities[$i];
 
-        // Reduce stock quantity
-        $sql = "UPDATE stocks SET stock_quantity = stock_quantity - ? WHERE prod_id = ?";
+        // Reduce stock quantity for the selected branch
+        $sql = "UPDATE stocks SET stock_quantity = stock_quantity - ? WHERE prod_id = ? AND branch_id = ?";
         $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param("ii", $quantity, $prod_id);
+        $stmt->bind_param("iii", $quantity, $prod_id, $branch_id);
         $stmt->execute();
 
-        // Insert each product into the order_items table with the same order_id
-        $sql = "INSERT INTO order_items (order_id, prod_id, quantity) VALUES (?, ?, ?)";
+        if ($stmt->affected_rows === 0) {
+            throw new Exception("Insufficient stock or invalid branch for product ID $prod_id");
+        }
+
+        // Insert each product into the order_items table with the same order_id and branch_id
+        $sql = "INSERT INTO order_items (order_id, prod_id, quantity, branch_id) VALUES (?, ?, ?, ?)";
         $stmt = $mysqli->prepare($sql);
-        $stmt->bind_param("iii", $order_id, $prod_id, $quantity);
+        $stmt->bind_param("iiii", $order_id, $prod_id, $quantity, $branch_id);
         $stmt->execute();
     }
 
@@ -88,8 +98,7 @@ try {
     // Redirect to a success page with a message
     $_SESSION['success_message'] = "Your order has been placed successfully!";
     header("Location: summary.php");
-    session_write_close();  // Ensure the session is written and closed
-
+    session_write_close();
     exit();
 } catch (Exception $e) {
     // Rollback transaction on error
@@ -97,5 +106,4 @@ try {
     $_SESSION['error_message'] = "Failed to place the order: " . $e->getMessage();
     header("Location: ../cust_products.php");
     exit();
-}
-?>
+}?>

@@ -1,8 +1,18 @@
 <?php
 session_start();
-
 include('../connection.php');
 
+// Fetch the selected branch ID from the form or session (preserved across page refresh)
+$selectedBranch = isset($_POST['branch_id']) ? $_POST['branch_id'] : (isset($_SESSION['selected_branch']) ? $_SESSION['selected_branch'] : null);
+
+// Store the selected branch in the session to preserve it across page reloads
+if ($selectedBranch) {
+    $_SESSION['selected_branch'] = $selectedBranch;
+} else {
+    $_SESSION['selected_branch'] = null;
+}
+
+// Fetch user details (same as before)
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 
@@ -30,16 +40,32 @@ if (isset($_SESSION['username'])) {
     $_SESSION["login_id"] = null; // Set login_id to null or don't use it
 }
 
-// Fetch products
+// Modify the SQL query to filter by branch if selected
 $sql = "SELECT products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale AS prod_price, 
         products.prod_image_path, COALESCE(SUM(stocks.stock_quantity), 0) AS stock_quantity 
         FROM products 
-        JOIN stocks ON products.prod_id = stocks.prod_id
-        GROUP BY 
+        JOIN stocks ON products.prod_id = stocks.prod_id";
+
+if ($selectedBranch) {
+    // If a branch is selected, filter the products and stock by branch
+    $sql .= " WHERE stocks.branch_id = ?";
+}
+
+$sql .= " GROUP BY 
             products.prod_id, products.prod_brand, products.prod_name, products.prod_price_wholesale, products.prod_image_path
-        ORDER BY 
+         ORDER BY 
             prod_name ASC";
-$result = $mysqli->query($sql);
+
+// Prepare the statement based on whether a branch is selected
+if ($selectedBranch) {
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $selectedBranch);
+} else {
+    $stmt = $mysqli->prepare($sql);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
 
 $products = [];
 if ($result->num_rows > 0) {
@@ -65,8 +91,6 @@ usort($products, function ($a, $b) {
     return 0; // Both are in stock, keep original order
 });
 
-
-
 // Handle quantity update
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     $prod_id = $_POST['prod_id'];
@@ -78,16 +102,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_cart'])) {
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("iii", $quantity, $prod_id, $login_id);
     $stmt->execute();
-    $stmt->close();
 
     // Update stock quantity
     $sql = "UPDATE stocks SET stock_quantity = stock_quantity - ? WHERE prod_id = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("ii", $quantity, $prod_id);
     $stmt->execute();
-    $stmt->close();
 
-    // Redirect to avoid resubmission issues
+    // Set success message and avoid further redirects
+    $_SESSION['success_message'] = "Cart updated successfully!";
     header("Location: cust_products.php");
     exit();
 }
@@ -104,23 +127,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remove_item'])) {
     $stmt->execute();
     $result = $stmt->get_result();
     $quantity = $result->fetch_assoc()['quantity'];
-    $stmt->close();
 
     // Remove item from cart
     $sql = "DELETE FROM cart WHERE prod_id = ? AND login_id = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("ii", $prod_id, $login_id);
     $stmt->execute();
-    $stmt->close();
 
     // Update stock quantity
     $sql = "UPDATE stocks SET stock_quantity = stock_quantity + ? WHERE prod_id = ?";
     $stmt = $mysqli->prepare($sql);
     $stmt->bind_param("ii", $quantity, $prod_id);
     $stmt->execute();
-    $stmt->close();
 
-    // Redirect to avoid resubmission issues
+    // Redirect to the same page with error message
     header("Location: cust_products.php");
     exit();
 }
@@ -140,29 +160,90 @@ $result = $stmt->get_result();
 $cart = [];
 $subTotal = 0;
 
-while ($row = $result->fetch_assoc()) {
-    $totalPrice = $row['prod_price'] * $row['quantity'];
-    $subTotal += $totalPrice;
-    $cart[] = [
-        'prod_id' => $row['prod_id'],
-        'name' => $row['prod_name'],
-        'quantity' => $row['quantity'],
-        'price' => $row['prod_price']
-    ];
+// Calculate the subtotal only if there are items in the cart
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $totalPrice = $row['prod_price'] * $row['quantity'];
+        $subTotal += $totalPrice;
+        $cart[] = [
+            'prod_id' => $row['prod_id'],
+            'name' => $row['prod_name'],
+            'quantity' => $row['quantity'],
+            'price' => $row['prod_price']
+        ];
+    }
 }
+
 
 $cartIsEmpty = empty($cart);
 
+// Validate the cart items for the selected branch
+if ($selectedBranch) {
+    $sql = "SELECT cart.prod_id, cart.quantity, stocks.stock_quantity 
+                FROM cart 
+                JOIN stocks ON cart.prod_id = stocks.prod_id 
+                WHERE cart.login_id = ? AND stocks.branch_id = ?";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("ii", $login_id, $selectedBranch);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Fetch valid products for the selected branch
+    $validProducts = [];
+    while ($row = $result->fetch_assoc()) {
+        // Store product id, quantity in the cart, and stock quantity available in the selected branch
+        $validProducts[$row['prod_id']] = [
+            'cart_quantity' => $row['quantity'],
+            'stock_quantity' => $row['stock_quantity']
+        ];
+    }
+
+    // Check the cart items against valid products and their stock availability
+    foreach ($cart as $index => $item) {
+        if (!array_key_exists($item['prod_id'], $validProducts)) {
+            // Product is not available in the selected branch, remove it from the cart
+            $prod_id = $item['prod_id'];
+
+            // Remove invalid item from cart
+            $sql = "DELETE FROM cart WHERE prod_id = ? AND login_id = ?";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("ii", $prod_id, $login_id);
+            $stmt->execute();
+
+            // Remove the item from the $cart array
+            unset($cart[$index]);
+
+            // Set error message for the removed product (not available in the selected branch)
+            $_SESSION['error_message'] = "Some of the product was removed because it's not available in the selected branch.";
+        } elseif ($validProducts[$item['prod_id']]['stock_quantity'] <= 0) {
+            // Product exists but the stock is zero, remove it from the cart
+            $prod_id = $item['prod_id'];
+
+            // Remove invalid item from cart
+            $sql = "DELETE FROM cart WHERE prod_id = ? AND login_id = ?";
+            $stmt = $mysqli->prepare($sql);
+            $stmt->bind_param("ii", $prod_id, $login_id);
+            $stmt->execute();
+
+            // Remove the item from the $cart array
+            unset($cart[$index]);
+
+            // Set error message for the removed product (no stock in the selected branch)
+            $_SESSION['error_message'] = "Some of the product was removed because it's out of stock in the selected branch.";
+        }
+    }
+}
 
 
-$stmt->close();
-$mysqli->close();
 
 $successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
 $errorMessage = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
 unset($_SESSION['success_message'], $_SESSION['error_message']);
-?>
 
+// Close the statement at the end of the script
+$stmt->close();
+$mysqli->close();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -219,6 +300,16 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 <button class="filter-button" id="wholesaleBtn">
                     <img src="../../images/wholesale-icon.png" alt="Wholesale">WHOLESALE
                 </button>
+
+                <form method="POST" id="branchForm">
+                    <select class="branch-selector" id="branchSelector" name="branch_id" onchange="this.form.submit()">
+                        <option value="">Select Branch</option>
+                        <option value="1" <?php echo isset($selectedBranch) && $selectedBranch == 1 ? 'selected' : ''; ?>>Calero</option>
+                        <option value="2" <?php echo isset($selectedBranch) && $selectedBranch == 2 ? 'selected' : ''; ?>>Bauan</option>
+                        <option value="3" <?php echo isset($selectedBranch) && $selectedBranch == 3 ? 'selected' : ''; ?>>San Pascual</option>
+                    </select>
+                </form>
+
                 <div class="search-container">
                     <div class="search-wrapper">
                         <input type="text" placeholder="Search..." id="searchInput">
@@ -361,6 +452,11 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
                 </div>
             </div>
 
+            <?php if (!empty($errorMessage)): ?>
+                <div class="error-message">
+                    <?php echo htmlspecialchars($errorMessage); ?>
+                </div>
+            <?php endif; ?>
 
             <!-- Message Modal -->
             <div class="message-modal" id="checkoutAlertModal" style="display: <?php echo $successMessage || $errorMessage ? 'flex' : 'none'; ?>;">
@@ -677,6 +773,49 @@ unset($_SESSION['success_message'], $_SESSION['error_message']);
             deleteProdIdInput.value = prodId;
             deleteModal.style.display = 'block';
         }
+
+        document.getElementById("branchSelector").addEventListener("change", function() {
+            var branchId = this.value;
+
+            var formData = new FormData();
+            formData.append("branch_id", branchId);
+
+            fetch("your_php_file.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the product display based on the response
+                    var productGrid = document.querySelector(".product-grid");
+                    productGrid.innerHTML = ''; // Clear existing products
+
+                    if (data.products.length > 0) {
+                        data.products.forEach(function(product) {
+                            var productCard = document.createElement("div");
+                            productCard.classList.add("product-card");
+
+                            var stockQuantity = Math.max(0, product.stock_quantity);
+                            var outOfStock = stockQuantity === 0 ? "out-of-stock-overlay" : "";
+
+                            productCard.innerHTML = `
+                    <div class="${outOfStock}">OUT OF STOCK</div>
+                    <img src="${product.prod_image_path}" alt="${product.prod_name}">
+                    <h4>${product.prod_brand}</h4>
+                    <p>${product.prod_name}</p>
+                    <h3>₱ ${product.prod_price}</h3>
+                    <div class="stock-info">Current Stocks: ${stockQuantity}</div>
+                `;
+
+                            productGrid.appendChild(productCard);
+                        });
+                    } else {
+                        document.getElementById("noProductFound").style.display = "block";
+                    }
+                })
+                .catch(error => console.error('Error fetching products:', error));
+        });
+
 
         // Product search functionality
         document.addEventListener('DOMContentLoaded', () => {
