@@ -604,6 +604,18 @@ input[type="number"] {
     border: 1px solid #ccc;
 }
 
+button:disabled {
+    background-color: #ccc; /* Gray background for disabled button */
+    cursor: not-allowed;    /* Show 'not-allowed' cursor */
+    opacity: 0.5;           /* Make the button semi-transparent */
+}
+
+/* Style the image inside the disabled button */
+button:disabled img {
+    opacity: 0.5;           /* Reduce the opacity of the image to make it look faded */
+    filter: grayscale(100%); /* Apply grayscale filter to the image */
+}
+
 span.branch-name {
     font-weight: 600;
     margin: 5px 12px;

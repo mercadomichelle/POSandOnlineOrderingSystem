@@ -410,6 +410,13 @@ p.notif {
     background-color: #f9e07d;
 }
 
+.branch-selector {
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
 
 /* GRAPHS */
 /* canvas { */

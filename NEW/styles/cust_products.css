@@ -750,6 +750,14 @@ div#cart-items {
 }
 
 
+.branch-selector {
+    margin-right: 10px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+
 .loading-screen {
     display: none; 
     position: fixed;

@@ -36,14 +36,21 @@ if ($result->num_rows === 1) {
 
 
 // STOCKS NOTIFICATIONS
+
+$branch_id = $_SESSION['branch_id'];
+
 $sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, 
                COALESCE(SUM(s.stock_quantity), 0) AS stock_quantity 
         FROM products p 
         LEFT JOIN stocks s ON p.prod_id = s.prod_id
+        WHERE s.branch_id = ?
         GROUP BY p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path
         ORDER BY stock_quantity ASC";
 
-$result = $mysqli->query($sql);
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $branch_id); 
+$stmt->execute();
+$result = $stmt->get_result();
 
 $stocks = [];
 if ($result->num_rows > 0) {
@@ -57,7 +64,6 @@ if ($result->num_rows > 0) {
     echo "No stocks found.";
 }
 
-
 $lowStockNotifications = [];
 $outOfStockNotifications = [];
 
@@ -70,7 +76,6 @@ foreach ($stocks as $stock) {
 }
 
 $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
 
 
 

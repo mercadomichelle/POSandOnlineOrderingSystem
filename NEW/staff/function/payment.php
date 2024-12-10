@@ -33,11 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Store the entered payment amount in the session
     $_SESSION['payment_received'] = $enteredAmount;
-    
+
     $host = "localhost";
-    $user = "u883064514_admin";
-    $password = "~Ew5V+?ZYYVX";
-    $db = "u883064514_system_db";
+    $user = "root";
+    $password = "";
+    $db = "system_db";
 
     $mysqli = new mysqli($host, $user, $password, $db);
 

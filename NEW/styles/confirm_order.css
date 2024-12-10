@@ -447,6 +447,11 @@ img.delivery-icon {
     width: 100%;
 }
 
+.selected-branch {
+    display: flex;
+    justify-content: center;
+}
+
 .dropdown-selected {
     background-color: #fff9e3; 
     padding: 10px;     
