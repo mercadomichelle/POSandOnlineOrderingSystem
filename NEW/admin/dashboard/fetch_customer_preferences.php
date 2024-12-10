@@ -4,14 +4,13 @@
 session_start();
 include('../../connection.php');
 
-// Get the month, week, year, and branch parameters from the request
+// Get the month, year, and branch_id parameters from the request
 $month = isset($_GET['month']) ? (int)$_GET['month'] : date('m'); // Default to current month
-$year = isset($_GET['year']) ? (int)$_GET['year'] : date('Y'); // Default to current year
-$branch_id = isset($_GET['branch_id']) ? (int)$_GET['branch_id'] : $_SESSION["branch_id"]; // Get branch_id from the request or session
+$year = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');    // Default to current year
+$branch_id = isset($_GET['branch_id']) ? (int)$_GET['branch_id'] : $_SESSION["branch_id"]; // Use session if not provided
 
-// SQL query to fetch daily sales and rice variety data for the given month, year, and branch
-$sql =
-    "
+// SQL query to fetch daily sales and rice variety data
+$sql = "
     SELECT 
         p1.prod_name AS rice_variety,
         p2.prod_name AS alternative_variety,
@@ -37,81 +36,98 @@ $sql =
 
 // Prepare and execute the query
 $stmt = $mysqli->prepare($sql);
-$stmt->bind_param("iii", $month, $year, $branch_id); // Bind month, year, and branch_id parameters
+$stmt->bind_param("iii", $month, $year, $branch_id); // Bind parameters
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Initialize arrays for storing daily totals and rice varieties
+// Initialize arrays for storing data
 $daily_totals = [];
 $rice_variety_totals = [];
 $overall_variety_totals = [];
 
-// Fetch daily sales from the database
+// Process the result set
 while ($row = $result->fetch_assoc()) {
     $day = $row['order_day'];
     $variety = $row['rice_variety'];
     $alternative = $row['alternative_variety'];
     $quantity = $row['total_quantity'];
 
-    // Update total quantity for the day
-    if (!isset($daily_totals[$day])) {
-        $daily_totals[$day] = 0;
-    }
-    $daily_totals[$day] += $quantity;
+    // Track total quantity for the day
+    $daily_totals[$day] = ($daily_totals[$day] ?? 0) + $quantity;
 
-    // Update quantity for the specific rice variety on that day
-    if (!isset($rice_variety_totals[$day][$variety])) {
-        $rice_variety_totals[$day][$variety] = 0;
-    }
-    $rice_variety_totals[$day][$variety] += $quantity;
+    // Track quantity for each rice variety per day
+    $rice_variety_totals[$day][$variety] = ($rice_variety_totals[$day][$variety] ?? 0) + $quantity;
 
-    // Track overall totals for each variety
-    if (!isset($overall_variety_totals[$variety])) {
-        $overall_variety_totals[$variety] = 0;
+    // Track overall totals for each rice variety
+    $overall_variety_totals[$variety] = ($overall_variety_totals[$variety] ?? 0) + $quantity;
+
+    // Store alternative varieties as suggestions
+    if ($alternative && !isset($rice_variety_totals[$day][$alternative])) {
+        $rice_variety_totals[$day]["alternative_suggestions"][] = $alternative;
     }
-    $overall_variety_totals[$variety] += $quantity;
 }
 
-// Identify top three rice varieties based on overall popularity
-arsort($overall_variety_totals); // Sort to find the most popular
-$top_varieties = array_keys(array_slice($overall_variety_totals, 0, 5, true)); // Get the top 3 popular varieties
+// Identify top five rice varieties based on total popularity
+arsort($overall_variety_totals); // Sort in descending order
+$top_varieties = array_keys(array_slice($overall_variety_totals, 0, 5, true)); // Get top 5 varieties
 
-// Calculate percentages for each rice variety per day
-$response = []; // Initialize the final response array  
+// Prepare the response
+$response = [];
 
 foreach ($rice_variety_totals as $day => $varieties) {
-    $rice_percentages = []; // Reset for each day  
-    $alternatives = []; // Array to hold alternative varieties for this day  
-    $totalForDay = $daily_totals[$day]; // Total quantity for the day  
+    $rice_quantities = [];
+    $alternatives = [];
+    $totalForDay = $daily_totals[$day];
 
-    // First, calculate percentages for each top rice variety  
+    // Collect quantities for top rice varieties
     foreach ($top_varieties as $variety) {
-        $quantity = $varieties[$variety] ?? 0; // Use null coalescing operator  
-        $percent = ($quantity / $totalForDay) * 100;
-        $rice_percentages[$variety] = $percent;
+        $quantity = $varieties[$variety] ?? 0;
+        $rice_quantities[$variety] = $quantity;
     }
 
+    // Collect alternative rice varieties that are not in the day's sales
+    $alternatives = $varieties["alternative_suggestions"] ?? [];
+
+    // Collect total quantities for rice varieties not in the top varieties
     $alternativeQuantity = 0;
     foreach ($varieties as $variety => $quantity) {
-        if (!in_array($variety, $top_varieties)) {
+        if (!in_array($variety, $top_varieties) && $variety !== "alternative_suggestions") {
             $alternativeQuantity += $quantity;
-            $alternatives[] = $variety; // Add to alternatives array
         }
     }
 
-    $alternativePercent = ($alternativeQuantity / $totalForDay) * 100;
-    $rice_percentages["Alternative Rice"] = $alternativePercent;
+    $rice_quantities["Alternative Rice"] = $alternativeQuantity;
 
+    // Add data for this day
     $response[] = [
         'day' => $day,
-        'percentages' => $rice_percentages,
-        'alternatives' => $alternatives
+        'quantities' => $rice_quantities,
+        'alternatives' => $alternatives,
+        'insights' => generateInsights($day, $totalForDay, $varieties, $alternativeQuantity) // Add insights for each day
     ];
 }
 
-// Return the data as JSON
+// Generate insights for each day
+function generateInsights($day, $totalForDay, $varieties, $alternativeQuantity) {
+    if ($totalForDay > 100) {
+        return "On {$day}, there was a spike in rice sales.";
+    }
+    foreach ($varieties as $variety => $quantity) {
+        if ($quantity > 0 && $variety !== "alternative_suggestions") {
+            return "{$variety} was popular on {$day} with {$quantity} units sold.";
+        }
+    }
+    if ($alternativeQuantity > 0) {
+        return "On {$day}, alternative rice varieties saw notable interest with a total of {$alternativeQuantity} units sold.";
+    }
+    return "No significant insights for {$day}.";
+}
+
+
+// Return the JSON response
 header('Content-Type: application/json');
-echo json_encode($response, JSON_PRETTY_PRINT); // Pretty print for readability
+echo json_encode($response, JSON_PRETTY_PRINT);
 
 // Close the connection
 $mysqli->close();
+?>

@@ -3,7 +3,6 @@ session_start();
 include('../../connection.php');
 include('../../notifications.php');
 
-
 // Ensure the user is logged in
 if (!isset($_SESSION["username"])) {
     header("Location: ../../login.php");
@@ -29,6 +28,27 @@ if ($result->num_rows === 1) {
     $_SESSION["first_name"] = "Guest";
     $_SESSION["last_name"] = "";
     $_SESSION["branch_id"] = null;
+}
+
+// Fetch stock data for the user's branch, including product details
+
+$sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, 
+               COALESCE(SUM(s.stock_quantity), 0) AS stock_quantity 
+        FROM products p 
+        LEFT JOIN stocks s ON p.prod_id = s.prod_id
+        WHERE s.branch_id = ?
+        GROUP BY p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path
+        ORDER BY stock_quantity ASC";
+
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $branch_id); // Using the branch_id from session to filter the stock
+$stmt->execute();
+$stocks_result = $stmt->get_result();
+
+// Fetch all stocks in the array
+$stocks = [];
+while ($stock = $stocks_result->fetch_assoc()) {
+    $stocks[] = $stock;
 }
 
 
@@ -132,29 +152,29 @@ $mysqli->close();
 
             <div class="card">
                 <div class="stock-grid">
-                    <?php foreach ($stocks as $stock): ?>
-                        <div class="stock-card" data-stock="<?php echo htmlspecialchars($stock['stock_quantity']); ?>">
-                            <img src="<?php echo $stock['prod_image_path']; ?>" alt="<?php echo htmlspecialchars($stock['prod_name']); ?>">
-                            <h4><?php echo htmlspecialchars($stock['prod_brand']); ?></h4>
-                            <p><?php echo htmlspecialchars($stock['prod_name']); ?></p>
-                            <?php if ($stock['stock_quantity'] == 0): ?>
-                                <div class="stock-notification out-of-stock">OUT OF STOCK</div>
-                            <?php elseif ($stock['stock_quantity'] < 10): ?>
-                                <div class="stock-notification low-stock">LOW STOCK</div>
-                            <?php else: ?>
-                                <div class="stock-notification in-stock">IN STOCK</div>
-                            <?php endif; ?>
+                <?php foreach ($stocks as $stock): ?>
+    <div class="stock-card" data-stock="<?php echo htmlspecialchars($stock['stock_quantity']); ?>">
+        <img src="<?php echo $stock['prod_image_path']; ?>" alt="<?php echo htmlspecialchars($stock['prod_name']); ?>">
+        <h4><?php echo htmlspecialchars($stock['prod_brand']); ?></h4>
+        <p><?php echo htmlspecialchars($stock['prod_name']); ?></p>
+        <?php if ($stock['stock_quantity'] == 0): ?>
+            <div class="stock-notification out-of-stock">OUT OF STOCK</div>
+        <?php elseif ($stock['stock_quantity'] < 10): ?>
+            <div class="stock-notification low-stock">LOW STOCK</div>
+        <?php else: ?>
+            <div class="stock-notification in-stock">IN STOCK</div>
+        <?php endif; ?>
 
-                            <h3>Stock: <?php echo htmlspecialchars($stock['stock_quantity']); ?></h3>
+        <h3>Stock: <?php echo htmlspecialchars($stock['stock_quantity']); ?></h3>
 
-                            <div class="stock-actions">
-                                <button class="add-stock-button"
-                                    data-id="<?php echo htmlspecialchars($stock['prod_id']); ?>">
-                                    Add Stock
-                                </button>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+        <div class="stock-actions">
+            <button class="add-stock-button" data-id="<?php echo htmlspecialchars($stock['prod_id']); ?>">
+                Add Stock
+            </button>
+        </div>
+    </div>
+<?php endforeach; ?>
+
                 </div>
 
                 <div id="noStockFound" class="no-stock-found" style="display: none;">

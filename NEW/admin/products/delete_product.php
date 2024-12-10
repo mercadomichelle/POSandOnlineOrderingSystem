@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 include('../../connection.php');
 
 if (!isset($_SESSION["username"])) {
@@ -16,6 +15,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mysqli->begin_transaction();
 
     try {
+        // Delete related rows in the order_items table first (or update them if necessary)
+        $sql = "DELETE FROM order_items WHERE prod_id = ?";
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("i", $prod_id);
+        $stmt->execute();
+        $stmt->close();
+
         // Delete related rows in the alternative_varieties table
         $sql = "DELETE FROM alternative_varieties WHERE product_id = ?";
         $stmt = $mysqli->prepare($sql);

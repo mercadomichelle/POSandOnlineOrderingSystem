@@ -41,14 +41,21 @@ if ($result->num_rows === 1) {
 
 
 // STOCKS NOTIFICATIONS
+
+$branch_id = $_SESSION['branch_id'];
+
 $sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path, 
                COALESCE(SUM(s.stock_quantity), 0) AS stock_quantity 
         FROM products p 
         LEFT JOIN stocks s ON p.prod_id = s.prod_id
+        WHERE s.branch_id = ?
         GROUP BY p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path
         ORDER BY stock_quantity ASC";
 
-$result = $mysqli->query($sql);
+$stmt = $mysqli->prepare($sql);
+$stmt->bind_param("i", $branch_id);
+$stmt->execute();
+$result = $stmt->get_result();
 
 $stocks = [];
 if ($result->num_rows > 0) {
@@ -62,7 +69,6 @@ if ($result->num_rows > 0) {
     echo "No stocks found.";
 }
 
-
 $lowStockNotifications = [];
 $outOfStockNotifications = [];
 
@@ -75,7 +81,6 @@ foreach ($stocks as $stock) {
 }
 
 $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
 
 $currentMonth = date('m');
 $currentYear = date('Y');
@@ -97,6 +102,7 @@ $mysqli->close();
     <link rel="stylesheet" href="../styles/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Sulphur+Point:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
@@ -149,6 +155,7 @@ $mysqli->close();
                     <h3>Most Purchased Rice Varieties</h3>
                     <canvas id="mostPurchasedRiceChart" style="max-height: 200px;"></canvas>
                 </div>
+
                 <div class="card2">
                     <h3>Peak Buying Periods</h3>
                     <div class="sorting-container">
@@ -181,7 +188,7 @@ $mysqli->close();
                             <option value="">Select Year</option>
                             <script>
                                 const currentYear = new Date().getFullYear();
-                                for (let year = currentYear - 4; year <= currentYear; year++) {
+                                for (let year = currentYear - 1; year <= currentYear; year++) {
                                     document.write(`<option value="${year}">${year}</option>`);
                                 }
                             </script>
@@ -204,7 +211,7 @@ $mysqli->close();
                         <div class="card5">
                             <h3>Recommendation for Stock Allocation Per Branches</h3>
                             <div class="card6">
-                                <canvas id="stockAllocationChart" style="height: 180px; max-height: 180px;"></canvas>
+                                <canvas id="stockAllocationChart" style="height: 200px; max-height: 200px;"></canvas>
                             </div>
                         </div>
                     </div>
@@ -261,149 +268,7 @@ $mysqli->close();
         });
 
 
-        // CUSTOMER PREFERENCES
-        function fetchCustomerPreferences(month, week, year, branch_id) {
-            $.ajax({
-                url: 'dashboard/fetch_customer_preferences.php?timestamp=' + new Date().getTime(),
-                type: 'GET',
-                data: {
-                    month: month,
-                    week: week, // Pass the selected week
-                    year: year, // Pass the selected year
-                    branch_id: branch_id // Pass the branch_id from the session
-                },
-                dataType: 'json',
-                success: function(data) {
-                    var labels = [];
-                    var riceVarieties = {};
-                    var alternativeNames = {};
 
-                    const colorPalette = [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)',
-                        'rgba(32, 189, 103, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                    ];
-
-                    // Process the fetched data
-                    data.forEach(function(item) {
-                        if (!labels.includes(item.day)) {
-                            labels.push(item.day);
-                        }
-
-                        alternativeNames[item.day] = item.alternatives;
-
-                        Object.keys(item.percentages).forEach(function(variety) {
-                            if (!riceVarieties[variety]) {
-                                let backgroundColor, borderColor;
-                                const index = Object.keys(riceVarieties).length;
-
-                                if (variety === "Alternative Rice") {
-                                    backgroundColor = 'rgba(255, 159, 64, 0.8)';
-                                    borderColor = 'rgba(255, 159, 64, 1)';
-                                } else {
-                                    backgroundColor = colorPalette[index % colorPalette.length];
-                                    borderColor = colorPalette[index % colorPalette.length].replace('0.4', '1');
-                                }
-
-                                riceVarieties[variety] = {
-                                    label: variety,
-                                    data: [],
-                                    backgroundColor: backgroundColor,
-                                    borderColor: borderColor,
-                                    borderWidth: 1,
-                                    zIndex: 0
-                                };
-                            }
-
-                            riceVarieties[variety].data.push(item.percentages[variety]);
-                        });
-                    });
-
-                    var datasets = Object.values(riceVarieties);
-
-                    datasets.forEach(function(dataset) {
-                        dataset.totalValue = dataset.data.reduce((sum, value) => sum + value, 0);
-                    });
-
-                    datasets.sort((a, b) => a.totalValue - b.totalValue);
-
-                    datasets.forEach(function(dataset, index) {
-                        dataset.zIndex = index;
-                    });
-
-                    // Update the chart with the new data
-                    purchasePreferencesChart.data.labels = labels;
-                    purchasePreferencesChart.data.datasets = datasets;
-                    purchasePreferencesChart.update();
-
-                    purchasePreferencesChart.options.plugins.tooltip.callbacks.alternativeNames = alternativeNames;
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error fetching customer preferences:", error);
-                }
-            });
-        }
-
-
-        var ctx4 = document.getElementById('purchasePreferencesChart').getContext('2d');
-        var purchasePreferencesChart = new Chart(ctx4, {
-            type: 'bar',
-            data: {
-                labels: [], // Updated by the AJAX response
-                datasets: [] // Filled by the success callback
-            },
-            options: {
-                maintainAspectRatio: false, // Prevents Chart.js from enforcing aspect ratio
-                indexAxis: 'y', // Horizontal bar chart
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Percentage' // X-axis label
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        stacked: true // Stacked chart
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: {
-                            font: {
-                                size: 11
-                            },
-                            usePointStyle: true // Changes legend box to a circle
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                // Get the day index (label) to match it with alternative names
-                                var dayLabel = purchasePreferencesChart.data.labels[tooltipItem.dataIndex];
-                                var altNames = purchasePreferencesChart.options.plugins.tooltip.callbacks.alternativeNames;
-
-                                if (tooltipItem.dataset.label === "Alternative Rice") {
-                                    var alternatives = altNames[dayLabel] || []; // Fallback if no alternatives
-                                    var alternativeNamesList = alternatives.join(", ");
-                                    return `Alternative (${alternativeNamesList}): ${tooltipItem.raw.toFixed(2)}%`;
-                                }
-
-                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw.toFixed(2)}%`;
-                            }
-                        }
-                    }
-
-                }
-            }
-        });
-
-        
         function fetchSalesRevenue() {
             var selectedMonth = $('#monthSelector').val();
             var selectedWeek = $('#weekSelector').val();
@@ -432,6 +297,7 @@ $mysqli->close();
                         salesRevenueChart.data.datasets[1].data = result.in_store_wholesale;
                         salesRevenueChart.data.datasets[2].data = result.online_wholesale;
 
+                        // Update chart title based on selected period
                         if (selectedWeek) {
                             salesRevenueChart.options.scales.x.title.text = `Week ${selectedWeek}`;
                         } else if (selectedMonth) {
@@ -442,6 +308,55 @@ $mysqli->close();
                             salesRevenueChart.options.scales.x.title.text = 'Yearly';
                         }
 
+                        // Set tooltip callback with shorter insights and word wrapping
+                        salesRevenueChart.options.plugins.tooltip.callbacks = {
+                            label: function(tooltipItem) {
+                                var sales = tooltipItem.raw;
+                                var period = tooltipItem.label;
+                                var insight = "";
+                                var currentIndex = tooltipItem.dataIndex;
+                                var previousSales = currentIndex > 0 ? salesRevenueChart.data.datasets[tooltipItem.datasetIndex].data[currentIndex - 1] : null;
+
+                                // Shortened insights based on sales value
+                                if (sales > 20000) {
+                                    insight = "Sales on " + period + " are strong. Consider leveraging targeted promotions to maintain growth.";
+                                } else if (sales < 5000) {
+                                    insight = "Sales on " + period + " are low. Review marketing strategies or promotions to boost performance.";
+                                } else {
+                                    insight = "Sales for " + period + " are steady. Continue with current strategies to maintain momentum.";
+                                }
+
+                                // Comparison to the previous period (day, week, or month)
+                                if (previousSales !== null) {
+                                    const absoluteChange = sales - previousSales; // Absolute difference in sales
+
+                                    // Case when sales are higher than the previous period
+                                    if (absoluteChange > 0) {
+                                        insight += ` Sales increased by ₱${absoluteChange.toLocaleString()} compared to last period.`;
+                                    }
+                                    // Case when sales are lower than the previous period
+                                    else if (absoluteChange < 0) {
+                                        insight += ` Sales decreased by ₱${Math.abs(absoluteChange).toLocaleString()} compared to last period.`;
+                                    }
+                                    // Case when sales are the same as the previous period
+                                    else {
+                                        insight += " Sales are consistent with the previous period.";
+                                    }
+                                }
+
+                                // Wrap insight text if it's too long
+                                const wrappedInsights = wordWrap(insight, 60); // Wrap at 60 characters
+
+                                // Return the tooltip content with wrapped insights
+                                return [
+                                    period + ": ₱" + sales.toLocaleString(), // Sales display
+                                    ...wrappedInsights // Spread the wrapped insight lines into the array
+                                ];
+                            }
+                        };
+
+
+                        // Update the chart with new data
                         salesRevenueChart.update();
                     } else {
                         console.error("Data format error: Missing required fields.");
@@ -453,7 +368,13 @@ $mysqli->close();
             });
         }
 
+        // Word wrap function to split text into chunks based on max width
+        function wordWrap(str, maxWidth) {
+            const regex = new RegExp(`(.{1,${maxWidth}})(\\s|$)`, 'g');
+            return str.match(regex) || [str];
+        }
 
+        // Initialize the salesRevenueChart with gradients for each dataset
         var ctx3 = document.getElementById('salesRevenueChart').getContext('2d');
         var gradientRetail = ctx3.createLinearGradient(0, 0, 0, 400);
         gradientRetail.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
@@ -519,7 +440,7 @@ $mysqli->close();
                         display: true,
                         labels: {
                             font: {
-                                size: 11
+                                size: 12
                             },
                             usePointStyle: false,
                             boxWidth: 30,
@@ -529,7 +450,7 @@ $mysqli->close();
                     },
                     tooltip: {
                         bodyFont: {
-                            size: 10
+                            size: 12
                         }
                     }
                 },
@@ -544,12 +465,14 @@ $mysqli->close();
 
 
 
-        // PEAK BUYING PERIODS
+
+
+
         function fetchBuying() {
             var selectedMonth = $('#monthSelector').val();
             var selectedWeek = $('#weekSelector').val();
             var selectedYear = $('#yearSelector').val();
-            var branchId = <?php echo $_SESSION["branch_id"]; ?>; // Get branch_id from PHP session (No need for hidden input)
+            var branchId = <?php echo $_SESSION["branch_id"]; ?>;
 
             $.ajax({
                 url: 'dashboard/fetch_peak_buying_periods.php',
@@ -558,7 +481,7 @@ $mysqli->close();
                     month: selectedMonth,
                     week: selectedWeek,
                     year: selectedYear,
-                    branch_id: branchId // Send branch_id in the request
+                    branch_id: branchId
                 },
                 success: function(data) {
                     var result = JSON.parse(data);
@@ -566,6 +489,60 @@ $mysqli->close();
                     peakBuyingChart.data.labels = result.periods;
                     peakBuyingChart.data.datasets[0].data = result.total_sales;
 
+                    // Word wrap function to split text into chunks based on max width
+                    function wordWrap(str, maxWidth) {
+                        const regex = new RegExp(`(.{1,${maxWidth}})(\\s|$)`, 'g');
+                        return str.match(regex) || [str];
+                    }
+
+                    // Define tooltip callbacks
+                    var tooltipCallbacks = {
+                        label: function(tooltipItem) {
+                            var sales = tooltipItem.raw;
+                            var period = tooltipItem.label;
+                            var insight = "";
+                            var currentIndex = tooltipItem.dataIndex;
+                            var previousSales = currentIndex > 0 ? peakBuyingChart.data.datasets[0].data[currentIndex - 1] : null;
+
+                            // Base insight depending on sales value
+                            if (sales > 20000) {
+                                insight = "The sales on " + period + " are exceptionally high. Consider leveraging this momentum with targeted promotions.";
+                            } else if (sales < 5000) {
+                                insight = "Sales on " + period + " are relatively low. It might be beneficial to review marketing efforts or store promotions.";
+                            } else {
+                                insight = "The sales for " + period + " are in line with average trends, indicating steady customer interest.";
+                            }
+                            // Add comparison to the previous period (day, week, or month)
+                            if (previousSales !== null) {
+                                const absoluteChange = sales - previousSales; // Absolute difference in sales
+
+                                // Case when sales are higher than the previous period
+                                if (absoluteChange > 0) {
+                                    insight += ` Sales increased by ₱${absoluteChange.toLocaleString()} compared to last period, indicating growth.`;
+                                }
+                                // Case when sales are lower than the previous period
+                                else if (absoluteChange < 0) {
+                                    insight += ` Sales decreased by ₱${Math.abs(absoluteChange).toLocaleString()} compared to last period. Consider revising strategies.`;
+                                }
+                                // Case when sales are the same as the previous period
+                                else {
+                                    insight += " Sales are steady compared to last period, with no significant change.";
+                                }
+                            }
+
+
+                            // Wrap insight text if it's too long
+                            const wrappedInsights = wordWrap(insight, 60); // Wrap at 60 characters
+
+                            // Return the tooltip content
+                            return [
+                                period + ": ₱" + sales.toLocaleString(), // Sales display
+                                ...wrappedInsights // Spread the wrapped insight lines into the array
+                            ];
+                        }
+                    };
+
+                    // Adjust the X-axis label based on selected filters
                     if (selectedWeek) {
                         peakBuyingChart.options.scales.x.title.text = `Week ${selectedWeek}`;
                     } else if (selectedMonth) {
@@ -576,6 +553,9 @@ $mysqli->close();
                         peakBuyingChart.options.scales.x.title.text = 'Yearly';
                     }
 
+                    // Update tooltip
+                    peakBuyingChart.options.plugins.tooltip.callbacks = tooltipCallbacks;
+
                     peakBuyingChart.update();
                 },
                 error: function(xhr, status, error) {
@@ -583,6 +563,8 @@ $mysqli->close();
                 }
             });
         }
+
+
 
 
         var ctx2 = document.getElementById('peakBuyingChart').getContext('2d');
@@ -630,7 +612,7 @@ $mysqli->close();
                     },
                     tooltip: {
                         bodyFont: {
-                            size: 10
+                            size: 12
                         }
                     }
                 },
@@ -642,6 +624,9 @@ $mysqli->close();
                 }
             }
         });
+
+
+
 
 
         // FETCH MOST PURCHASED RICE VARIETIES DATA
@@ -663,6 +648,10 @@ $mysqli->close();
                         // Update chart data
                         chart.data.labels = result.riceVarieties;
                         chart.data.datasets[0].data = result.quantities;
+
+                        // Attach insights to chart meta for tooltip usage
+                        chart.data.datasets[0].insights = result.insights;
+
                         chart.update(); // Redraw the chart
                     } catch (error) {
                         console.error("Error parsing data:", error);
@@ -685,7 +674,8 @@ $mysqli->close();
                     data: [], // Dynamically filled
                     backgroundColor: ['#FABE7A', '#FF6B6B', '#80CED7', '#7D74FF', '#FDE47F'],
                     borderColor: ['#F4A261', '#FF4D4D', '#66B2FF', '#6A4CFF', '#FCD034'],
-                    borderWidth: 1
+                    borderWidth: 1,
+                    insights: [] // Store insights dynamically
                 }]
             },
             options: {
@@ -717,8 +707,38 @@ $mysqli->close();
                         display: false
                     },
                     tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                // Use the label as the title
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                // Retrieve relevant data
+                                var quantity = context.raw;
+                                var insights = context.dataset.insights || [];
+
+                                // Correctly access the insight for the current bar
+                                var insight = insights[context.dataIndex] || "No additional insights.";
+
+                                // Utility function to wrap text
+                                function wordWrap(str, maxWidth) {
+                                    const regex = new RegExp(`(.{1,${maxWidth}})(\\s|$)`, 'g');
+                                    return str.match(regex) || [str];
+                                }
+
+                                // Wrap insight text
+                                const wrappedInsights = wordWrap(insight, 60);
+
+                                // Combine data into tooltip
+                                return [
+                                    `Sold: ${quantity} units`,
+                                    `Insight:`,
+                                    ...wrappedInsights // Spread the wrapped insight lines into the array
+                                ];
+                            }
+                        },
                         bodyFont: {
-                            size: 10
+                            size: 12
                         }
                     }
                 },
@@ -729,11 +749,8 @@ $mysqli->close();
                     }
                 }
             }
+
         });
-
-
-
-
 
         // Function to get the current week number
         function getCurrentWeek() {
@@ -744,97 +761,287 @@ $mysqli->close();
         }
 
 
-        // STOCK ALLOCATION
-$.ajax({
-    url: 'dashboard/fetch_stock_allocation.php',
-    type: 'GET',
-    success: function(data) {
-        // console.log("Fetched data:", data);
 
-        const riceVarieties = data.riceVarieties || []; // Array of rice types
-        const branchStocks = data.branchStocks || {}; // Object: { riceType: stockQuantity }
-        const maxStocks = data.maxStocks || {}; // Object: { riceType: maxStock }
 
-        // Ensure valid data exists
-        if (branchStocks && riceVarieties.length > 0) {
-            const datasets = [
-                {
-                    label: 'Stocks',
-                    data: riceVarieties.map(rice => branchStocks[rice] || 0), // Single branch stock data
-                    backgroundColor: 'rgba(32, 189, 103, 0.8)', // You can adjust this color
-                    borderWidth: 1
+        // CUSTOMER PREFERENCES
+        function fetchCustomerPreferences(month, week, year, branch_id) {
+            $.ajax({
+                url: 'dashboard/fetch_customer_preferences.php?timestamp=' + new Date().getTime(),
+                type: 'GET',
+                data: {
+                    month: month,
+                    week: week, // Pass the selected week
+                    year: year, // Pass the selected year
+                    branch_id: branch_id // Pass the branch_id from the session
+                },
+                dataType: 'json',
+                success: function(data) {
+                    var labels = [];
+                    var riceVarieties = {};
+                    var alternativeNames = {};
+
+                    const colorPalette = [
+                        'rgba(255, 99, 132, 0.8)',
+                        'rgba(54, 162, 235, 0.8)',
+                        'rgba(75, 192, 192, 0.8)',
+                        'rgba(153, 102, 255, 0.8)',
+                        'rgba(32, 189, 103, 0.8)',
+                        'rgba(255, 205, 86, 0.8)',
+                    ];
+
+                    // Process the fetched data
+                    data.forEach(function(item) {
+                        if (!labels.includes(item.day)) {
+                            labels.push(item.day); // Add day to labels
+                        }
+
+                        // Store alternative suggestions for each day
+                        alternativeNames[item.day] = item.alternatives;
+
+                        // Populate riceVarieties with quantities
+                        Object.keys(item.quantities).forEach(function(variety) {
+                            if (!riceVarieties[variety]) {
+                                let backgroundColor, borderColor;
+                                const index = Object.keys(riceVarieties).length;
+
+                                if (variety === "Alternative Rice") {
+                                    backgroundColor = 'rgba(255, 159, 64, 0.8)';
+                                    borderColor = 'rgba(255, 159, 64, 1)';
+                                } else {
+                                    backgroundColor = colorPalette[index % colorPalette.length];
+                                    borderColor = colorPalette[index % colorPalette.length].replace('0.4', '1');
+                                }
+
+                                riceVarieties[variety] = {
+                                    label: variety,
+                                    data: [],
+                                    backgroundColor: backgroundColor,
+                                    borderColor: borderColor,
+                                    borderWidth: 1,
+                                    order: 0 // Initial order value
+                                };
+                            }
+
+                            riceVarieties[variety].data.push(item.quantities[variety]);
+                        });
+                    });
+
+                    var datasets = Object.values(riceVarieties);
+
+                    // Compute total values for sorting
+                    datasets.forEach(function(dataset) {
+                        dataset.totalValue = dataset.data.reduce((sum, value) => sum + value, 0);
+                    });
+
+                    // Sort datasets by totalValue in ascending order (smaller on top)
+                    datasets.sort((a, b) => a.totalValue - b.totalValue);
+
+                    // Reassign 'order' based on sorted values to control stacking
+                    datasets.forEach(function(dataset, index) {
+                        dataset.order = index; // Use order for stacking control
+                    });
+
+                    // Update the chart with the new data
+                    purchasePreferencesChart.data.labels = labels;
+                    purchasePreferencesChart.data.datasets = datasets;
+                    purchasePreferencesChart.update();
+                    purchasePreferencesChart.options.plugins.tooltip.callbacks = {
+                        label: function(tooltipItem) {
+                            var dataset = tooltipItem.dataset;
+                            var index = tooltipItem.dataIndex;
+                            var variety = dataset.label; // The rice variety
+                            var quantity = dataset.data[index]; // Quantity for this data point
+                            var day = purchasePreferencesChart.data.labels[index]; // Get the corresponding day
+
+                            // Fetch the day's data
+                            var dayData = data.find(item => item.day === day);
+                            var insights = dayData ? dayData.insights : "No insights available.";
+                            var alternativeRice = dayData && dayData.alternatives.length > 0 ? dayData.alternatives[0] : "No alternative";
+
+                            var label = [];
+
+                            if (variety === "Alternative Rice") {
+                                // Show alternative rice variety and insight with line breaks
+                                label.push(`Alternative Rice: ${alternativeRice}`);
+                                label.push(`Insight:\n${insights}`);
+                            } else {
+                                // Show regular rice variety and insight with line breaks
+                                label.push(`${variety}: ${quantity} units sold`);
+                                label.push(`Insight:\n${insights}`);
+                            }
+
+                            return label;
+                        }
+                    };
+
+
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching customer preferences:", error);
                 }
-            ];
+            });
+        }
 
-            // Max Stock Dataset (for comparison)
-            const maxStockDataset = {
-                label: 'Maximum Stock',
-                data: riceVarieties.map(rice => maxStocks[rice] || 0),
-                borderWidth: 2,
-                type: 'line',
-                fill: false,
-                pointStyle: 'circle',
-                pointRadius: 5,
-                pointBackgroundColor: 'black',
-                borderColor: 'gray' // Optional: set line color for max stock dataset
-            };
 
-            // Setup chart context
+        var ctx4 = document.getElementById('purchasePreferencesChart').getContext('2d');
+        var purchasePreferencesChart = new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: [], // Updated by the AJAX response
+                datasets: [] // Filled by the success callback
+            },
+            options: {
+                maintainAspectRatio: false, // Prevents Chart.js from enforcing aspect ratio
+                indexAxis: 'y', // Horizontal bar chart
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Quantity' // Updated X-axis label
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        stacked: true // Stacked chart for cumulative quantities
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            font: {
+                                size: 11
+                            },
+                            usePointStyle: true // Changes legend box to a circle
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Get the day index (label) to match it with alternative names
+                                var dayLabel = purchasePreferencesChart.data.labels[tooltipItem.dataIndex];
+                                var altNames = purchasePreferencesChart.options.plugins.tooltip.callbacks.alternativeNames;
+
+                                if (tooltipItem.dataset.label === "Alternative Rice") {
+                                    var alternatives = altNames[dayLabel] || ["No alternative available"]; // Fallback if no alternatives
+                                    var alternativeNamesList = alternatives.join(", ");
+                                    return `Alternative (${alternativeNamesList}): ${tooltipItem.raw} units`;
+                                }
+
+                                return `${tooltipItem.dataset.label}: ${tooltipItem.raw} units`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+
+
+
+
+
+
+
+        $(document).ready(function() {
+            // Initialize the chart
             const ctx = document.getElementById('stockAllocationChart').getContext('2d');
-            new Chart(ctx, {
+            const chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: riceVarieties,
-                    datasets: [...datasets, maxStockDataset]
+                    labels: [], // Empty initially
+                    datasets: [{
+                            label: 'Stocks',
+                            data: [],
+                            backgroundColor: 'rgba(128, 206, 215, 0.8)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Maximum Stock',
+                            data: [],
+                            borderWidth: 2,
+                            type: 'line',
+                            fill: false,
+                            pointStyle: 'circle',
+                            pointRadius: 5,
+                            pointBackgroundColor: 'red',
+                            borderColor: 'red',
+                            hoverBackgroundColor: 'red'
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2,
-                    plugins: {
-                        title: {
-                            display: false,
-                        },
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            labels: {
-                                usePointStyle: true,
-                                boxWidth: 10,
-                                filter: function(item, chart) {
-                                    // Filter out the "Maximum Stock" dataset from the legend
-                                    return item.text !== 'Maximum Stock';
-                                }
-                            }
+                    scales: {
+                        y: {
+                            beginAtZero: true
                         }
                     },
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                            },
-                            stacked: false, // Keep bars grouped
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Stock Quantity'
-                            },
-                            beginAtZero: true
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const riceType = chart.data.labels[tooltipItem.dataIndex];
+                                    const stock = chart.data.datasets[0].data[tooltipItem.dataIndex];
+                                    const recommendation = chart.data.datasets[1].data[tooltipItem.dataIndex];
+                                    const insights = tooltipItem.chart.$insights || {}; // Insights object
+                                    const insightText = insights[riceType] || "No insights available.";
+
+                                    // Utility function to split text into chunks
+                                    function wordWrap(str, maxWidth) {
+                                        const regex = new RegExp(`(.{1,${maxWidth}})(\\s|$)`, 'g');
+                                        return str.match(regex) || [str];
+                                    }
+
+                                    // Wrap insight text
+                                    const wrappedInsights = wordWrap(insightText, 60);
+
+                                    // Create the tooltip text
+                                    return [
+                                        `Rice Type: ${riceType}`,
+                                        `Stock: ${stock.toFixed(0)}`,
+                                        `Recommendation: `,
+                                        ...wrappedInsights // Spread the wrapped insight lines into the array
+                                    ];
+                                }
+
+                            }
                         }
                     }
                 }
             });
 
-        } else {
-            console.error("Invalid branchStocks or riceVarieties is empty.");
-        }
-    },
-    error: function(xhr, status, error) {
-        console.error('Error fetching stock allocation data:', error);
-    }
-});
+            $.ajax({
+                url: 'dashboard/fetch_stock_allocation.php',
+                type: 'GET',
+                success: function(data) {
+                    console.log("Received data:", data);
 
+                    const riceVarieties = data.riceVarieties || [];
+                    const branchStocks = data.branchStocks || {};
+                    const allocationRecommendations = data.allocationRecommendations || {};
+                    const insights = data.insights || {};
+
+                    // Attach insights to the chart instance
+                    chart.$insights = insights;
+
+                    // If the data is valid, update the chart
+                    if (data.riceVarieties && data.insights) {
+                        chart.$insights = data.insights; // Attach insights object
+                        chart.data.labels = data.riceVarieties;
+                        chart.data.datasets[0].data = data.riceVarieties.map(rice => data.branchStocks[rice] || 0);
+                        chart.data.datasets[1].data = data.riceVarieties.map(rice => data.allocationRecommendations[rice] || 0);
+                        chart.update();
+                    } else {
+                        console.error("API response invalid or missing required fields:", data);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching stock allocation data:', error);
+                }
+            });
+        });
     </script>
 
 
