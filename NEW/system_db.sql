@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Dec 05, 2024 at 07:36 PM
+-- Generation Time: Dec 10, 2024 at 08:39 PM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 8.2.0
 
@@ -65,8 +65,8 @@ CREATE TABLE `branches` (
 
 INSERT INTO `branches` (`branch_id`, `branch_name`) VALUES
 (1, 'Calero'),
-(2, 'San Pascual'),
-(3, 'Bauan');
+(2, 'Bauan'),
+(3, 'San Pascual');
 
 -- --------------------------------------------------------
 
@@ -105,10 +105,10 @@ CREATE TABLE `login` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `usertype` enum('admin','staff','customer','delivery') NOT NULL,
+  `usertype` enum('super-admin','admin','staff','customer','delivery') NOT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
-  `branch_id` int(11) UNSIGNED NOT NULL
+  `branch_id` int(11) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -125,14 +125,17 @@ INSERT INTO `login` (`id`, `username`, `password`, `usertype`, `first_name`, `la
 (22, 'custo', '$2y$10$e9TEI3dKGdozTkEX2pJ0EuUOKX8fDzKBKyMpivTnFwe8kfcYrvNYq', 'customer', 'custo', 'acc', 1),
 (23, 'staff3', '$2y$10$V/gJa0Ro.hX3X8AM1YMHnOIaTatSUzSmon5TVcy.6AFh4Zv5a.yGG', 'staff', 'joe', 'acc', 2),
 (25, 'user1', '$2y$10$4oC4.Z5RRMujYruF8b31veTXdCqiwJKomphRqCww41vZDICHkOmTm', 'customer', 'user', '1', 1),
-(26, 'staff123', '$2y$10$/WLnBjYn5a72q6oS98s6jeQPzrr5S2c6YxifgQEqUgTaQR3f7/e5G', 'staff', 'ASDASD', 'asdasd', 2),
+(26, 'staff1232', '$2y$10$/WLnBjYn5a72q6oS98s6jeQPzrr5S2c6YxifgQEqUgTaQR3f7/e5G', 'staff', 'ASDASD', 'asdasd', 2),
 (27, 'adsa', '$2y$10$1Id75vW23iFBE4ZDFW8ob.OOUzRBGsVn5MeinMgkfHMxw4.YAwyDe', 'staff', 'SP', 'Acc', 3),
 (28, 'userr12', '$2y$10$2hibPWKjnMoibj7xl/ddS.SEJB4S5JLOQk8pODiMPwhCqzXQ1nTAG', 'customer', 'user', 'user', 1),
 (29, 'user', '$2y$10$Tsa4aciCYuOKdskaKJWH8es6SOuE4Aembopqq3ldBotqwtI4Wx3sm', 'customer', 'asd', 'asd', 1),
 (30, 'bauan', '$2y$10$inI9f3qenc215e3gqjjxC.UiZAOX0EgqmDojP0YAf.faUCwZRzCU6', 'admin', 'Bauan', 'Branch', 2),
 (31, 'sanpascual', '$2y$10$inI9f3qenc215e3gqjjxC.UiZAOX0EgqmDojP0YAf.faUCwZRzCU6', 'admin', 'San Pascual', 'Branch', 3),
 (39, 'sp.staff', '$2y$10$RRh1UJFFu0a9wHE1j7uIZOEftS2zhsimrlcqfvF9FKKXDaQC8bcqC', 'staff', 'SP', 'Accs', 3),
-(41, 'cal.staff', '$2y$10$IAX6fm6UmgI2HB8KutSllO.0sUaoXxqtpmx80.JEdFqxUjiSvIwYW', 'staff', 'Calero', 'Staff', 1);
+(41, 'cal.staff', '$2y$10$IAX6fm6UmgI2HB8KutSllO.0sUaoXxqtpmx80.JEdFqxUjiSvIwYW', 'staff', 'Calero', 'Staff', 1),
+(44, 'admin', '$2y$10$inI9f3qenc215e3gqjjxC.UiZAOX0EgqmDojP0YAf.faUCwZRzCU6', 'super-admin', 'Admin', 'Account', NULL),
+(45, 'ASEWs', '$2y$10$d2kR9bUnA3QuWtB8fIxCsengN1IcNNDPVniVo3KLWGHcQ74IfQMwu', 'staff', 'ASDA', 'ASD', 1),
+(47, 'asddd', '$2y$10$cdabPiqi46ej541ywra8decFLpvp3kkXYRnpQtSCSM9hLXXQT8QhK', 'staff', 'asd', 'asd', 1);
 
 -- --------------------------------------------------------
 
@@ -5167,7 +5170,11 @@ INSERT INTO `orders` (`order_id`, `login_id`, `order_date`, `total_amount`, `ord
 (8288, 22, '2024-12-06', '10100.00', 'online', 'wholesale', 'Being Packed', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (8289, 22, '2024-12-06', '10030.00', 'online', 'wholesale', 'Being Packed', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
 (8290, 22, '2024-12-06', '9940.00', 'online', 'wholesale', 'Being Packed', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
-(8291, 2, '2024-12-06', '52.00', 'in-store', 'retail', 'Paid', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
+(8291, 2, '2024-12-06', '52.00', 'in-store', 'retail', 'Paid', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(8295, 22, '2024-12-07', '10840.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL),
+(8296, 22, '2024-12-07', '9910.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL),
+(8297, 22, '2024-12-07', '10540.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL),
+(8298, 29, '2024-12-07', '10260.00', 'online', 'wholesale', 'Pending', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -9531,7 +9538,16 @@ INSERT INTO `order_items` (`order_item_id`, `order_id`, `prod_id`, `quantity`, `
 (8291, 8289, 13, 1, 3),
 (8292, 8290, 13, 8, 3),
 (8293, 8291, 13, 1, 3),
-(8297, 0, 0, 0, 0);
+(8297, 0, 0, 0, 0),
+(8298, 8295, 2, 1, 3),
+(8299, 8295, 3, 7, 3),
+(8300, 8296, 8, 1, 1),
+(8301, 8296, 1, 4, 1),
+(8302, 8296, 6, 3, 1),
+(8303, 8297, 3, 4, 2),
+(8304, 8297, 7, 4, 2),
+(8305, 8298, 6, 4, 3),
+(8306, 8298, 3, 4, 3);
 
 -- --------------------------------------------------------
 
@@ -9563,7 +9579,7 @@ INSERT INTO `products` (`prod_id`, `prod_brand`, `prod_name`, `prod_price_wholes
 (9, 'Farmers Best', 'Sinandomeng', '1160.00', '48.00', '../../images/sacks/f_b_sinandomeng.png', '2024-11-23 15:26:23'),
 (10, 'Master Chef', ' Super Alsa', '1195.00', '49.00', '../../images/sacks/m_c_super_alsa.png', '2024-11-23 15:29:40'),
 (11, 'Master Chef', 'Hasmin', '1325.00', '55.00', '../../images/sacks/m_c_hasmin.png', '2024-11-23 15:30:25'),
-(13, 'Hasmin', 'Blossom', '1230.00', '52.00', '../../images/sacks/hasmin_blossom.png', '2024-11-23 15:41:25'),
+(13, 'Hasmin', 'Blossom', '1230.00', '53.00', '../../images/sacks/hasmin_blossom.png', '2024-11-23 15:41:25'),
 (14, 'Perfect Grain', 'Blue Hasmin', '1210.00', '51.00', '../../images/sacks/p_g_blue_hasmin.png', '2024-11-23 15:41:27');
 
 -- --------------------------------------------------------
@@ -9591,6 +9607,7 @@ INSERT INTO `profile` (`username`, `email`, `phone`, `address`, `city`, `zip_cod
 ('alfea', 'alfeasanchez7702@gmail.com', '09770821313', 'Calansayan, President Jose P. Laurel Highway, Calansayan, San Jose, Batangas, 4227, Philippines', 'San Jose', '4227', 13.8546, 121.092),
 ('custo', 'ASDASD@gmail.com', '09837474473', 'Anilao, Pagolingin East, 리파, Batangas, Calabarzon, 4217, Philippines', 'Lipa', '3434', NULL, NULL),
 ('Feya', 'alfeasanchez7702@gmail.com', '09770821313', '', 'San Jose', '4227', NULL, NULL),
+('user', 'ASDasd@gmail.com', '12321331231', 'Sitio Balugbog, Tinga Labac, Dalig, Batangas City, Batangas, Calabarzon, 4200, Philippines', 'Batangas City', '6744', NULL, NULL),
 ('user1', 'asdsad@gmail.com', '09837474473', 'Bungahan, Ibaan, Batangas, Calabarzon, 4230, Philippines', 'Ibaan', '6774', 13.8023, 121.129);
 
 -- --------------------------------------------------------
@@ -9619,7 +9636,9 @@ INSERT INTO `staff` (`staff_id`, `login_id`, `name`, `phone_number`, `email_addr
 (13, 26, 'ASDASD asdasd', '09837474473', 'asdsad@gmail.com', 'staff'),
 (14, 27, 'SP Acc', '09745282397', 'ASDasd@gmail.com', 'staff'),
 (15, 39, 'SP Accs', '09345345345', 'asdsad@gmail.com', 'staff'),
-(17, 41, 'Calero Staff', '09348384368', 'asdsad@gmail.com', 'staff');
+(17, 41, 'Calero Staff', '09348384368', 'asdsad@gmail.com', 'staff'),
+(18, 45, 'ASDA ASD', '43232532523', 'asdsad@gmail.com', 'staff'),
+(20, 47, 'asd asd', '09837474473', 'asdsad@gmail.com', 'staff');
 
 -- --------------------------------------------------------
 
@@ -9644,39 +9663,43 @@ INSERT INTO `stocks` (`stock_id`, `prod_id`, `stock_quantity`, `last_updated`, `
 (80, 2, 5, '2024-12-03 14:44:30', 2),
 (81, 1, 29, '2024-11-28 21:05:06', 2),
 (82, 6, 10, '2024-11-26 15:53:45', 2),
-(84, 2, 16, '2024-11-26 15:53:55', 3),
-(85, 3, 15, '2024-11-27 04:25:35', 3),
-(86, 6, 14, '2024-12-04 18:31:03', 1),
+(84, 2, 15, '2024-12-07 07:00:05', 3),
+(85, 3, 5, '2024-12-10 18:57:33', 3),
+(86, 6, 11, '2024-12-07 07:07:57', 1),
 (87, 2, 25, '2024-12-04 18:30:05', 1),
-(88, 3, 9, '2024-11-27 04:24:59', 3),
-(89, 3, 53, '2024-11-24 08:09:43', 2),
+(88, 3, -1, '2024-12-10 18:57:33', 3),
+(89, 3, 49, '2024-12-07 09:28:22', 2),
 (90, 3, 0, '2024-11-28 03:30:40', 1),
-(92, 6, 12, '2024-11-26 15:54:12', 3),
-(93, 6, 5, '2024-12-05 18:07:59', 3),
-(94, 1, 16, '2024-11-28 21:05:06', 1),
-(95, 1, 10, '2024-12-04 18:29:11', 1),
-(96, 3, 14, '2024-11-27 04:25:33', 3),
+(92, 6, 8, '2024-12-07 10:27:02', 3),
+(93, 6, 1, '2024-12-07 10:27:02', 3),
+(94, 1, 12, '2024-12-07 07:07:57', 1),
+(95, 1, 6, '2024-12-07 07:07:57', 1),
+(96, 3, 4, '2024-12-10 18:57:33', 3),
 (98, 11, 16, '2024-12-01 08:33:54', 1),
-(99, 10, 13, '2024-12-03 15:42:01', 1),
-(100, 7, 5, '2024-11-27 09:40:33', 1),
+(99, 10, 14, '2024-12-10 18:58:23', 1),
+(100, 7, 6, '2024-12-10 15:03:39', 1),
 (101, 9, 13, '2024-11-28 07:49:11', 1),
-(102, 8, 16, '2024-11-26 15:54:40', 1),
-(104, 13, 20, '2024-12-03 15:44:25', 1),
+(102, 8, 16, '2024-12-10 18:58:09', 1),
+(104, 13, 21, '2024-12-10 15:04:54', 1),
 (105, 1, 7, '2024-11-28 21:05:06', 3),
-(106, 7, 23, '2024-11-26 16:06:03', 2),
-(107, 7, 2, '2024-11-27 09:40:35', 1),
+(106, 7, 19, '2024-12-07 09:28:22', 2),
+(107, 7, 3, '2024-12-10 15:03:39', 1),
 (108, 7, 10, '2024-11-26 16:06:26', 3),
 (110, 9, 1, '2024-11-28 08:08:35', 1),
 (111, 9, 1, '2024-11-28 08:08:38', 1),
 (112, 6, 1, '2024-11-28 08:09:14', 2),
 (113, 1, 7, '2024-12-02 06:37:58', 3),
-(114, 7, 1, '2024-11-28 18:56:33', 2),
+(114, 7, -3, '2024-12-07 09:28:22', 2),
 (115, 10, 3, '2024-12-03 15:42:01', 3),
-(116, 7, 1, '2024-12-03 14:04:42', 1),
-(117, 7, 1, '2024-12-03 16:22:25', 1),
-(118, 7, 1, '2024-12-04 19:19:14', 1),
-(119, 7, 1, '2024-12-04 19:19:16', 1),
-(120, 7, 1, '2024-12-04 19:20:37', 1);
+(116, 7, 2, '2024-12-10 15:03:39', 1),
+(117, 7, 2, '2024-12-10 15:03:39', 1),
+(118, 7, 2, '2024-12-10 15:03:39', 1),
+(119, 7, 2, '2024-12-10 15:03:39', 1),
+(120, 7, 2, '2024-12-10 15:03:39', 1),
+(121, 7, 22, '2024-12-10 15:03:39', 1),
+(122, 2, 1, '2024-12-07 08:19:12', 2),
+(123, 6, 12, '2024-12-10 14:59:59', 1),
+(124, 6, 1, '2024-12-10 15:01:52', 1);
 
 --
 -- Indexes for dumped tables
@@ -9769,43 +9792,43 @@ ALTER TABLE `alternative_varieties`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=239;
+  MODIFY `cart_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=260;
 
 --
 -- AUTO_INCREMENT for table `login`
 --
 ALTER TABLE `login`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8295;
+  MODIFY `order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8299;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8298;
+  MODIFY `order_item_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8307;
 
 --
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
+  MODIFY `prod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `staff`
 --
 ALTER TABLE `staff`
-  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `staff_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `stocks`
 --
 ALTER TABLE `stocks`
-  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
+  MODIFY `stock_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=125;
 
 --
 -- Constraints for dumped tables
