@@ -31,6 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($row["usertype"] == "admin") {
                     header("Location: admin/admin.php");
                     exit();
+                } elseif ($row["usertype"] == "super-admin") {
+                    header("Location: super/super_admin.php");
+                    exit();
                 } elseif ($row["usertype"] == "staff") {
                     header("Location: staff/staff.php");
                     exit();
@@ -429,7 +432,7 @@ if ($mysqli) {
 
             if (username.length > 0) {
                 // Make an AJAX call to check if username exists
-                fetch('check_username.php?username=' + username)
+                fetch('check_user.php?username=' + username)
                     .then(response => response.json())
                     .then(data => {
                         if (data.exists) {

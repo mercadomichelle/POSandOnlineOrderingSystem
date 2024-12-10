@@ -53,8 +53,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             // Insert user into database (with hashed password)
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-            $stmt = $mysqli->prepare("INSERT INTO login (username, password, usertype, first_name, last_name) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $username, $hashed_password, $usertype, $first_name, $last_name);
+            $branch_id = 1; // Default to NULL since it's not being set
+            $stmt = $mysqli->prepare("INSERT INTO login (username, password, usertype, first_name, last_name, branch_id) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssi", $username, $hashed_password, $usertype, $first_name, $last_name, $branch_id);
 
             if ($stmt->execute()) {
                 $_SESSION["message"] = "Registration successful!";
@@ -69,7 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $mysqli->close();
-    header("Location: login.php");  
+    header("Location: login.php");
     exit();
 }
-?>

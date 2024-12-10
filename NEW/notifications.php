@@ -21,7 +21,7 @@ $sql = "SELECT p.prod_id, p.prod_brand, p.prod_name, p.prod_image_path,
         ORDER BY stock_quantity ASC";
 
 $stmt = $mysqli->prepare($sql);
-$stmt->bind_param("i", $branch_id); 
+$stmt->bind_param("i", $branch_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -49,5 +49,3 @@ foreach ($stocks as $stock) {
 }
 
 $notifications = array_merge($lowStockNotifications, $outOfStockNotifications);
-
-?>

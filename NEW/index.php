@@ -6,7 +6,7 @@ include('connection.php');
 if (isset($_SESSION["username"])) {
     $username = $_SESSION["username"];
 } else {
-    $username = null; 
+    $username = null;
 }
 
 if ($username) {
@@ -66,7 +66,7 @@ if ($username) {
                 <?php endif; ?>
             </nav>
         </div>
-        
+
         <div class="account-info">
             <?php if (isset($_SESSION["username"])): ?>
                 <span class="user-name"><?php echo htmlspecialchars($_SESSION["first_name"] . " " . $_SESSION["last_name"]); ?></span>
