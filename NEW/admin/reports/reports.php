@@ -145,7 +145,7 @@ $mysqli->close();
                             <option value="">Select Year</option>
                             <script>
                                 const currentYear = new Date().getFullYear();
-                                for (let year = currentYear - 4; year <= currentYear; year++) {
+                                for (let year = currentYear - 2; year <= currentYear; year++) {
                                     document.write(`<option value="${year}">${year}</option>`);
                                 }
                             </script>

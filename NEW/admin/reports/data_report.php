@@ -18,7 +18,7 @@ $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
 $startDate = '';
 $endDate = '';
 
-// Handle month and year filter
+// Check if month and year are selected, otherwise default to current month
 if (!empty($month) && !empty($year)) {
     // If both month and year are selected, filter by that specific month and year
     $startDate = "$year-$month-01";
@@ -35,6 +35,12 @@ if (!empty($month) && !empty($year)) {
     // Handle week filter
     $startDate = date("Y-m-d", strtotime($year . "W" . $week)); // Start date of the week
     $endDate = date("Y-m-d", strtotime($year . "W" . $week . "7")); // End date of the week
+} else {
+    // If no filters are set, default to the current month
+    $currentMonth = date('m'); // Get current month
+    $currentYear = date('Y');  // Get current year
+    $startDate = "$currentYear-$currentMonth-01";  // First day of the current month
+    $endDate = date("Y-m-t", strtotime($startDate)); // Last day of the current month
 }
 
 // Prepare the SQL query with the filters
@@ -146,7 +152,7 @@ if (!empty($month) && !empty($year)) {
                 <option value="">Select Year</option>
                 <?php
                     $currentYear = date('Y');
-                    $startYear = $currentYear - 4;
+                    $startYear = $currentYear - 1;
                     for ($yearOption = $startYear; $yearOption <= $currentYear; $yearOption++) {
                         $selected = ($year == $yearOption) ? 'selected' : '';
                         echo "<option value=\"$yearOption\" $selected>$yearOption</option>";

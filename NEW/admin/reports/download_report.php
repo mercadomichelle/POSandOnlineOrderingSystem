@@ -8,7 +8,7 @@ include('../../connection.php');
 
 // Get parameters from the request with default empty values
 $type = isset($_GET['type']) ? $_GET['type'] : '';
-$timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : '';
+$timeframe = isset($_GET['timeframe']) ? $_GET['timeframe'] : 'monthly'; // Default to 'monthly' if not set
 $source = isset($_GET['source']) ? $_GET['source'] : '';
 $branch_id = isset($_GET['branch_id']) ? $_GET['branch_id'] : '';
 
@@ -49,12 +49,9 @@ if (!empty($_GET['month']) && !empty($_GET['year'])) {
             die("Error: Invalid timeframe.");
     }
 } else {
-    die("Error: Missing timeframe, month, or year.");
-}
-
-// Check for missing parameters that are essential (e.g., type and source)
-if (empty($type) || empty($source)) {
-    die("Error: Missing parameters 'type' or 'source'.");
+    // Default to current month if no timeframe or date is provided
+    $startDate = date('Y-m-01');
+    $endDate = date('Y-m-t');
 }
 
 // Set headers for CSV download
@@ -79,7 +76,7 @@ $sql = "
     WHERE o.order_date BETWEEN '$startDate' AND '$endDate'
 ";
 
-// Apply additional filters if set
+// Apply filters only if they are set
 if (!empty($type)) {
     $sql .= " AND o.order_type = '$type'"; // Filter by order type (wholesale or retail)
 }
@@ -87,7 +84,7 @@ if (!empty($source)) {
     $sql .= " AND o.order_source = '$source'"; // Filter by order source (e.g., in-store, online)
 }
 if (!empty($branch_id)) {
-    $sql .= " AND oi.branch_id = '$branch_id'"; // Filter by branch
+    $sql .= " AND oi.branch_id = '$branch_id'"; // Filter by branch if provided
 }
 
 // Sort by order_date in descending order (most recent first)
